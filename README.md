@@ -50,7 +50,7 @@ pip install -r requirements.txt
 ### 1.4 验证环境
 
 ```bash
-python -m pytest tests/ -q        # 期望输出: 31 passed
+python -m pytest tests/ -q        # 期望输出: 67 passed
 ```
 
 ---

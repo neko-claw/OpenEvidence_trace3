@@ -42,9 +42,26 @@ def citation_precision(text: str, n_evidence: int) -> float:
     return len(valid) / total
 
 
-def split_claims(answer: str, run_id: str) -> list[dict]:
+def split_claims(answer: str, run_id: str, n_evidence: int | None = None,
+                 n_search: int | None = None) -> list[dict]:
     """把回答按行拆成候选 Claim（P0 简化：按"证据说明"章节的列表项拆分，绑定 [E#]/[S#] 引用）。
-    正式实现应由生成模型返回结构化 Claim[]；此处为确定性回退，保证主终点可算。"""
+
+    正式实现应由生成模型返回结构化 Claim[]；此处为确定性回退，保证主终点可算。
+
+    decision 判定（v0.1 口径 = 引用编号存在性，报告需披露）：
+    - supported    ：claim 至少含一个有效 [E#]（1..n_evidence）或 [S#]（1..n_search）
+    - insufficient ：有证据上下文但 claim 无有效引用（相关但不支持 / 未引用）
+    - pending      ：无证据上下文（A 条件不强制引用，留给 judge/人工判定）
+
+    verification_method 恒为 "citation_existence"；语义支持性（Gate 5）由 B5/judge 补充。
+    """
+    def _valid(ids: list[str], n: int | None) -> bool:
+        """ids 为非空且都在 1..n 范围内（n 为 None 时不限制）。extract_citations 返回字符串编号。"""
+        if not ids or n is None:
+            return bool(ids)
+        return all(1 <= int(i) <= n for i in ids)
+
+    has_ctx = (n_evidence or 0) > 0 or (n_search or 0) > 0
     claims = []
     n = 0
     for line in answer.splitlines():
@@ -54,11 +71,19 @@ def split_claims(answer: str, run_id: str) -> list[dict]:
             text = line.lstrip("-* ")
             e_ids = extract_citations(text)
             s_ids = extract_search_citations(text)
+            if _valid(e_ids, n_evidence) or _valid(s_ids, n_search):
+                decision = "supported"
+            elif has_ctx:
+                decision = "insufficient"
+            else:
+                decision = "pending"
             claims.append(Claim(
                 claim_id=f"{run_id}_c{n}", run_id=run_id, text=text,
                 criticality="important",
                 # P0 简化：evidence_ids 暂存引用编号（E1/S1），Score 阶段按 retrieved_evidence 映射回证据 ID
                 evidence_ids=[f"E{i}" for i in e_ids] + [f"S{i}" for i in s_ids],
+                decision=decision,
+                verification_method="citation_existence",
             ).to_dict())
     return claims
 
