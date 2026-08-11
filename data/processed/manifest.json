@@ -1,6 +1,6 @@
 {
-  "dataset_version": "v0.2.0",
-  "created_at": "2026-08-11T05:53:02+00:00",
+  "dataset_version": "v0.1.0",
+  "created_at": "2026-08-11T02:49:06+00:00",
   "corpus_cutoff": "2026-08-11",
   "source_datasets": [
     "PubMed (E-utilities esearch/efetch, abstracts)",
@@ -14,17 +14,11 @@
     "EuropePMC": "Records metadata freely available; full-text only for OPEN_ACCESS articles",
     "guidelines": "教学使用；仅保存书目元数据与公开摘要，不保存版权全文"
   },
-  "storage_layout": {
-    "evidence.jsonl": "主集：题录/摘要 + 试验 + 指南（用于检索召回）",
-    "fulltext_chunks.jsonl": "增强层：Europe PMC OA 全文分块（用于生成/验证时按需增强）",
-    "evidence.db": "SQLite：主集与全文 chunk 同表，record_kind 区分；供检索层查询"
-  },
   "split_hashes": {
-    "evidence.jsonl": "39dd9e7098d2213e47b2e71f764cc07097d8f0c069c761293b0ab57183ea45cb",
-    "fulltext_chunks.jsonl": "b83e27250713a55e2434d92f1f2ae060c501ec5a422a9099f117a4215eda5431"
+    "evidence.jsonl": "54fea31d70d013f3d152382d120b7c563d851deab95605c9ec4bcf1f79638033"
   },
   "source_group_policy": "跨源去重：PubMed 与 Europe PMC 以 PMID 为稳定键；试验以 NCT ID；指南以人工 key",
-  "dedup_method": "PMID/NCT/guideline-key 唯一键 + 跨源同 PMID 合并（指南>PubMed>Europe PMC）",
+  "dedup_method": "PMID/NCT/guideline-key 唯一键 + title+abstract content_hash 校验",
   "dedup_threshold": null,
   "topics": [
     "hypertension",
@@ -33,38 +27,8 @@
   "record_counts": {
     "abstract": 8624,
     "trial": 1541,
-    "guideline": 18,
-    "fulltext_chunk": 12023
-  },
-  "chunk_policy": {
-    "max_chars_per_chunk": 4000,
-    "overlap_chars": 150,
-    "cap_per_article": 20,
-    "min_chunk_chars": 50,
-    "section_aware": true,
-    "skip_sections": [
-      "abbreviations",
-      "acknowledgements",
-      "acknowledgment",
-      "author information",
-      "competing interests",
-      "conflict of interest",
-      "conflicts of interest",
-      "data availability statement",
-      "declarations",
-      "ethics approval",
-      "ethics statement",
-      "funding",
-      "references",
-      "supplementary materials"
-    ]
-  },
-  "processing_stats": {
-    "dedup_merged": 14,
-    "title_only": 391,
-    "tiny_chunks_dropped": 60,
-    "xml_parse_failed": [],
-    "cross_source_dups": 274
+    "fulltext_chunk": 0,
+    "guideline": 18
   },
   "pipeline": "cd OpenEvidence && python -m ingestion.run_all",
   "generator": "ingestion.build_db.write_manifest"

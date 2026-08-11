@@ -1,0 +1,12 @@
+{
+  "fixture_version": "fixture-v0.1",
+  "source_manifest": "data/processed/manifest.json",
+  "source_evidence_sha256": "c1aee0513d526b199836687595ecaed11a35d34fc58b2614218a367f8e726fb2",
+  "record_count": 22,
+  "question_count": 10,
+  "qrel_count": 37,
+  "synthetic_records": [
+    "fixture:untrusted-prompt-injection-001"
+  ],
+  "purpose": "B4 offline retrieval, full-system and stress diagnostics"
+}
