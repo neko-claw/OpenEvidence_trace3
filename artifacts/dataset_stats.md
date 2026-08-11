@@ -1,22 +1,22 @@
 # 数据集统计报告
 
-生成时间：2026-08-11T05:45:26+00:00
+生成时间：2026-08-11T05:53:02+00:00
 
 ## 总量
-- 证据记录总数：**21790**
+- 证据记录总数：**22206**
 - **文献/证据篇数（去重口径）：10183**
   - PubMed 摘要：7933
   - Europe PMC 独有摘要：691
   - ClinicalTrials.gov 试验：1541
   - 人工确认指南：18
 - 唯一 PMID 数：8583
-- 全文增强层（Europe PMC OA）：696 篇 / 11607 个 chunk
+- 全文增强层（Europe PMC OA）：696 篇 / 12023 个 chunk
   （存于 data/processed/fulltext_chunks.jsonl，生成/验证时按需加载）
 
 ## 数据处理（改进后口径）
 - 跨源同 PMID 合并删除记录数：14
 - 无摘要回退为标题（title_only）：391
-- 过短 chunk 丢弃：105
+- 过短 chunk 丢弃：60
 - XML 解析失败（隔离）：[]
 
 ## 按记录类型
@@ -24,20 +24,20 @@
   "abstract": 8624,
   "trial": 1541,
   "guideline": 18,
-  "fulltext_chunk": 11607
+  "fulltext_chunk": 12023
 }
 
 ## 按来源
 {
   "pubmed": 7933,
   "clinicaltrial": 1541,
-  "europepmc": 12298,
+  "europepmc": 12714,
   "guideline": 18
 }
 
 ## 按证据等级
 {
-  "other": 16856,
+  "other": 17272,
   "meta-analysis": 929,
   "review": 1192,
   "systematic-review": 429,
@@ -48,15 +48,15 @@
 
 ## 按主题
 {
-  "hypertension": 14669,
-  "lipids": 9487
+  "hypertension": 14975,
+  "lipids": 9612
 }
 
 ## 按年份（Top 15）
 {
-  "2026": 11028,
-  "2025": 7378,
-  "2024": 1025,
+  "2026": 11196,
+  "2025": 7606,
+  "2024": 1045,
   "2020": 225,
   "2019": 216,
   "2018": 209,

@@ -12,3 +12,4 @@ include = ["ingestion*"]
 
 [project.optional-dependencies]
 retrieval = ["rank-bm25>=0.2", "chromadb>=0.4"]
+test = ["pytest>=7.0"]

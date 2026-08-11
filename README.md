@@ -8,7 +8,7 @@
 | 交付物 | 路径 | 说明 |
 |---|---|---|
 | 统一证据集（主集） | `data/processed/evidence.jsonl` | 10,183 条题录/摘要 + 试验 + 指南（用于检索召回） |
-| 全文增强层 | `data/processed/fulltext_chunks.jsonl` | **11,607 条 Europe PMC OA 全文分块（696 篇，小节感知 + 句子边界 + 重叠）**，生成/验证时按需加载 |
+| 全文增强层 | `data/processed/fulltext_chunks.jsonl` | **12,023 条 Europe PMC OA 全文分块（696 篇，小节感知 + 句子边界 + 重叠）**，生成/验证时按需加载 |
 | 证据数据库 | `data/processed/evidence.db` | SQLite 索引（主集+全文 chunk 同表，`record_kind` 区分） |
 | 数据集清单 | `data/processed/manifest.json` | DatasetManifest（版本、来源、去重策略、哈希、分块策略、处理统计） |
 | 统计报告 | `artifacts/dataset_stats.md` / `.json` | 全量统计 |
@@ -23,7 +23,7 @@
   - Europe PMC 独有摘要：691
   - ClinicalTrials.gov 干预性试验：**1,541**（NCT 去重）
   - 人工确认指南：**18**（14 条已用 PubMed 真实记录回填 PMID/DOI）
-- **全文增强层**：Europe PMC OA **全文 696 篇 / 11,607 个分块**，其中 667 篇与 PubMed 摘要双覆盖
+- **全文增强层**：Europe PMC OA **全文 696 篇 / 12,023 个分块**，其中 667 篇与 PubMed 摘要双覆盖
   （meta-analysis / rct / systematic-review 带全文，是生成与验证的关键支撑）
 - 证据等级分布：guideline 221 / systematic-review 429 / meta-analysis 929 / rct 598 / review 1,192 / clinical-trial 1,565 / other 16,856
 - 主题覆盖：hypertension 14,669 条、lipids 9,487 条（可重叠）
@@ -38,7 +38,7 @@
 |---|---|---|---|
 | PubMed | E-utilities（esearch/efetch） | 35 组检索式（指南/系统综述/Meta/RCT/细分主题/经典证据），按 PMID 去重后批量 efetch 摘要 | 7,933 条摘要 |
 | ClinicalTrials.gov | Data API v2 | `query.cond`（hypertension / dyslipidemia OR hyperlipidemia OR hypercholesterolemia OR hypertriglyceridemia），`filter.advanced=AREA[StudyType]INTERVENTIONAL` | 1,541 项试验 |
-| Europe PMC | REST API | OA 系统综述/指南/试验检索（与 PubMed 按 PMID 去重）+ 全文 XML 下载与分块 | 691 摘要 + 11,607 chunk |
+| Europe PMC | REST API | OA 系统综述/指南/试验检索（与 PubMed 按 PMID 去重）+ 全文 XML 下载与分块 | 691 摘要 + 12,023 chunk |
 | 指南（人工确认） | — | 人工确认权威指南清单 + 用 PubMed 检索回填元数据（见 §6） | 18 条 |
 
 ### 检索式覆盖的题型（对应实施规划 3.3 路由矩阵）

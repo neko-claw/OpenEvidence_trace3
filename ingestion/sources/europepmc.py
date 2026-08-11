@@ -72,18 +72,30 @@ _CITE_BRACKET_RE = re.compile(r"\[\s*[\d,\s;\-–—]*\]")
 
 def _strip_math_xrefs(root) -> None:
     """在解析后的树上：移除 <xref>（bibr/fig/table/fn/aff 交叉引用标记），
-    把数学公式替换为 [MATH] 占位符（只处理最外层，避免嵌套重复）。"""
+    把数学公式替换为 [MATH] 占位符（只处理最外层，避免嵌套重复）。
+
+    注意：Element.remove/clear 会同时丢弃子元素的 tail 文本，必须先把 tail
+    并回父元素 text，否则 xref/公式之后的正文会丢失。
+    """
+    pending_xrefs, pending_math = [], []
     for parent in root.iter():
         for child in list(parent):
-            if _local_name(child.tag) == "xref":
-                parent.remove(child)
-    for parent in root.iter():
-        for child in list(parent):
-            if _local_name(child.tag) in _MATH_TAGS:
+            name = _local_name(child.tag)
+            if name == "xref":
+                pending_xrefs.append((parent, child))
+            elif name in _MATH_TAGS:
                 if _local_name(parent.tag) in _MATH_TAGS:  # 嵌套由外层处理
                     continue
-                child.clear()
-                child.text = "[MATH]"
+                pending_math.append((parent, child))
+    for parent, child in pending_xrefs:
+        if child.tail:
+            parent.text = (parent.text or "") + child.tail
+        parent.remove(child)
+    for parent, child in pending_math:
+        tail = child.tail or ""
+        child.clear()
+        child.text = ("[MATH] " + tail).strip() if tail else "[MATH]"
+        # 确保占位符出现在父文本流中（itertext 会读取该元素 text）
 
 
 def _norm_sec_title(title: str) -> str:
@@ -111,9 +123,10 @@ def _table_text(table_wrap) -> str:
 
 
 def _clean_para(txt: str) -> str:
-    """段落后处理：去除引用编号括号残留、压缩连续 [MATH] 占位符。"""
+    """段落后处理：去除引用编号括号残留、压缩连续 [MATH] 占位符与空白。"""
     txt = _CITE_BRACKET_RE.sub("", txt)
     txt = re.sub(r"(?:\[MATH\]\s*)+", "[MATH] ", txt)
+    txt = re.sub(r"\s+", " ", txt)
     return txt.strip()
 
 
@@ -244,7 +257,7 @@ def chunk_sections(sections, max_chars=4000, cap=20, skip=(), overlap_chars=150)
         for body, start, end in _chunk_section_text(text, max_chars, overlap_chars):
             chunks.append({
                 "text": prefix + body,
-                "section": sec_title or "",
+                "section": sec_title or "(untitled)",
                 "start": start,
                 "end": end,
             })

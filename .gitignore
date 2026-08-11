@@ -5,3 +5,7 @@ __pycache__/
 *.pyc
 .env
 .venv/
+
+# 实验运行产物与图表不入库（可重建）
+data/experiments/
+artifacts/*.png

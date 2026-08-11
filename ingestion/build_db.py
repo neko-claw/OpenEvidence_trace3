@@ -48,6 +48,7 @@ CREATE INDEX IF NOT EXISTS idx_ev_nct  ON evidence(nct_id);
 CREATE INDEX IF NOT EXISTS idx_ev_kind ON evidence(record_kind);
 CREATE INDEX IF NOT EXISTS idx_ev_level ON evidence(evidence_level);
 CREATE INDEX IF NOT EXISTS idx_ev_year ON evidence(year);
+CREATE INDEX IF NOT EXISTS idx_ev_pmcid ON evidence(pmcid);  -- 全文 chunk 按 pmcid 定位
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
 """
 
@@ -87,6 +88,10 @@ def build_db(lines, force: bool = False):
         rows)
     conn.execute("INSERT OR REPLACE INTO meta VALUES ('evidence_count', ?)",
                  (str(len(rows)),))
+    conn.execute("INSERT OR REPLACE INTO meta VALUES ('dataset_version', ?)",
+                 ("v0.2.0",))
+    conn.execute("INSERT OR REPLACE INTO meta VALUES ('built_at', ?)",
+                 (datetime.now(timezone.utc).isoformat(timespec="seconds"),))
     conn.commit()
     conn.close()
     log.info("SQLite written: %d rows -> %s", len(rows), config.EVIDENCE_DB)

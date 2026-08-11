@@ -1,6 +1,6 @@
 {
   "dataset_version": "v0.2.0",
-  "created_at": "2026-08-11T05:45:26+00:00",
+  "created_at": "2026-08-11T05:53:02+00:00",
   "corpus_cutoff": "2026-08-11",
   "source_datasets": [
     "PubMed (E-utilities esearch/efetch, abstracts)",
@@ -20,8 +20,8 @@
     "evidence.db": "SQLite：主集与全文 chunk 同表，record_kind 区分；供检索层查询"
   },
   "split_hashes": {
-    "evidence.jsonl": "4c16e33cf9a5ee26f1ee41821612eee165eba6a79a4cb9770e1f360a2eb93a85",
-    "fulltext_chunks.jsonl": "87ea262fd0f687c6a0bc6776d63ae139152594ddeba9ba4d2d8b12cc2c9572f8"
+    "evidence.jsonl": "39dd9e7098d2213e47b2e71f764cc07097d8f0c069c761293b0ab57183ea45cb",
+    "fulltext_chunks.jsonl": "b83e27250713a55e2434d92f1f2ae060c501ec5a422a9099f117a4215eda5431"
   },
   "source_group_policy": "跨源去重：PubMed 与 Europe PMC 以 PMID 为稳定键；试验以 NCT ID；指南以人工 key",
   "dedup_method": "PMID/NCT/guideline-key 唯一键 + 跨源同 PMID 合并（指南>PubMed>Europe PMC）",
@@ -34,7 +34,7 @@
     "abstract": 8624,
     "trial": 1541,
     "guideline": 18,
-    "fulltext_chunk": 11607
+    "fulltext_chunk": 12023
   },
   "chunk_policy": {
     "max_chars_per_chunk": 4000,
@@ -62,7 +62,7 @@
   "processing_stats": {
     "dedup_merged": 14,
     "title_only": 391,
-    "tiny_chunks_dropped": 105,
+    "tiny_chunks_dropped": 60,
     "xml_parse_failed": [],
     "cross_source_dups": 274
   },
