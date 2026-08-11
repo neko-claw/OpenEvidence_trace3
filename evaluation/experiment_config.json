@@ -58,8 +58,8 @@
   },
   "e_perturbation": {
     "ref": "evaluation/preregistration/e_perturbation_rules.json",
-    "baseline_condition": "C",
-    "note": "E 条件只在 20 道 STRESS 题上执行，单独报告"
+    "baseline_condition": "B",
+    "note": "E 条件只在 20 道 STRESS 题上执行，单独报告；劣化候选集在 B 基线初检结果上按预注册规则派生（与协议 §2 / e_perturbation_rules.json 一致）"
   },
   "repeat_subset": {
     "count": 20,

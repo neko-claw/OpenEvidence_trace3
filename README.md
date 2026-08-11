@@ -4,7 +4,7 @@
 > 对比**纯通用大模型**与**带领域知识库的 RAG 系统**在同一批医学问题上的表现
 > ⚠️ 仅供教学研究，不用于临床诊疗；不处理真实患者数据
 
-本项目已内置 **11630 条多源证据库**（PubMed 7295 + Europe PMC 2776 + ClinicalTrials 1541 + 指南 18，由 `ingestion/` 数据管线采集并带 `manifest.json`），**不用采集数据即可直接运行**。
+本项目已内置 **10183 条多源证据库**（PubMed 7,933 + Europe PMC 独有 691 + ClinicalTrials 1,541 + 指南 18，由 `ingestion/` 数据管线采集并带 `manifest.json`），**不用采集数据即可直接运行**。
 
 ---
 
@@ -50,7 +50,7 @@ pip install -r requirements.txt
 ### 1.4 验证环境
 
 ```bash
-python -m pytest tests/ -q        # 期望输出: 31 passed
+python -m pytest tests/ -q        # 期望输出: 51 passed
 ```
 
 ---
@@ -111,7 +111,7 @@ python -m streamlit run app.py
 | 🎯 单题问答 | 输入医学问题，选条件 A/B/C/D 运行，看回答/引用/来源/轨迹 |
 | ⚡ 批量实验 | 选择题集 + 条件一键跑，实时进度 + 结果表 |
 | 📊 评测结果 | 均值对比、配对差值图、按题型分组、原始评分 |
-| 🗂 题集与证据库 | 浏览题集与 11630 条证据，实时检索 |
+| 🗂 题集与证据库 | 浏览题集与 10183 条证据，实时检索 |
 
 > WSL2 用户：Windows 浏览器直接访问 `http://localhost:8501`（端口自动转发）。
 
@@ -163,7 +163,7 @@ A2 引用用 [S#] 单独标识（与项目证据 [E#] 区分），mock 模式结
 
 # 数据说明
 
-- **已内置**：`data/processed/evidence.jsonl`（11630 条多源证据：PubMed 7295 + Europe PMC 2776 + ClinicalTrials 1541 + 指南 18，每条带 PMID/NCT/DOI/URL 可追溯；对应 `manifest.json` 记录 dataset_version 与来源许可证；字段 `abstract_or_chunk` 已兼容，加载时自动映射为 `text`）
+- **已内置**：`data/processed/evidence.jsonl`（10183 条多源证据：PubMed 7,933 + Europe PMC 独有 691 + ClinicalTrials 1,541 + 指南 18，每条带 PMID/NCT/DOI/URL 可追溯；对应 `manifest.json` 记录 dataset_version 与来源许可证；字段 `abstract_or_chunk` 已兼容，加载时自动映射为 `text`）
 - **重新采集**（可选，需网络）：
 
   ```bash
@@ -195,7 +195,7 @@ ingestion/              PubMed / ClinicalTrials 采集 + 相关性过滤
 retrieval/              BM25 + 向量 + RRF + 特征重排 + MMR + 查询扩展
 generation/             Prompt / 生成 / 引用白名单 / 拒答
 evaluation/             实验 / judge / 指标 / 统计 / 图表
-data/processed/evidence.jsonl   11630 条多源证据库（已内置，含 manifest.json）
+data/processed/evidence.jsonl   10183 条多源证据库（已内置，含 manifest.json）
 data/questions/         题集（formal12 正式 / dev8 开发 / stress_sample 压力样例）
 scripts/                start.sh 一键启动 / build_kb 重建库 / view_evidence 浏览
 tests/                  31 个契约测试

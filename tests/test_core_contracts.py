@@ -9,7 +9,9 @@ from evaluation.metrics import (hit_at_k, mrr, recall_at_k, ndcg_at_k,
                                 unsupported_claim_rate, abstention_quality)
 from generation.citation_check import (extract_citations, check_citation_whitelist,
                                        citation_precision as ccp,
-                                       check_claims_supported, find_invalid_urls)
+                                       check_claims_supported, find_invalid_urls,
+                                       split_claims)
+from core.dataclasses import Question
 
 
 def test_hit_at_k():
@@ -77,3 +79,76 @@ def test_find_invalid_urls():
     assert find_invalid_urls("见 https://pubmed.ncbi.nlm.nih.gov/x 的来源") == \
         ["https://pubmed.ncbi.nlm.nih.gov/x"]
     assert find_invalid_urls("无链接") == []
+
+
+# ---------- 契约对齐：B1 蓝图 Question 格式 <-> B3 运行器 Question（P0a） ----------
+
+def test_question_blueprint_format_loads():
+    """B2 正式题将按 B1 蓝图格式（无 freshness、key_points 在顶层）交付，
+    必须能被运行器 Question 加载，且 key_points 映射进 rubric 供 judge 使用。"""
+    blueprint = {
+        "id": "DEV-S01", "split": "DEV", "dataset_pack": "DEV",
+        "topic": "hypertension", "question_type": "stable_knowledge_mechanism",
+        "difficulty": 2, "language": "zh",
+        "question": "长期血压升高为什么会导致左心室肥厚？",
+        "answerable": True, "as_of_date": "2024-06-01",
+        "source_provenance": "B1 蓝图样例", "source_group_id": "DEV-S01",
+        "gold_source_ids": [], "key_points": ["压力负荷致心肌细胞肥大", "RAAS/交感激活"],
+        "rubric_version": "v0.1", "note": "样例",
+    }
+    q = Question.from_dict(blueprint)
+    # 蓝图格式无 freshness -> 用默认值，不抛 TypeError
+    assert q.freshness == "stable"
+    assert q.split == "DEV" and q.dataset_pack == "DEV"
+    assert q.answerable is True and q.as_of_date == "2024-06-01"
+    assert q.source_group_id == "DEV-S01"
+    # key_points 顶层字段 -> rubric.key_points（judge 消费路径）
+    assert q.rubric.get("key_points") == ["压力负荷致心肌细胞肥大", "RAAS/交感激活"]
+    # 其余未识别字段保留，不静默丢弃
+    assert q.extras.get("source_provenance") == "B1 蓝图样例"
+    assert q.extras.get("rubric_version") == "v0.1"
+
+
+def test_question_runtime_format_roundtrip():
+    """运行器题集格式（rubric 内嵌 key_points）round-trip 不受影响。"""
+    d = {"id": "q01", "topic": "hypertension", "difficulty": "easy",
+         "question": "高血压为什么需要长期服药？", "question_type": "mechanism",
+         "freshness": "stable", "gold_source_ids": [],
+         "rubric": {"key_points": ["慢性病需长期管理"]}}
+    q = Question.from_dict(d)
+    assert q.freshness == "stable"
+    assert q.rubric["key_points"] == ["慢性病需长期管理"]
+    assert q.to_dict()["id"] == "q01"
+
+
+# ---------- claims decision：主终点确定性路径（P0b） ----------
+
+def test_split_claims_decision_supported_with_valid_citation():
+    answer = "## 证据说明\n- 血压达标可降低风险 [E1]。\n- 无引用的结论。"
+    claims = split_claims(answer, "run1", n_evidence=3)
+    assert claims[0]["decision"] == "supported"
+    assert claims[0]["evidence_ids"] == ["E1"]
+    assert claims[0]["verification_method"] == "citation_existence"
+    # 有证据上下文但无有效引用 -> insufficient
+    assert claims[1]["decision"] == "insufficient"
+
+
+def test_split_claims_decision_out_of_range_is_insufficient():
+    answer = "## 证据说明\n- 结论 [E9] 超出证据范围。"
+    claims = split_claims(answer, "run1", n_evidence=3)
+    assert claims[0]["decision"] == "insufficient"
+
+
+def test_split_claims_a_condition_stays_pending():
+    """A 条件无证据上下文：claims 不强制引用，decision 保持 pending（留给 judge/人工）。"""
+    answer = "## 证据说明\n- 基于模型知识作答。"
+    claims = split_claims(answer, "run1")
+    assert claims[0]["decision"] == "pending"
+
+
+def test_claims_support_rate_usable_from_split_claims():
+    """P0b：metrics.claim_support_rate 对 split_claims 输出不再恒为 0。"""
+    answer = "## 证据说明\n- 有引用结论 [E1]。\n- 这是无引用的补充说明结论。"
+    claims = split_claims(answer, "run1", n_evidence=2)
+    assert abs(claim_support_rate(claims) - 0.5) < 1e-9
+    assert abs(unsupported_claim_rate(claims) - 0.5) < 1e-9

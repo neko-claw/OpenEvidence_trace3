@@ -2,6 +2,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from core.config import load_config
@@ -162,3 +164,60 @@ def test_audit_flags_e_outside_stress():
     checks = {i["check"] for i in report["issues"]}
     assert "e_split" in checks
     assert "e_derivation" in checks
+
+
+# ---------- 5. 契约对齐：B3 输出 <-> B1 JSON Schema（P0a） ----------
+
+def test_run_validates_against_b1_schema():
+    """运行器生成的 Run（含 code_commit / ok 状态 / 证据 dict）必须通过 B1 run.schema.json。"""
+    jsonschema = pytest.importorskip("jsonschema")
+    import json
+    from pathlib import Path
+    schema = json.loads(Path("evaluation/schemas/run.schema.json").read_text(encoding="utf-8"))
+    run = Run(question_id="q01", condition="B", model="deepseek-chat",
+              model_snapshot="deepseek-chat", prompt_version="v1",
+              config_hash="abc", code_commit="abc1234", dataset_version="v0.1.1",
+              corpus_version="corp1", index_version="idx1",
+              retrieved_evidence=[{"id": "e1", "title": "t", "text": "x"}],
+              answer="## 证据说明\n- 结论 [E1]。", status="ok", attempt_count=1)
+    # 模拟实验层写入的 claims（decision 已判定）
+    from generation.citation_check import split_claims
+    run.claims = split_claims(run.answer, run.run_id, n_evidence=1)
+    jsonschema.validate(run.to_dict(), schema)
+
+
+def test_score_validates_against_b1_schema():
+    """judge 产出的 Score（含 metric_version / rubric_version，未测量项为 null）
+    必须通过 B1 score.schema.json。"""
+    jsonschema = pytest.importorskip("jsonschema")
+    import json
+    from pathlib import Path
+    from core.dataclasses import Score
+    schema = json.loads(Path("evaluation/schemas/score.schema.json").read_text(encoding="utf-8"))
+    score = Score(run_id="r1", question_id="q1", condition="A", judge_id="judge1",
+                  metric_version="v0.1", rubric_version="v0.1",
+                  relevance=4.0, correctness=4.0, completeness=3.0,
+                  faithfulness=4.0, claim_support_rate=0.5,
+                  unsupported_claim_rate=0.5)  # A 条件引用指标不测量 -> None
+    jsonschema.validate(score.to_dict(), schema)
+
+
+# ---------- 6. 条件解析：逗号分隔 + 未知条件清晰报错 ----------
+
+def test_resolve_conditions_comma_separated():
+    from evaluation.experiment import resolve_conditions
+    cfg = load_config()
+    class _Args:
+        conditions = ["C,E"]
+        include_a2 = False
+    assert resolve_conditions(cfg, _Args()) == ["C", "E"]
+
+
+def test_resolve_conditions_unknown_raises_valueerror():
+    from evaluation.experiment import resolve_conditions
+    cfg = load_config()
+    class _Args:
+        conditions = ["X", "B"]
+        include_a2 = False
+    with pytest.raises(ValueError, match="未知条件"):
+        resolve_conditions(cfg, _Args())

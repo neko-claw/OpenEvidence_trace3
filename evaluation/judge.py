@@ -46,6 +46,8 @@ def judge_run(llm: LLMClient, q: Question, run: dict, judge_id: str,
     return Score(
         run_id=run["run_id"], question_id=q.id, condition=run["condition"],
         judge_id=judge_id,
+        metric_version="v0.1",
+        rubric_version=q.rubric.get("rubric_version", "v0.1"),
         relevance=float(obj.get("relevance", 0) or 0),
         correctness=float(obj.get("correctness", 0) or 0),
         completeness=float(obj.get("completeness", 0) or 0),
