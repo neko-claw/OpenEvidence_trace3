@@ -97,6 +97,133 @@ class B4FrameworkTests(unittest.TestCase):
         self.assertTrue(result.rerank_candidates)
         self.assertEqual(result.index_stats["embedding_backend"], "fallback")
 
+    # ---- B4 Review：E 预注册规则集与 Run 契约 ----------------
+
+    def test_run_record_carries_experiment_contract_fields(self):
+        question = next(q for q in self.questions if q["id"] == "dev-001")
+        run, _ = run_condition(
+            question, "C", self.retriever,
+            config={"seed": 7, "replicate": 2, "model": "mock-model",
+                    "model_snapshot": "mock-model@v0.1",
+                    "provider_fingerprint": "offline/mock",
+                    "code_commit": "abc1234"},
+        )
+        self.assertEqual(run.seed, 7)
+        self.assertEqual(run.replicate, 2)
+        self.assertEqual(run.model, "mock-model")
+        self.assertEqual(run.model_snapshot, "mock-model@v0.1")
+        self.assertEqual(run.provider_fingerprint, "offline/mock")
+        self.assertEqual(run.code_commit, "abc1234")
+        self.assertEqual(run.verification_decision, "PASS")
+
+    def test_e_drop_all_gold_removes_every_gold(self):
+        question = next(q for q in self.questions if q["id"] == "stress-001")
+        run, trace = run_condition(question, "E", self.retriever,
+                                   config={"seed": 0, "final_k": 4})
+        self.assertEqual(run.status, "success")
+        manifest = run.stress_manifest
+        self.assertEqual(manifest["stress_rule"], "drop_all_gold_v1")
+        self.assertEqual(
+            sorted(manifest["removed_evidence_ids"]),
+            sorted(question["gold_source_ids"]),
+        )
+        # 劣化后的上下文必须对生成可见：不再包含任何 gold
+        self.assertFalse(
+            {item["evidence_id"] for item in run.retrieved_evidence}
+            & set(question["gold_source_ids"])
+        )
+        self.assertIsNotNone(trace["stress"])
+
+    def test_e_falls_back_to_topk_reduced_when_no_gold(self):
+        """gold 不在候选集（如范围外题）时回退 topk_reduced，仍生成回答，C/E 配对不丢。"""
+        question = next(q for q in self.questions if q["id"] == "stress-003")
+        run, trace = run_condition(question, "E", self.retriever,
+                                   config={"seed": 0, "final_k": 4})
+        self.assertEqual(run.status, "success")
+        manifest = run.stress_manifest
+        self.assertEqual(manifest["stress_rule"], "topk_reduced")
+        self.assertIn("fallback", manifest["reason"])
+        self.assertIsNotNone(run.answer)
+        self.assertIsNotNone(trace["stress"])
+
+    def test_e_topk_reduced_excludes_gold_and_truncates(self):
+        from evaluation.stress import apply_stress, TOPK_REDUCED_K2
+
+        question = next(q for q in self.questions if q["id"] == "stress-001")
+        result = self.retriever.search(question)
+        perturbed, manifest = apply_stress(
+            result.rrf_candidates, question,
+            rule="topk_reduced", seed=0, final_k=4,
+        )
+        manifest = manifest.to_dict()
+        self.assertEqual(len(perturbed), TOPK_REDUCED_K2)
+        self.assertFalse(
+            {c["evidence_id"] for c in perturbed} & set(question["gold_source_ids"])
+        )
+        self.assertEqual(manifest["stress_rule"], "topk_reduced")
+
+    def test_e_inject_unsupporting_is_deterministic_and_injects_non_gold(self):
+        from evaluation.stress import apply_stress
+
+        question = next(q for q in self.questions if q["id"] == "stress-001")
+        result = self.retriever.search(question)
+        perturbed, manifest = apply_stress(
+            result.rrf_candidates, question,
+            rule="inject_unsupporting_v1", seed=0, final_k=4,
+        )
+        manifest = manifest.to_dict()
+        self.assertTrue(manifest["injected_evidence_ids"])
+        self.assertFalse(
+            set(manifest["injected_evidence_ids"]) & set(question["gold_source_ids"])
+        )
+        # 同一 seed 可复现同一注入
+        perturbed2, manifest2 = apply_stress(
+            result.rrf_candidates, question,
+            rule="inject_unsupporting_v1", seed=0, final_k=4,
+        )
+        manifest2 = manifest2.to_dict()
+        self.assertEqual(
+            [c["evidence_id"] for c in perturbed],
+            [c["evidence_id"] for c in perturbed2],
+        )
+        # 不同 seed 产生不同注入（随机化确实生效）
+        _, manifest3 = apply_stress(
+            result.rrf_candidates, question,
+            rule="inject_unsupporting_v1", seed=123, final_k=4,
+        )
+        manifest3 = manifest3.to_dict()
+        self.assertNotEqual(
+            manifest["injected_evidence_ids"], manifest3["injected_evidence_ids"]
+        )
+
+    def test_e_unanswerable_malicious_keeps_context(self):
+        question = next(q for q in self.questions if q["id"] == "stress-003")
+        declared = dict(question)
+        declared["stress_rule"] = "unanswerable_malicious"
+        run, _ = run_condition(declared, "E", self.retriever,
+                               config={"seed": 0, "final_k": 4})
+        self.assertEqual(run.stress_manifest["stress_rule"], "unanswerable_malicious")
+        self.assertEqual(run.stress_manifest["injected_evidence_ids"], [])
+        self.assertTrue(run.answer)
+
+    def test_condition_yaml_overrides_defaults_but_skips_placeholders(self):
+        from evaluation.conditions import get_condition_config
+
+        # conditions.yaml 的 D.system_version=TO_BE_FILLED 不应覆盖代码默认
+        cfg = get_condition_config("D", yaml_path=str(ROOT / "configs/conditions.yaml"))
+        self.assertEqual(cfg["system_version"], "mock-system-v0.1")
+        # conditions.yaml 的 E.stress_rule=drop_all_gold_v1 应生效
+        cfg_e = get_condition_config("E", yaml_path=str(ROOT / "configs/conditions.yaml"))
+        self.assertEqual(cfg_e["stress_rule"], "drop_all_gold_v1")
+
+    def test_unknown_stress_rule_raises(self):
+        from evaluation.stress import apply_stress
+
+        question = next(q for q in self.questions if q["id"] == "stress-001")
+        result = self.retriever.search(question)
+        with self.assertRaises(ValueError):
+            apply_stress(result.rrf_candidates, question, rule="no_such_rule")
+
 
 if __name__ == "__main__":
     unittest.main()

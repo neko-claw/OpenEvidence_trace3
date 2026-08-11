@@ -42,6 +42,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", default="artifacts/b4")
     parser.add_argument("--initial-k", type=int, default=50, help="保留多少条初检候选，用于 Recall@50 等诊断")
     parser.add_argument("--final-k", type=int, default=4, help="最终放入上下文的证据条数")
+    parser.add_argument("--seed", type=int, default=0, help="E 劣化/条件顺序随机种子（确定性复现）")
+    parser.add_argument("--replicate", type=int, default=1, help="REPEAT 子集重复序号（写入 RunRecord）")
     return parser.parse_args()
 
 
@@ -59,7 +61,8 @@ def main() -> int:
         "corpus_version": "fixture-corpus-v0.1",
         "index_version": "fixture-index-v0.1",
         "prompt_version": "prompt-v0.1",
-        "seed": 0,
+        "seed": args.seed,
+        "replicate": args.replicate,
         "initial_k": args.initial_k,
         "final_k": args.final_k,
     }
@@ -101,7 +104,10 @@ def main() -> int:
     stresses = []
     for question in questions:
         for condition in conditions:
-            run, trace = run_condition(question, condition, retriever, config=config)
+            run, trace = run_condition(
+                question, condition, retriever, config=config,
+                conditions_path=str(config_path),
+            )
             runs.append(run)
             if trace.get("retrieval") is not None:
                 traces.append(retrieval_trace(run.run_id, condition, trace["retrieval"]))

@@ -21,16 +21,26 @@ def run_condition(
     retriever: Any,
     provider: Optional[Any] = None,
     config: Optional[Dict[str, Any]] = None,
+    conditions_path: Optional[str] = None,
 ) -> Tuple[RunRecord, Dict[str, Any]]:
     condition = condition.upper()
     config = config or {}
     provider = provider or MockProvider()
-    condition_config = get_condition_config(condition)
+    # 条件配置：代码默认 + configs/conditions.yaml 覆盖（版本化配置生效）
+    condition_config = get_condition_config(condition, yaml_path=conditions_path)
     config_hash = config.get("config_hash", "local-dev-v0.1")
     dataset_version = config.get("dataset_version", "fixture-v0.1")
     corpus_version = config.get("corpus_version", "fixture-corpus-v0.1")
     index_version = config.get("index_version", getattr(retriever, "index_version", "unknown"))
     prompt_version = config.get("prompt_version", "prompt-v0.1")
+    seed = int(config.get("seed", 0))
+    replicate = int(config.get("replicate", 1))
+    model = config.get("model") or getattr(provider, "model", "") or "mock"
+    model_snapshot = config.get("model_snapshot") or model
+    provider_fingerprint = config.get("provider_fingerprint") or getattr(
+        provider, "provider_fingerprint", ""
+    )
+    code_commit = config.get("code_commit", "")
     run_id = _run_id(question["id"], condition, config_hash)
     started = time.perf_counter()
 
@@ -47,6 +57,12 @@ def run_condition(
             config_hash=config_hash,
             prompt_version=prompt_version,
             system_version=None,
+            seed=seed,
+            replicate=replicate,
+            model=model,
+            model_snapshot=model_snapshot,
+            provider_fingerprint=provider_fingerprint,
+            code_commit=code_commit,
             retrieved_evidence=[],
             answer=None,
             claims=[],
@@ -69,10 +85,17 @@ def run_condition(
             config_hash=config_hash,
             prompt_version=prompt_version,
             system_version=None,
+            seed=seed,
+            replicate=replicate,
+            model=model,
+            model_snapshot=model_snapshot,
+            provider_fingerprint=provider_fingerprint,
+            code_commit=code_commit,
             retrieved_evidence=[],
             answer=generated["answer"],
             claims=generated["claims"],
             citations=generated["citations"],
+            verification_decision=generated.get("verification_decision", "PASS"),
             latency_ms=max(1, int((time.perf_counter() - started) * 1000)),
             input_tokens=generated.get("input_tokens"),
             output_tokens=generated.get("output_tokens"),
@@ -91,6 +114,8 @@ def run_condition(
     system_version = None
 
     if condition == "D":
+        # D 骨架：完整组件包（Wiki/Skill/MCP/Agent）尚未接入时用 mock plan/trace 占位；
+        # 真实 D 应通过 FullSystemAdapter（见 run_a5.py）产出，并单独计入额外延迟/token/成本。
         system_version = condition_config.get("system_version")
         agent_plan = {"skill": "evidence_research@v0.1", "steps": ["retrieve", "rerank", "audit"]}
         tool_trace = [
@@ -98,26 +123,21 @@ def run_condition(
             {"tool": "validate_citation", "status": "mock_success", "count": len(final_evidence)},
         ]
     elif condition == "E":
-        # E 的预注册规则作用于 C 的初检候选集，而不是只检查最终上下文。
-        # 这样即使 rerank 已把 Gold 排到最终上下文之外，压力规则仍能记录
-        # 候选集中的 Gold 删除；若被删证据已进入最终上下文，则同步移除。
+        # E 劣化：在“检索阶段候选集”（B/C 同源的 RRF 融合候选）上按预注册规则派生，
+        # 返回的劣化列表即 E 的最终上下文（截断到 final_k），保证劣化对生成可见；
+        # gold 删除规则在候选集中找不到 gold 时自动回退 topk_reduced 保 C/E 配对。
         stress_candidates = list(
             retrieval.rrf_candidates
             or retrieval.rerank_candidates
             or final_evidence
         )
-        _, stress = apply_stress(
+        final_evidence, stress = apply_stress(
             stress_candidates,
             question,
             rule=condition_config["stress_rule"],
-            seed=int(config.get("seed", 0)),
+            seed=seed,
+            final_k=int(config.get("final_k", 4)),
         )
-        removed_ids = set(stress.removed_evidence_ids)
-        if removed_ids:
-            final_evidence = [
-                item for item in final_evidence
-                if item.get("evidence_id") not in removed_ids
-            ]
         stress_manifest = stress.to_dict()
 
     generated = provider.generate(question, final_evidence, condition)
@@ -127,17 +147,24 @@ def run_condition(
         question_id=question["id"],
         split=question.get("split", "unknown"),
         condition=condition,
-        status="success" if not stress_manifest or stress_manifest.get("applicable", True) else "not_applicable",
+        status="success",
         dataset_version=dataset_version,
         corpus_version=corpus_version,
         index_version=index_version,
         config_hash=config_hash,
         prompt_version=prompt_version,
         system_version=system_version,
+        seed=seed,
+        replicate=replicate,
+        model=model,
+        model_snapshot=model_snapshot,
+        provider_fingerprint=provider_fingerprint,
+        code_commit=code_commit,
         retrieved_evidence=final_evidence,
         answer=generated["answer"],
         claims=generated["claims"],
         citations=generated["citations"],
+        verification_decision=generated.get("verification_decision", "PASS"),
         agent_plan=agent_plan,
         tool_trace=tool_trace,
         stress_manifest=stress_manifest,

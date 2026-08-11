@@ -44,6 +44,12 @@ class StressManifest:
 
 @dataclass
 class RunRecord:
+    """Run 契约（对齐实施规划 §3.1 与 evaluation/schemas/run.schema.json）。
+
+    B4 骨架此前缺少 seed/replicate/model/model_snapshot/provider_fingerprint/
+    code_commit/verification_decision 字段，导致与 core.dataclasses.Run（B3 实验
+    运行器）的输出 schema 不一致，B5 评分需要兼容两套格式。本 PR 补齐为统一契约。
+    """
     run_id: str
     question_id: str
     split: str
@@ -59,6 +65,13 @@ class RunRecord:
     answer: Optional[str]
     claims: List[Dict[str, Any]]
     citations: List[Dict[str, Any]]
+    replicate: int = 1                 # REPEAT 子集重复序号
+    seed: int = 0                      # 条件顺序 / 采样随机种子
+    model: str = ""
+    model_snapshot: str = ""          # 模型快照标识（A/B/C/D/E 必须一致，§6.2 公平性）
+    provider_fingerprint: str = ""    # LLM provider 标识（base_url + model）
+    code_commit: str = ""             # 运行时代码 commit（config_hash 已含时可为空）
+    verification_decision: str = "PASS"  # PASS | WARN | REFUSE
     agent_plan: Dict[str, Any] = field(default_factory=dict)
     tool_trace: List[Dict[str, Any]] = field(default_factory=list)
     stress_manifest: Optional[Dict[str, Any]] = None

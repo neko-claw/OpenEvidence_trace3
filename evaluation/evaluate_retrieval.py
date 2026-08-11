@@ -62,8 +62,16 @@ def evaluate_pair(
 ) -> dict[str, Any]:
     qrel_items = qrels.get(question_id, {})
     relevant_ids = {evidence_id for evidence_id, item in qrel_items.items() if item["relevant"]}
-    candidates = retrieval.get("bm25_candidates") or retrieval.get("rerank_candidates") or []
+    # 各阶段候选：Recall@50/hit@5/mrr 统一以“检索阶段融合候选”（RRF，K0≤100）为口径，
+    # 对应实施规划 §4.3.1 的初检候选集；各单路（bm25/vector/rrf）指标单独保留用于消融。
+    candidates = (
+        retrieval.get("rrf_candidates")
+        or retrieval.get("bm25_candidates")
+        or retrieval.get("rerank_candidates")
+        or []
+    )
     candidate_ids = _ids(candidates)
+    bm25_ids = _ids(retrieval.get("bm25_candidates") or [])
     vector_ids = _ids(retrieval.get("vector_candidates") or [])
     rrf_ids = _ids(retrieval.get("rrf_candidates") or candidates)
     rerank_candidates = retrieval.get("rerank_candidates") or candidates
@@ -73,11 +81,13 @@ def evaluate_pair(
     top5 = set(candidate_ids[:5])
     top10 = set(candidate_ids[:10])
     top50 = set(candidate_ids[:50])
+    bm25_top50 = set(bm25_ids[:50])
     vector_top50 = set(vector_ids[:50])
     rrf_top50 = set(rrf_ids[:50])
     hit5 = bool(top5 & relevant_ids) if relevant_ids else None
     hit10 = bool(top10 & relevant_ids) if relevant_ids else None
     recall50 = _fraction(len(top50 & relevant_ids), len(relevant_ids)) if relevant_ids else None
+    bm25_recall50 = _fraction(len(bm25_top50 & relevant_ids), len(relevant_ids)) if relevant_ids else None
     vector_recall50 = _fraction(len(vector_top50 & relevant_ids), len(relevant_ids)) if relevant_ids else None
     rrf_recall50 = _fraction(len(rrf_top50 & relevant_ids), len(relevant_ids)) if relevant_ids else None
     first_rank = next(
@@ -85,6 +95,10 @@ def evaluate_pair(
         None,
     )
     mrr = 1 / first_rank if first_rank else (None if relevant_ids else None)
+    bm25_first_rank = next(
+        (rank for rank, evidence_id in enumerate(bm25_ids, start=1) if evidence_id in relevant_ids),
+        None,
+    )
     vector_first_rank = next(
         (rank for rank, evidence_id in enumerate(vector_ids, start=1) if evidence_id in relevant_ids),
         None,
@@ -93,6 +107,7 @@ def evaluate_pair(
         (rank for rank, evidence_id in enumerate(rrf_ids, start=1) if evidence_id in relevant_ids),
         None,
     )
+    bm25_mrr = 1 / bm25_first_rank if bm25_first_rank else (None if relevant_ids else None)
     vector_mrr = 1 / vector_first_rank if vector_first_rank else (None if relevant_ids else None)
     rrf_mrr = 1 / rrf_first_rank if rrf_first_rank else (None if relevant_ids else None)
     rerank_hit5 = bool(set(rerank_ids[:5]) & relevant_ids) if relevant_ids else None
@@ -142,10 +157,10 @@ def evaluate_pair(
         "hit_at_10": hit10,
         "recall_at_50": recall50,
         "mrr": round(mrr, 6) if mrr is not None else None,
-        "bm25_recall_at_50": recall50,
+        "bm25_recall_at_50": bm25_recall50,
         "vector_recall_at_50": vector_recall50,
         "rrf_recall_at_50": rrf_recall50,
-        "bm25_mrr": round(mrr, 6) if mrr is not None else None,
+        "bm25_mrr": round(bm25_mrr, 6) if bm25_mrr is not None else None,
         "vector_mrr": round(vector_mrr, 6) if vector_mrr is not None else None,
         "rrf_mrr": round(rrf_mrr, 6) if rrf_mrr is not None else None,
         "rerank_hit_at_5": rerank_hit5,
@@ -248,7 +263,7 @@ def markdown_report(payload: dict[str, Any]) -> str:
         "",
         "## 解释",
         "",
-        "- `Recall@50` 观察初检候选集是否找到了 qrels 中的相关证据。",
+        "- `Recall@50` / `Hit@5` / `MRR` 以检索阶段融合候选集（BM25+Vector+RRF，K0≤100）为口径，观察初检是否召回 qrels 相关证据；分阶段指标（bm25/vector/rrf）用于消融对比。",
         "- `最终上下文 Gold 命中率` 观察证据是否真正进入生成上下文；E 条件使用劣化后的运行记录。",
         "- `not_recalled_in_top50` 是检索问题；`recalled_but_not_in_final_context` 是候选到上下文选择问题。",
         "- 自动指标只用于回归诊断，不替代医学证据的人工核验。",
