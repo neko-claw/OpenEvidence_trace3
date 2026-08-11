@@ -1,20 +1,20 @@
 # 数据集统计报告
 
-生成时间：2026-08-11T02:49:06+00:00
+生成时间：2026-08-11T02:55:20+00:00
 
 ## 总量
-- 证据记录总数：**11630**
-- **文献/证据篇数（去重口径）：9547**
-  - PubMed 摘要：7295
-  - Europe PMC 独有摘要：693
+- 证据记录总数：**12280**
+- **文献/证据篇数（去重口径）：10197**
+  - PubMed 摘要：7947
+  - Europe PMC 独有摘要：691
   - ClinicalTrials.gov 试验：1541
   - 人工确认指南：18
-- 唯一 PMID 数：7947
+- 唯一 PMID 数：8597
 - 全文 chunk（Europe PMC OA，附加）：2083
 
 ## 按记录类型
 {
-  "abstract": 7988,
+  "abstract": 8638,
   "trial": 1541,
   "fulltext_chunk": 2083,
   "guideline": 18
@@ -22,70 +22,70 @@
 
 ## 按来源
 {
-  "pubmed": 7295,
+  "pubmed": 7947,
   "clinicaltrial": 1541,
-  "europepmc": 2776,
+  "europepmc": 2774,
   "guideline": 18
 }
 
 ## 按证据等级
 {
-  "review": 1082,
+  "other": 7337,
+  "meta-analysis": 929,
+  "review": 1194,
+  "systematic-review": 429,
   "guideline": 228,
-  "other": 6989,
-  "rct": 553,
-  "systematic-review": 415,
-  "meta-analysis": 803,
-  "clinical-trial": 1560
+  "rct": 598,
+  "clinical-trial": 1565
 }
 
 ## 按主题
 {
-  "lipids": 6534,
-  "hypertension": 8480
+  "hypertension": 8081,
+  "lipids": 6174
 }
 
 ## 按年份（Top 15）
 {
-  "2026": 7522,
-  "2025": 1877,
-  "2024": 371,
-  "2023": 207,
-  "2022": 176,
-  "2021": 166,
-  "2019": 114,
-  "2018": 111,
-  "2016": 92,
-  "2020": 85,
-  "2017": 82,
-  "2014": 73,
-  "2011": 73,
-  "2015": 72,
-  "2012": 69
+  "2026": 7552,
+  "2025": 1980,
+  "2024": 379,
+  "2020": 225,
+  "2019": 220,
+  "2023": 211,
+  "2018": 210,
+  "2021": 190,
+  "2022": 186,
+  "2017": 112,
+  "2016": 110,
+  "2014": 90,
+  "2015": 88,
+  "2012": 78,
+  "2011": 76
 }
 
 ## 期刊 Top 20
 {
-  "Nutrients": 134,
-  "Cureus": 123,
-  "PloS one": 93,
-  "Journal of hypertension": 89,
-  "Medicine": 87,
-  "Frontiers in endocrinology": 87,
-  "Journal of clinical lipidology": 86,
-  "Hypertension research : official journal of the Japanese Society of Hypertension": 84,
-  "Hypertension (Dallas, Tex. : 1979)": 81,
-  "Journal of the American Heart Association": 72,
-  "Scientific reports": 67,
-  "Nutrition, metabolism, and cardiovascular diseases : NMCD": 66,
-  "Journal of clinical hypertension (Greenwich, Conn.)": 57,
-  "BMC cardiovascular disorders": 55,
-  "American journal of hypertension": 52,
-  "Frontiers in nutrition": 52,
-  "Atherosclerosis": 51,
-  "Frontiers in cardiovascular medicine": 51,
-  "Journal of clinical medicine": 51,
-  "BMJ open": 50
+  "Nutrients": 149,
+  "Cureus": 139,
+  "Journal of hypertension": 113,
+  "PloS one": 104,
+  "Medicine": 100,
+  "Hypertension (Dallas, Tex. : 1979)": 100,
+  "Frontiers in endocrinology": 97,
+  "Journal of clinical lipidology": 89,
+  "Hypertension research : official journal of the Japanese Society of Hypertension": 87,
+  "Journal of the American Heart Association": 82,
+  "Scientific reports": 75,
+  "Journal of clinical hypertension (Greenwich, Conn.)": 72,
+  "Journal of clinical medicine": 61,
+  "Nutrition, metabolism, and cardiovascular diseases : NMCD": 59,
+  "BMJ open": 58,
+  "Atherosclerosis": 57,
+  "Frontiers in cardiovascular medicine": 57,
+  "BMC cardiovascular disorders": 56,
+  "Frontiers in nutrition": 54,
+  "International journal of molecular sciences": 53
 }
 
 ## 试验按状态

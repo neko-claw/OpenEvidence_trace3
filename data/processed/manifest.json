@@ -1,6 +1,6 @@
 {
   "dataset_version": "v0.1.0",
-  "created_at": "2026-08-11T02:49:06+00:00",
+  "created_at": "2026-08-11T02:55:20+00:00",
   "corpus_cutoff": "2026-08-11",
   "source_datasets": [
     "PubMed (E-utilities esearch/efetch, abstracts)",
@@ -15,7 +15,7 @@
     "guidelines": "教学使用；仅保存书目元数据与公开摘要，不保存版权全文"
   },
   "split_hashes": {
-    "evidence.jsonl": "d85d364d2b79eb2c3d89d83c7e7eea3357905a92480546e6ba6ccf8366f28cb3"
+    "evidence.jsonl": "5c4ed4f61990e896903b73b60e294d3bf493212540ede04a5e1ff452d66b4285"
   },
   "source_group_policy": "跨源去重：PubMed 与 Europe PMC 以 PMID 为稳定键；试验以 NCT ID；指南以人工 key",
   "dedup_method": "PMID/NCT/guideline-key 唯一键 + title+abstract content_hash 校验",
@@ -25,7 +25,7 @@
     "dyslipidemia"
   ],
   "record_counts": {
-    "abstract": 7988,
+    "abstract": 8638,
     "trial": 1541,
     "fulltext_chunk": 2083,
     "guideline": 18

@@ -133,8 +133,7 @@ def normalize_trial(raw: dict) -> dict:
         "publication_types": ["Clinical Trial"],
         "mesh_terms": raw.get("conditions") or [],
         "keywords": [],
-        "topics": tag_topics(f"{title} {summary} {' '.join(raw.get('conditions') or [])}",
-                             ["hypertension", "lipids"]),
+        "topics": tag_topics(f"{title} {summary} {' '.join(raw.get('conditions') or [])}", []),
         "content_hash": content_hash(title, summary),
         "fetched_at": FETCHED_AT,
         "extras": {
