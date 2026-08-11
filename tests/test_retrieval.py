@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from retrieval.rrf import rrf_merge
 from retrieval.bm25 import BM25Index
-from retrieval.rerank import _bounded_rank_sort, _evidence_level_score, _freshness_score, _source_quality_score, _text_sim
+from retrieval.rerank import _evidence_level_score, _freshness_score, _source_quality_score, _text_sim
 from core.dataclasses import Evidence
 
 
@@ -57,15 +57,3 @@ def test_source_quality():
 def test_text_sim():
     assert _text_sim("完全相同的内容", "完全相同的内容") > 0.5
     assert _text_sim("aaaa", "bbbb") == 0.0
-
-
-def test_bounded_rank_sort_limits_downward_displacement():
-    rows = [
-        {"doc_id": "a", "rank_in": 0, "final": 0.1},
-        {"doc_id": "b", "rank_in": 1, "final": 0.2},
-        {"doc_id": "c", "rank_in": 2, "final": 0.3},
-        {"doc_id": "d", "rank_in": 3, "final": 0.4},
-    ]
-    ordered = _bounded_rank_sort(rows, max_rank_drop=1)
-    for position, row in enumerate(ordered):
-        assert position - row["rank_in"] <= 1

@@ -20,7 +20,7 @@ embedding:
   backend: local
   api_base_url: ""              # 例如 https://api.siliconflow.cn/v1
   api_model: "BAAI/bge-m3"
-  local_model: "E:/models/bge-small-zh-v1.5"
+  local_model: "BAAI/bge-small-zh-v1.5"
   dim: 512
 
 retrieval:
@@ -43,7 +43,7 @@ rerank:
     freshness: 0.10
     source_quality: 0.10
     redundancy: -0.15
-  mmr_lambda: 1.0
+  mmr_lambda: 0.7
   # 来源/单文档上限（实施规划 §4.3.2 初始值）
   max_per_source: 4      # 同一来源类型最多进入上下文的 chunk 数
   max_per_doc: 2         # 同一篇文献最多进入上下文的 chunk 数
