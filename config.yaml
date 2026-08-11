@@ -1,6 +1,6 @@
 # OpenEvidence 赛道3 全局配置（所有关键参数版本化，修改后更新 version）
 project: track3
-config_version: v0.1.1    # v0.1.1: 新增 a2 通用搜索配置段（B3）
+config_version: v0.1.2    # v0.1.2: B3 review 修复（E 为 P0-STRESS、MMR/来源上限配置化、K1 分层占位、离线回放）
 
 llm:
   provider: deepseek            # 从环境变量 DEEPSEEK_API_KEY 读取 key
@@ -29,6 +29,9 @@ retrieval:
   k_rrf: 100
   k_final: 8
   rrf_k: 60
+  # K1 分层（实施规划 §4.3.2）：RRF 合并后先特征重排到 K1 条，再 MMR 选 k_final
+  # P0 当前实现：特征重排作用在全量 RRF 候选上；K1 为 A4 调参预留，默认 None=不截断
+  k1_rerank: null
 
 rerank:
   # 特征加权重排权重（v0.1 起始值，只用开发题调参，正式题冻结）
@@ -41,6 +44,9 @@ rerank:
     source_quality: 0.10
     redundancy: -0.15
   mmr_lambda: 0.7
+  # 来源/单文档上限（实施规划 §4.3.2 初始值）
+  max_per_source: 4      # 同一来源类型最多进入上下文的 chunk 数
+  max_per_doc: 2         # 同一篇文献最多进入上下文的 chunk 数
 
 generation:
   prompt_version: v1
@@ -48,7 +54,8 @@ generation:
                                      # RRF top1 约 1/(60+1)≈0.016，双源命中更高
 
 evaluation:
-  conditions: [A, B, C, D]      # E 为 P1 劣化实验；A2 可选，需显式启用
+  conditions: [A, B, C, D]      # E 为 P0 必做（仅 STRESS 压力题 C/E 对照，实施规划 §2.1/§6.2），
+                               # 需显式 --conditions ... E 并在 STRESS 题集上运行；A2 可选，需显式启用
   random_order_seed: 42
   judge_model: null             # 覆盖 llm.judge_model 时填写
 
@@ -72,6 +79,7 @@ paths:
   wiki: data/processed/wiki
   questions_dev: data/questions/dev8.jsonl
   questions_formal: data/questions/formal12.jsonl
+  questions_stress: data/questions/stress_sample.jsonl   # STRESS 压力题（正式 20 题由 B2 冻结，当前为样例）
   runs_dir: data/experiments/runs
   scores_dir: data/experiments/scores
   artifacts: artifacts

@@ -81,12 +81,21 @@ def audit_runs(runs: list[Run], q_splits: dict[str, str] | None = None,
                                        "question": qid, "run": other.run_id,
                                        "detail": f"{c} 与 {ret_conds[0]} 的 {field} 不一致: "
                                                  f"{getattr(base, field)!r} vs {getattr(other, field)!r}"})
-            # B 与 C 候选集同源（宽松：C 的证据应尽量来自 B 的更大候选集）
+            # B 与 C 候选集同源（严格模式：C 的最终证据必须 ⊆ B 的 RRF 初检候选）
             if "B" in conds and "C" in conds:
-                b_ids = {e["id"] for e in conds["B"].retrieved_evidence}
+                b_cand = set(conds["B"].candidate_ids)
                 c_ids = {e["id"] for e in conds["C"].retrieved_evidence}
-                if b_ids and c_ids:
-                    overlap = len(b_ids & c_ids) / len(c_ids)
+                if b_cand and c_ids:
+                    outside = c_ids - b_cand
+                    if outside:
+                        issues.append({"level": "error", "check": "candidate_overlap",
+                                       "question": qid,
+                                       "detail": f"C 有 {len(outside)} 条证据不在 B 的初检候选集内: "
+                                                 f"{sorted(outside)[:3]}"})
+                elif c_ids:
+                    # 旧 runs 无 candidate_ids 时退化为交集比例检查
+                    b_ids = {e["id"] for e in conds["B"].retrieved_evidence}
+                    overlap = len(b_ids & c_ids) / len(c_ids) if c_ids else 1.0
                     if overlap < 0.5:
                         issues.append({"level": "warn", "check": "candidate_overlap",
                                        "question": qid,

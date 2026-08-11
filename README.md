@@ -4,7 +4,7 @@
 > 对比**纯通用大模型**与**带领域知识库的 RAG 系统**在同一批医学问题上的表现
 > ⚠️ 仅供教学研究，不用于临床诊疗；不处理真实患者数据
 
-本项目已内置 367 条真实证据库（PubMed + ClinicalTrials.gov），**不用采集数据即可直接运行**。
+本项目已内置 **11630 条多源证据库**（PubMed 7295 + Europe PMC 2776 + ClinicalTrials 1541 + 指南 18，由 `ingestion/` 数据管线采集并带 `manifest.json`），**不用采集数据即可直接运行**。
 
 ---
 
@@ -111,7 +111,7 @@ python -m streamlit run app.py
 | 🎯 单题问答 | 输入医学问题，选条件 A/B/C/D 运行，看回答/引用/来源/轨迹 |
 | ⚡ 批量实验 | 选择题集 + 条件一键跑，实时进度 + 结果表 |
 | 📊 评测结果 | 均值对比、配对差值图、按题型分组、原始评分 |
-| 🗂 题集与证据库 | 浏览题集与 367 条证据，实时检索 |
+| 🗂 题集与证据库 | 浏览题集与 11630 条证据，实时检索 |
 
 > WSL2 用户：Windows 浏览器直接访问 `http://localhost:8501`（端口自动转发）。
 
@@ -124,6 +124,12 @@ bash scripts/start.sh formal     # 正式实验：12 道题 × 4 条件（约 10
 # 含 A2 通用搜索对照（可选条件，默认离线 mock；配 SERPER_API_KEY 可真实搜索）
 python -m evaluation.experiment --questions dev8 --limit 2 --include-a2
 python -m evaluation.experiment --conditions A A2 B C D
+
+# STRESS 压力题 C/E 对照（E 为 P0 必做，实施规划 §2.1；正式 20 题由 B2 冻结后替换 stress_sample）
+python -m evaluation.experiment --questions stress --conditions C E
+
+# 离线回放（无 API key 的链路验收，实施规划 §10 风险降级；输出标注 offline-mock，不作正式结论）
+python -m evaluation.experiment --offline --limit 2
 ```
 
 **完整评测闭环**（实验后执行）：
@@ -157,9 +163,7 @@ A2 引用用 [S#] 单独标识（与项目证据 [E#] 区分），mock 模式结
 
 # 数据说明
 
-- **已内置**：`data/processed/evidence.jsonl`（367 条真实证据：350 PubMed + 17 ClinicalTrials，每条带 PMID/NCT/DOI/URL 可追溯）
-- **完整采集数据**：使用本仓库 `ingestion/` 数据管线采集的 11630 条多源证据（PubMed + Europe PMC + ClinicalTrials + 指南，含 manifest.json）可直接替换：
-  `data/processed/evidence.jsonl` 字段 `abstract_or_chunk` 已兼容（加载时自动映射为 `text`）
+- **已内置**：`data/processed/evidence.jsonl`（11630 条多源证据：PubMed 7295 + Europe PMC 2776 + ClinicalTrials 1541 + 指南 18，每条带 PMID/NCT/DOI/URL 可追溯；对应 `manifest.json` 记录 dataset_version 与来源许可证；字段 `abstract_or_chunk` 已兼容，加载时自动映射为 `text`）
 - **重新采集**（可选，需网络）：
 
   ```bash
@@ -191,10 +195,10 @@ ingestion/              PubMed / ClinicalTrials 采集 + 相关性过滤
 retrieval/              BM25 + 向量 + RRF + 特征重排 + MMR + 查询扩展
 generation/             Prompt / 生成 / 引用白名单 / 拒答
 evaluation/             实验 / judge / 指标 / 统计 / 图表
-data/processed/evidence.jsonl   367 条证据库（已内置）
-data/questions/         题集（formal12 正式 / dev8 开发）
+data/processed/evidence.jsonl   11630 条多源证据库（已内置，含 manifest.json）
+data/questions/         题集（formal12 正式 / dev8 开发 / stress_sample 压力样例）
 scripts/                start.sh 一键启动 / build_kb 重建库 / view_evidence 浏览
-tests/                  19 个契约测试
+tests/                  31 个契约测试
 ```
 
 # 免责声明

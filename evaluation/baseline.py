@@ -1,6 +1,6 @@
 """run_condition：单个问题 × 单个条件的完整实验流程
 
-B3 主责：A / A2 / B 三个条件在此实现；C/D/E 由 B4 扩展。
+B3 主责：A / A2 / B 三个条件在此实现；C/D/E 由 B4 扩展（E 骨架在本文件，供 B4 按预注册规则重写）。
 """
 from __future__ import annotations
 
@@ -26,7 +26,9 @@ def run_condition(q: Question, condition: str, cfg: Config,
     - B  : BM25 + 向量 + RRF 后直接取 top-k，无 rerank（B3 主责）
     - C  : B + 特征重排 + MMR（B4）
     - D  : C + Wiki/Agent（B4）
-    - E  : 劣化检索（B4）
+    - E  : 劣化检索（B4 主责）。骨架：在 B 的基线初检候选上按预注册规则派生
+           （当前仅实现"top-k 减半"一种扰动；完整扰动集由 B4 读取
+           evaluation/preregistration/e_perturbation_rules.json 后重写）
     """
     llm = llm or LLMClient(cfg["llm"])
     gen = AnswerGenerator(cfg, llm)
@@ -82,28 +84,37 @@ def run_condition(q: Question, condition: str, cfg: Config,
             use_rerank=(condition in ("C", "D")),
             verbose=verbose,
             stats=stats,
+            q_freshness=q.freshness,
         )
         trace = {"tools": ["bm25", "vector", "rrf"],
                  "rerank": condition in ("C", "D"),
                  "retrieved": len(top_evs),
+                 "candidates": len(stats.get("candidate_ids", [])),
                  "cache_hit": stats.get("cache_hit", False)}
         run.tool_trace.append(trace)
         run.index_version = store.index_version
         run.corpus_version = store.corpus_version
         run.cache_hits = 1 if stats.get("cache_hit") else 0
+        run.candidate_ids = stats.get("candidate_ids", [])
     elif condition == "E":
-        # 劣化：只取检索结果的一半，模拟检索质量下降（预注册：top-k 减半）
-        top_evs_full, features_full = store.retrieve(
-            q.question, use_rerank=True, verbose=verbose, stats=stats)
-        n = max(2, len(top_evs_full) // 2)
-        top_evs = top_evs_full[:n]
-        features = [f for f in features_full if f["doc_id"] in {e["id"] for e in top_evs}]
+        # 劣化派生（§6.2）：先在 B 的基线初检（use_rerank=False）上取候选，
+        # 再按预注册规则截断/扰动。当前骨架只实现 top-k 减半；
+        # B4 合入 e_perturbation_rules.json 后在此扩展删除 gold / 注入不支持证据等扰动。
+        base_evs, base_feats = store.retrieve(
+            q.question, use_rerank=False, verbose=verbose, stats=stats,
+            q_freshness=q.freshness)
+        n = max(2, len(base_evs) // 2)
+        top_evs = base_evs[:n]
+        features = [f for f in base_feats if f["doc_id"] in {e["id"] for e in top_evs}]
         run.tool_trace.append({"tools": ["bm25", "vector", "rrf", "degrade"],
+                               "derived_from": "B_baseline_rerank_false",
+                               "perturbation": "topk_halved",
                                "retrieved": len(top_evs), "degraded": True,
                                "cache_hit": stats.get("cache_hit", False)})
         run.index_version = store.index_version
         run.corpus_version = store.corpus_version
         run.cache_hits = 1 if stats.get("cache_hit") else 0
+        run.candidate_ids = stats.get("candidate_ids", [])
 
     # ---- 生成 + 校验 ----
     result, _ = gen.generate(q, condition, top_evs, features)
@@ -112,4 +123,5 @@ def run_condition(q: Question, condition: str, cfg: Config,
     result.agent_plan = run.agent_plan
     result.tool_trace = run.tool_trace
     result.cache_hits = run.cache_hits
+    result.candidate_ids = run.candidate_ids
     return result

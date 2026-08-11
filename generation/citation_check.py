@@ -43,17 +43,22 @@ def citation_precision(text: str, n_evidence: int) -> float:
 
 
 def split_claims(answer: str, run_id: str) -> list[dict]:
-    """把回答按行拆成候选 Claim（P0 简化：按"证据说明"章节的列表项拆分）。
-    正式实现应由生成模型返回结构化 Claim[]；此处为确定性回退。"""
+    """把回答按行拆成候选 Claim（P0 简化：按"证据说明"章节的列表项拆分，绑定 [E#]/[S#] 引用）。
+    正式实现应由生成模型返回结构化 Claim[]；此处为确定性回退，保证主终点可算。"""
     claims = []
     n = 0
     for line in answer.splitlines():
         line = line.strip()
         if line.startswith(("-", "*")) and len(line) > 8:
             n += 1
+            text = line.lstrip("-* ")
+            e_ids = extract_citations(text)
+            s_ids = extract_search_citations(text)
             claims.append(Claim(
-                claim_id=f"{run_id}_c{n}", run_id=run_id, text=line.lstrip("-* "),
+                claim_id=f"{run_id}_c{n}", run_id=run_id, text=text,
                 criticality="important",
+                # P0 简化：evidence_ids 暂存引用编号（E1/S1），Score 阶段按 retrieved_evidence 映射回证据 ID
+                evidence_ids=[f"E{i}" for i in e_ids] + [f"S{i}" for i in s_ids],
             ).to_dict())
     return claims
 

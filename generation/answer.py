@@ -10,7 +10,7 @@ from core.llm import LLMClient
 from generation import prompts
 from generation.citation_check import (check_citation_whitelist, check_search_citation_whitelist,
                                        find_invalid_urls, extract_citations,
-                                       extract_search_citations)
+                                       extract_search_citations, split_claims)
 
 
 class AnswerGenerator:
@@ -87,6 +87,8 @@ class AnswerGenerator:
                 run.verification_decision = "WARN"
                 run.error = f"非法引用编号(超出本次证据范围): {invalid}"
             run.citations = extract_citations(text)
+        # claims 留痕（P0-2）：主终点 rubric_keypoint_score / unsupported_critical_claim_rate 依赖
+        run.claims = split_claims(run.answer, run.run_id)
         return run, features
 
     def _abstain_text(self, q: Question) -> str:

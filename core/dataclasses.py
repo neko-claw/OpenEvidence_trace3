@@ -116,6 +116,7 @@ class Run:
     index_version: str = ""
     provider_fingerprint: str = ""   # LLM provider 标识（base_url + model）
     retrieved_evidence: list[dict] = field(default_factory=list)
+    candidate_ids: list[str] = field(default_factory=list)   # RRF 初检候选 ID（≤100，供同源核验）
     answer: str = ""
     claims: list[dict] = field(default_factory=list)
     citations: list[str] = field(default_factory=list)   # A2 条件为 ["S1",...] 与 [E#] 区分

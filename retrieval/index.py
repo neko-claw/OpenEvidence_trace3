@@ -79,15 +79,16 @@ class EvidenceStore:
 
     # ---------- 检索 ----------
     def retrieve(self, query: str, *, use_rerank: bool, k_final: int | None = None,
-                 verbose: bool = False, stats: Optional[dict] = None) -> tuple[list[dict], list[dict]]:
+                 verbose: bool = False, stats: Optional[dict] = None,
+                 q_freshness: str = "stable") -> tuple[list[dict], list[dict]]:
         """统一检索入口。
 
         返回 (top_evidences, features)：
         - use_rerank=False: B 条件，RRF 合并后直接取 top-k（无特征重排）
         - use_rerank=True : C/D 条件，特征重排 + MMR
 
-        检索对同一 (查询, 索引版本, rerank) 是确定性的，结果做内存缓存；
-        stats 传入 dict 时写入 cache_hit=True/False（成本日志用）。
+        检索对同一 (查询, 索引版本, rerank, freshness) 是确定性的，结果做内存缓存；
+        stats 传入 dict 时写入 cache_hit / candidate_ids（RRF 初检候选 ≤100，供同源核验）。
         """
         if self.bm25 is None or self.vector is None:
             raise RuntimeError("索引未构建，先调用 build_index()")
@@ -96,16 +97,18 @@ class EvidenceStore:
 
         # 中文医学术语扩展：原句 + 英文术语，缓解中问英库检索鸿沟
         query = expand_query(query)
-        key = (query, self.index_version, use_rerank, k_final)
+        key = (query, self.index_version, use_rerank, k_final, q_freshness)
         if key in self._retrieve_cache:
-            cached_evs, cached_feats = self._retrieve_cache[key]
+            cached = self._retrieve_cache[key]
             if stats is not None:
                 stats["cache_hit"] = True
-            return [dict(e) for e in cached_evs], [dict(f) for f in cached_feats]
+                stats["candidate_ids"] = list(cached["candidate_ids"])
+            return [dict(e) for e in cached["evs"]], [dict(f) for f in cached["feats"]]
 
         bm25_hits = self.bm25.search(query, k=rc["k_bm25"])
         vec_hits = self.vector.search(query, k=rc["k_vec"])
         merged = rrf_merge([bm25_hits, vec_hits], k=rc["rrf_k"])[: rc["k_rrf"]]
+        candidate_ids = [doc_id for doc_id, _ in merged]
 
         if not use_rerank:
             top_ids = [doc_id for doc_id, _ in merged[:k_final]]
@@ -114,16 +117,26 @@ class EvidenceStore:
         else:
             weights = self.cfg["rerank"]["weights"]
             ranked = feature_rerank(merged, self.evidences, query, weights,
-                                    q_freshness="stable", verbose=verbose)
+                                    q_freshness=q_freshness, verbose=verbose)
+            # K1 分层（§4.3.2，A4 调参项）：特征重排后先截断到 k1 条，再 MMR
+            k1 = rc.get("k1_rerank")
+            if k1:
+                ranked = ranked[:k1]
+            rcfg = self.cfg["rerank"]
             top_ids = mmr_select(ranked, self.evidences, k_final=k_final,
-                                 lambda_=self.cfg["rerank"]["mmr_lambda"])
+                                 lambda_=rcfg.get("mmr_lambda", 0.7),
+                                 max_per_source=rcfg.get("max_per_source", 4),
+                                 max_per_doc=rcfg.get("max_per_doc", 2))
             features = [r for r in ranked if r["doc_id"] in top_ids]
             features.sort(key=lambda r: top_ids.index(r["doc_id"]))
 
         top_evs = [self.evidences[d].to_dict() for d in top_ids if d in self.evidences]
-        self._retrieve_cache[key] = ([dict(e) for e in top_evs], [dict(f) for f in features])
+        self._retrieve_cache[key] = {"evs": [dict(e) for e in top_evs],
+                                     "feats": [dict(f) for f in features],
+                                     "candidate_ids": candidate_ids}
         if stats is not None:
             stats["cache_hit"] = False
+            stats["candidate_ids"] = list(candidate_ids)
         return top_evs, features
 
     def get(self, doc_id: str) -> Evidence | None:
