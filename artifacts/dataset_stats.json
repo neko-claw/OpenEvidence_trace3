@@ -1,0 +1,96 @@
+{
+  "total_records": 11630,
+  "total_papers": 9547,
+  "papers": {
+    "pubmed_abstracts": 7295,
+    "epmc_abstracts": 693,
+    "trials": 1541,
+    "guidelines": 18,
+    "distinct_pmids": 7947
+  },
+  "by_record_kind": {
+    "abstract": 7988,
+    "fulltext_chunk": 2083,
+    "trial": 1541,
+    "guideline": 18
+  },
+  "by_source_type": {
+    "pubmed": 7295,
+    "europepmc": 2776,
+    "clinicaltrial": 1541,
+    "guideline": 18
+  },
+  "by_evidence_level": {
+    "other": 6989,
+    "clinical-trial": 1560,
+    "review": 1082,
+    "meta-analysis": 803,
+    "rct": 553,
+    "systematic-review": 415,
+    "guideline": 228
+  },
+  "by_topic": {
+    "hypertension": 8480,
+    "lipids": 6534
+  },
+  "by_year": {
+    "2026": 7522,
+    "2025": 1877,
+    "2024": 371,
+    "2023": 207,
+    "2022": 176,
+    "2021": 166,
+    "2019": 114,
+    "2018": 111,
+    "2016": 92,
+    "2020": 85,
+    "2017": 82,
+    "2014": 73,
+    "2011": 73,
+    "2015": 72,
+    "2012": 69
+  },
+  "by_journal": {
+    "Nutrients": 134,
+    "Cureus": 123,
+    "PloS one": 93,
+    "Journal of hypertension": 89,
+    "Medicine": 87,
+    "Frontiers in endocrinology": 87,
+    "Journal of clinical lipidology": 86,
+    "Hypertension research : official journal of the Japanese Society of Hypertension": 84,
+    "Hypertension (Dallas, Tex. : 1979)": 81,
+    "Journal of the American Heart Association": 72,
+    "Scientific reports": 67,
+    "Nutrition, metabolism, and cardiovascular diseases : NMCD": 66,
+    "Journal of clinical hypertension (Greenwich, Conn.)": 57,
+    "BMC cardiovascular disorders": 55,
+    "American journal of hypertension": 52,
+    "Frontiers in nutrition": 52,
+    "Atherosclerosis": 51,
+    "Frontiers in cardiovascular medicine": 51,
+    "Journal of clinical medicine": 51,
+    "BMJ open": 50
+  },
+  "trials_by_status": {
+    "COMPLETED": 1017,
+    "UNKNOWN": 183,
+    "RECRUITING": 95,
+    "TERMINATED": 93,
+    "NOT_YET_RECRUITING": 52,
+    "ACTIVE_NOT_RECRUITING": 45,
+    "WITHDRAWN": 40,
+    "ENROLLING_BY_INVITATION": 14,
+    "SUSPENDED": 2
+  },
+  "trials_by_phase": {
+    "NA": 672,
+    "PHASE3": 271,
+    "PHASE4": 212,
+    "PHASE2": 153,
+    "PHASE1": 148,
+    "PHASE2,PHASE3": 41,
+    "PHASE1,PHASE2": 27,
+    "EARLY_PHASE1": 17
+  }
+}

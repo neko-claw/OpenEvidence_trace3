@@ -1,0 +1,7 @@
+# 原始 API 缓存体积较大，不入库；processed 数据可重建
+data/raw/
+*.db
+__pycache__/
+*.pyc
+.env
+.venv/
