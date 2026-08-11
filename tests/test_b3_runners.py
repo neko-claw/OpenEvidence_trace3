@@ -34,6 +34,16 @@ def test_run_roundtrip_keeps_new_fields():
     assert r2.status == "ok" and r2.attempt_count == 1 and r2.cache_hits == 1
 
 
+def test_llm_chat_json_contract():
+    """回归防护：LLMClient.chat_json 必须存在（B5 judge 依赖），OfflineLLM.chat_json 返回可解析 JSON。"""
+    from core.llm import LLMClient, OfflineLLM
+    assert hasattr(LLMClient, "chat_json"), "LLMClient.chat_json 丢失会打断 B5 评分"
+    off = OfflineLLM()
+    obj, meta = off.chat_json([{"role": "user", "content": "评分"}])
+    assert isinstance(obj, dict) and "verdicts" in obj
+    assert meta["attempts"] == 1
+
+
 # ---------- 2. A2 通用搜索（mock provider，离线） ----------
 
 def test_mock_search_returns_results_within_budget():

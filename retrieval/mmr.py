@@ -34,7 +34,15 @@ def mmr_select(ranked: list[dict],
         return s / len(others) if others else 0.0
 
     def _doc_key(ev: Evidence) -> str:
-        return ev.pmid or ev.doi or ev.nct_id or ev.id
+        """单文献稳定键：优先 pmid/doi/nct；分块证据（epmc:PMCxx:chunk:001 等）去掉 chunk/页码后缀，
+        保证同一篇文献的多个 chunk 受 max_per_doc 限制。"""
+        if ev.pmid or ev.doi or ev.nct_id:
+            return ev.pmid or ev.doi or ev.nct_id
+        base = ev.id
+        for sep in (":chunk:", ":p", "-p"):
+            if sep in base:
+                return base.split(sep)[0]
+        return base
 
     while candidates and len(selected) < k_final:
         best = None

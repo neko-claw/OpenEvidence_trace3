@@ -79,6 +79,21 @@ def test_offline_condition_e_derived_from_b_baseline():
     assert len(run_e.retrieved_evidence) <= len(run_b.retrieved_evidence)
 
 
+def test_e_perturbation_label_follows_question_declaration():
+    """E 的扰动标签应优先取题目 rubric.perturbation 声明（与审计读到的标签一致）。"""
+    from core.dataclasses import Question
+    cfg = load_config()
+    store = _small_store(cfg)
+    q = Question(id="s01", topic="hypertension", difficulty="hard",
+                 question="阿利吉仑联合用药的长期结局证据？",
+                 question_type="insufficient", freshness="up_to_date",
+                 rubric={"perturbation": "gold_removed"})
+    run_e = run_condition(q, "E", cfg, store=store, llm=OfflineLLM())
+    trace = run_e.tool_trace[0]
+    assert trace["perturbation"] == "gold_removed"   # 题目声明
+    assert trace["perturbation_executed"] == "topk_halved"  # 实际执行（B4 扩展）
+
+
 def test_offline_experiment_smoke_writes_jsonl():
     from evaluation import experiment as exp
     cfg = load_config()

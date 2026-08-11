@@ -83,6 +83,20 @@ class LLMClient:
                 time.sleep(2 ** attempt)
         raise LLMError(f"LLM 调用失败: {last_err}")
 
+    def chat_json(self,
+                  messages: list[dict],
+                  **kwargs) -> tuple[dict, dict]:
+        """返回 (json_obj, meta)。供 judge / 结构化输出调用。"""
+        text, meta = self.chat(messages, json_mode=True, **kwargs)
+        try:
+            obj = json.loads(text)
+        except json.JSONDecodeError:
+            # 模型偶尔在 JSON 外套代码块
+            import re
+            m = re.search(r"\{.*\}", text, re.S)
+            obj = json.loads(m.group(0)) if m else {}
+        return obj, meta
+
 
 class OfflineLLM:
     """离线回放模型（计划 §10 风险降级：现场网络失败 -> 离线回放模式）。
@@ -126,17 +140,6 @@ class OfflineLLM:
         }
 
     def chat_json(self, messages: list[dict], **kwargs) -> tuple[dict, dict]:
-        return {}, self.chat(messages, **kwargs)[1]
-
-    def chat_json(self,
-                  messages: list[dict],
-                  **kwargs) -> tuple[dict, dict]:
-        text, meta = self.chat(messages, json_mode=True, **kwargs)
-        try:
-            obj = json.loads(text)
-        except json.JSONDecodeError:
-            # 模型偶尔在 JSON 外套代码块
-            import re
-            m = re.search(r"\{.*\}", text, re.S)
-            obj = json.loads(m.group(0)) if m else {}
-        return obj, meta
+        """离线回放：返回固定 JSON 结构，保证 judge/结构化输出链路可解析。"""
+        return {"offline": True, "verdicts": [], "notes": "offline replay"}, \
+            self.chat(messages, **kwargs)[1]

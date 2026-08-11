@@ -106,9 +106,13 @@ def run_condition(q: Question, condition: str, cfg: Config,
         n = max(2, len(base_evs) // 2)
         top_evs = base_evs[:n]
         features = [f for f in base_feats if f["doc_id"] in {e["id"] for e in top_evs}]
+        # 扰动标签优先取题目声明（stress 题 rubric.perturbation），执行逻辑仍为 top-k 减半骨架；
+        # B4 合入 e_perturbation_rules.json 后按声明实现 gold 删除/注入不支持证据等扰动。
+        declared = q.rubric.get("perturbation") if isinstance(q.rubric, dict) else None
         run.tool_trace.append({"tools": ["bm25", "vector", "rrf", "degrade"],
                                "derived_from": "B_baseline_rerank_false",
-                               "perturbation": "topk_halved",
+                               "perturbation": declared or "topk_halved",
+                               "perturbation_executed": "topk_halved",
                                "retrieved": len(top_evs), "degraded": True,
                                "cache_hit": stats.get("cache_hit", False)})
         run.index_version = store.index_version
