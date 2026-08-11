@@ -1,6 +1,6 @@
 {
   "dataset_version": "v0.1.0",
-  "created_at": "2026-08-11T02:55:20+00:00",
+  "created_at": "2026-08-11T03:38:41+00:00",
   "corpus_cutoff": "2026-08-11",
   "source_datasets": [
     "PubMed (E-utilities esearch/efetch, abstracts)",
@@ -14,8 +14,14 @@
     "EuropePMC": "Records metadata freely available; full-text only for OPEN_ACCESS articles",
     "guidelines": "教学使用；仅保存书目元数据与公开摘要，不保存版权全文"
   },
+  "storage_layout": {
+    "evidence.jsonl": "主集：题录/摘要 + 试验 + 指南（用于检索召回）",
+    "fulltext_chunks.jsonl": "增强层：Europe PMC OA 全文分块（用于生成/验证时按需增强）",
+    "evidence.db": "SQLite：主集与全文 chunk 同表，record_kind 区分；供检索层查询"
+  },
   "split_hashes": {
-    "evidence.jsonl": "5c4ed4f61990e896903b73b60e294d3bf493212540ede04a5e1ff452d66b4285"
+    "evidence.jsonl": "ea6dec2221fcf1f3a47320f17a5bc3c1e331feb73fd6b89ce76326a3f783c6ce",
+    "fulltext_chunks.jsonl": "29c20dad6e958a3a0c03965ff5f0f6d6d189cb46366e2304ad192e41cf1cd0a0"
   },
   "source_group_policy": "跨源去重：PubMed 与 Europe PMC 以 PMID 为稳定键；试验以 NCT ID；指南以人工 key",
   "dedup_method": "PMID/NCT/guideline-key 唯一键 + title+abstract content_hash 校验",
@@ -27,8 +33,8 @@
   "record_counts": {
     "abstract": 8638,
     "trial": 1541,
-    "fulltext_chunk": 2083,
-    "guideline": 18
+    "guideline": 18,
+    "fulltext_chunk": 12182
   },
   "pipeline": "cd OpenEvidence && python -m ingestion.run_all",
   "generator": "ingestion.build_db.write_manifest"

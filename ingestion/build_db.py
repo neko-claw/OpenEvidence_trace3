@@ -53,13 +53,18 @@ CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
 
 
 def load_evidence_lines():
-    """从 evidence.jsonl 读取（list 字段已是 JSON 字符串）。"""
+    """从 evidence.jsonl + fulltext_chunks.jsonl 读取（list 字段已是 JSON 字符串）。
+
+    注意：必须用 split("\n") 而非 splitlines()——splitlines() 会按 \u2028/\u2029 等
+    Unicode 行分隔符拆分，而写入时仅以 \n 为行边界。
+    """
     lines = []
-    if not config.EVIDENCE_JSONL.exists():
-        return lines
-    for ln in config.EVIDENCE_JSONL.read_text(encoding="utf-8").splitlines():
-        if ln.strip():
-            lines.append(json.loads(ln))
+    for path in (config.EVIDENCE_JSONL, config.FULLTEXT_CHUNKS_JSONL):
+        if not path.exists():
+            continue
+        for ln in path.read_text(encoding="utf-8").split("\n"):
+            if ln.strip():
+                lines.append(json.loads(ln))
     return lines
 
 
@@ -152,6 +157,24 @@ def compute_stats(lines):
     return s
 
 
+def compute_chunk_stats(chunk_lines, stats):
+    """统计全文 chunk 层（独立文件）。"""
+    n = len(chunk_lines)
+    articles = set()
+    pmids = set()
+    for r in chunk_lines:
+        if r.get("pmcid"):
+            articles.add(r["pmcid"])
+        if r.get("pmid"):
+            pmids.add(r["pmid"])
+    stats["fulltext_chunks"] = {
+        "chunk_count": n,
+        "article_count": len(articles),
+        "articles_with_pmid": len(pmids),
+    }
+    return stats
+
+
 def _counter_to_dict(c, topn=None):
     items = sorted(c.items(), key=lambda kv: -kv[1])
     if topn:
@@ -160,6 +183,10 @@ def _counter_to_dict(c, topn=None):
 
 
 def write_manifest(lines):
+    hashes = {}
+    for path in (config.EVIDENCE_JSONL, config.FULLTEXT_CHUNKS_JSONL):
+        if path.exists():
+            hashes[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
     m = {
         "dataset_version": "v0.1.0",
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -176,10 +203,12 @@ def write_manifest(lines):
             "EuropePMC": "Records metadata freely available; full-text only for OPEN_ACCESS articles",
             "guidelines": "教学使用；仅保存书目元数据与公开摘要，不保存版权全文",
         },
-        "split_hashes": {
-            "evidence.jsonl": hashlib.sha256(
-                config.EVIDENCE_JSONL.read_bytes()).hexdigest(),
+        "storage_layout": {
+            "evidence.jsonl": "主集：题录/摘要 + 试验 + 指南（用于检索召回）",
+            "fulltext_chunks.jsonl": "增强层：Europe PMC OA 全文分块（用于生成/验证时按需增强）",
+            "evidence.db": "SQLite：主集与全文 chunk 同表，record_kind 区分；供检索层查询",
         },
+        "split_hashes": hashes,
         "source_group_policy": "跨源去重：PubMed 与 Europe PMC 以 PMID 为稳定键；试验以 NCT ID；指南以人工 key",
         "dedup_method": "PMID/NCT/guideline-key 唯一键 + title+abstract content_hash 校验",
         "dedup_threshold": None,
@@ -209,7 +238,8 @@ def write_stats(lines, stats):
   - ClinicalTrials.gov 试验：{papers['trials']}
   - 人工确认指南：{papers['guidelines']}
 - 唯一 PMID 数：{papers['distinct_pmids']}
-- 全文 chunk（Europe PMC OA，附加）：{stats['by_record_kind'].get('fulltext_chunk', 0)}
+- 全文增强层（Europe PMC OA）：{stats.get('fulltext_chunks', {}).get('article_count', 0)} 篇 / {stats.get('fulltext_chunks', {}).get('chunk_count', 0)} 个 chunk
+  （存于 data/processed/fulltext_chunks.jsonl，生成/验证时按需加载）
 
 ## 按记录类型
 {json.dumps(dict(stats['by_record_kind']), ensure_ascii=False, indent=2)}
@@ -244,6 +274,7 @@ def write_stats(lines, stats):
         "total_records": stats["total_records"],
         "total_papers": total_papers,
         "papers": {k: v for k, v in papers.items()},
+        "fulltext_chunks": stats.get("fulltext_chunks", {}),
         "by_record_kind": _counter_to_dict(stats["by_record_kind"]),
         "by_source_type": _counter_to_dict(stats["by_source_type"]),
         "by_evidence_level": _counter_to_dict(stats["by_evidence_level"]),
@@ -258,14 +289,18 @@ def write_stats(lines, stats):
     return total_papers
 
 
-def run(force: bool = False):
+def run(force: bool = False, chunk_lines=None):
     lines = load_evidence_lines()
     if not lines:
         raise RuntimeError("evidence.jsonl 为空，请先运行 python -m ingestion.run_all")
     n = build_db(lines, force=force)
     stats = compute_stats(lines)
+    if chunk_lines is not None:
+        stats = compute_chunk_stats(chunk_lines, stats)
     manifest = write_manifest(lines)
     total_papers = write_stats(lines, stats)
     log.info("manifest written: %s", config.MANIFEST_JSON)
     log.info("stats written: %s / %s", config.STATS_MD, config.STATS_JSON)
-    return {"rows": n, "total_papers": total_papers, "manifest": manifest}
+    return {"rows": n, "total_papers": total_papers,
+            "chunks": stats.get("fulltext_chunks", {}).get("chunk_count", 0),
+            "manifest": manifest}

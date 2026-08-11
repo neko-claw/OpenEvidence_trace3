@@ -1,5 +1,5 @@
 {
-  "total_records": 12280,
+  "total_records": 22379,
   "total_papers": 10197,
   "papers": {
     "pubmed_abstracts": 7947,
@@ -8,20 +8,25 @@
     "guidelines": 18,
     "distinct_pmids": 8597
   },
+  "fulltext_chunks": {
+    "chunk_count": 12182,
+    "article_count": 698,
+    "articles_with_pmid": 667
+  },
   "by_record_kind": {
+    "fulltext_chunk": 12182,
     "abstract": 8638,
-    "fulltext_chunk": 2083,
     "trial": 1541,
     "guideline": 18
   },
   "by_source_type": {
+    "europepmc": 12873,
     "pubmed": 7947,
-    "europepmc": 2774,
     "clinicaltrial": 1541,
     "guideline": 18
   },
   "by_evidence_level": {
-    "other": 7337,
+    "other": 17436,
     "clinical-trial": 1565,
     "review": 1194,
     "meta-analysis": 929,
@@ -30,13 +35,13 @@
     "guideline": 228
   },
   "by_topic": {
-    "hypertension": 8081,
-    "lipids": 6174
+    "hypertension": 15105,
+    "lipids": 9653
   },
   "by_year": {
-    "2026": 7552,
-    "2025": 1980,
-    "2024": 379,
+    "2026": 11279,
+    "2025": 7678,
+    "2024": 1053,
     "2020": 225,
     "2019": 220,
     "2023": 211,

@@ -242,11 +242,20 @@ def normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, gu
         seen[ln["id"]] = ln
     lines = list(seen.values())
 
-    with open(config.EVIDENCE_JSONL, "w", encoding="utf-8") as f:
-        for ln in lines:
-            f.write(json.dumps(evidence_to_line(ln), ensure_ascii=False) + "\n")
-    log.info("evidence.jsonl written: %d records", len(lines))
-    return lines
+    # 分层存储：主集（题录/摘要/试验/指南）与全文 chunk 分开
+    main_lines = [ln for ln in lines if ln["record_kind"] != "fulltext_chunk"]
+    chunk_lines = [ln for ln in lines if ln["record_kind"] == "fulltext_chunk"]
+
+    def _dump(path, recs):
+        with open(path, "w", encoding="utf-8") as f:
+            for ln in recs:
+                f.write(json.dumps(evidence_to_line(ln), ensure_ascii=False) + "\n")
+
+    _dump(config.EVIDENCE_JSONL, main_lines)
+    _dump(config.FULLTEXT_CHUNKS_JSONL, chunk_lines)
+    log.info("evidence.jsonl written: %d records (+ fulltext_chunks.jsonl: %d)",
+             len(main_lines), len(chunk_lines))
+    return main_lines, chunk_lines
 
 
 def main():
@@ -271,19 +280,22 @@ def main():
     hits_by_slug, hit_map, fulltext_meta = crawl_europepmc(force=args.force)
     guidelines = build_guidelines(articles, preferred)
 
-    lines = normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, guidelines)
+    lines, chunk_lines = normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, guidelines)
 
     if not args.no_db:
-        res = build_db.run(force=True)
-        log.info("DB rows=%d, total_papers=%d", res["rows"], res["total_papers"])
+        res = build_db.run(force=True, chunk_lines=chunk_lines)
+        log.info("DB rows=%d, total_papers=%d, chunks=%d",
+                 res["rows"], res["total_papers"], res.get("chunks", 0))
 
     stats = build_db.compute_stats(lines)
+    stats = build_db.compute_chunk_stats(chunk_lines, stats)
     total_papers = (stats["papers"]["pubmed_abstracts"]
                     + stats["papers"]["epmc_abstracts"]
                     + stats["papers"]["trials"] + stats["papers"]["guidelines"])
     log.info("=" * 60)
-    log.info("完成！总证据记录=%d | 文献/证据篇数=%d | 唯一 PMID=%d",
-             len(lines), total_papers, stats["papers"]["distinct_pmids"])
+    log.info("完成！主证据记录=%d | 文献/证据篇数=%d | 唯一 PMID=%d | 全文chunk=%d",
+             len(lines), total_papers, stats["papers"]["distinct_pmids"],
+             stats.get("fulltext_chunks", {}).get("chunk_count", 0))
     log.info("耗时 %.1f 秒", time.time() - T0)
     return 0
 

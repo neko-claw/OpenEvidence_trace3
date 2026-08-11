@@ -7,11 +7,13 @@
 
 | 交付物 | 路径 | 说明 |
 |---|---|---|
-| 统一证据集 | `data/processed/evidence.jsonl` | 12,280 条标准化 Evidence（契约见 §4） |
-| 证据数据库 | `data/processed/evidence.db` | SQLite 索引（record_kind/level/year/topic 均有索引） |
+| 统一证据集（主集） | `data/processed/evidence.jsonl` | 10,197 条题录/摘要 + 试验 + 指南（用于检索召回） |
+| 全文增强层 | `data/processed/fulltext_chunks.jsonl` | **12,182 条 Europe PMC OA 全文分块（698 篇）**，生成/验证时按需加载 |
+| 证据数据库 | `data/processed/evidence.db` | SQLite 索引（主集+全文 chunk 同表，`record_kind` 区分） |
 | 数据集清单 | `data/processed/manifest.json` | DatasetManifest（版本、来源、去重策略、哈希） |
 | 统计报告 | `artifacts/dataset_stats.md` / `.json` | 全量统计 |
 | 采集代码 | `ingestion/` | 多源连接器 + 标准化 + 建库（可一键重建） |
+| 按需全文服务 | `ingestion/fulltext_service.py` | 按 PMID/PMCID 拉取 OA 全文并分块（供 RAG/MCP 用） |
 | 原始缓存 | `data/raw/` | 各源原始 API 响应（不提交 git，可重建） |
 
 ## 2. 数据规模（2026-08-11 采集）
@@ -21,7 +23,8 @@
   - Europe PMC 独有摘要：691
   - ClinicalTrials.gov 干预性试验：**1,541**（NCT 去重）
   - 人工确认指南：**18**（14 条已用 PubMed 真实记录回填 PMID/DOI）
-- 附加：Europe PMC OA **全文 chunk 2,083** 条（120 篇 OA 系统综述/试验全文，分块存储）
+- **全文增强层**：Europe PMC OA **全文 698 篇 / 12,182 个分块**，其中 667 篇与 PubMed 摘要双覆盖
+  （meta-analysis 124 / rct 53 / systematic-review 19 篇带全文，是生成与验证的关键支撑）
 - 证据等级分布：guideline 228 / systematic-review 429 / meta-analysis 929 / rct 598 / review 1,194 / clinical-trial 1,564 / other 5,255
 - 主题覆盖：hypertension 8,480 条、lipids 6,534 条（可重叠）
 - 时间跨度：1995 – 2026，重点覆盖 2020 后最新研究，同时包含经典里程碑证据
@@ -46,7 +49,15 @@
 - 疗效与安全性比较：降压药、他汀、降脂药相关系统综述/Meta 分析
 - 经典证据补足：SPRINT、DASH、ALLHAT、JUPITER、CTT/BPLTTC 协作组 Meta 分析等
 
-## 4. Evidence 数据契约（规划 3.1）
+## 4. Evidence 数据契约与分层存储（规划 3.1 / 4.1）
+
+**为什么分层？** 检索召回用摘要（快、全），全文只在生成/验证时按需加载，避免把全部正文塞进索引（规划 12.3）。
+
+- `evidence.jsonl`（主集）：`record_kind = abstract | trial | guideline`
+- `fulltext_chunks.jsonl`（增强层）：`record_kind = fulltext_chunk`，`pmcid` 关联同文摘要
+- `evidence.db`：两文件同表（`evidence`），`record_kind` 区分，全文层可随时按 `pmcid` 定位
+- 按需全文：`python -m ingestion.fulltext_service --pmid 39210715`（Europe PMC OA 子集；
+  非 OA 文献返回明确提示，引用校验走 PMID/DOI 层）
 
 每条记录字段：
 
@@ -118,6 +129,8 @@ python -m ingestion.run_all --force  # 忽略缓存全量重抓
 
 ## 8. 已知局限
 
+- **全文覆盖**：仅 Europe PMC OA 子集（698 篇，多为系统综述/试验）；ESC/ACC/AHA 等指南全文在出版商
+  网站，检索用摘要+ID 溯源，全文补全属 P1（指南 PDF 解析 / Crossref/OpenAlex 元数据补全）。
 - content_hash 存在少量跨 PMID 重复（同一指南的多期刊变体、个别重复索引的预印本、极少数字段重复的全文 chunk）：
   这正是 `content_hash` 字段的用途，下游可按需合并；正式评测的检索层可按 ID 去重。
 - 中文文献：PubMed 收录的中文指南以英文题录为主；中文全文 PDF 解析属 P1（按规划降级）。

@@ -21,7 +21,11 @@ FETCHED_AT = datetime.now(timezone.utc).isoformat(timespec="seconds")
 # ---------------------------------------------------------------- 工具
 
 def _norm(s: str) -> str:
-    return re.sub(r"\s+", " ", (s or "")).strip()
+    """归一化空白：去除控制字符与 Unicode 行分隔符，避免污染 JSONL 行结构。"""
+    if s is None:
+        return ""
+    s = re.sub(r"[\u0000-\u001f\u007f\u2028\u2029\u0085]", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
 
 
 def content_hash(title: str, body: str) -> str:
@@ -222,6 +226,8 @@ def normalize_fulltext_chunks(hit: dict, chunks: list, query_topics) -> list:
         pass
     records = []
     for i, chunk in enumerate(chunks):
+        # 清洗控制字符与 Unicode 行分隔符，保证 JSONL 行结构安全
+        chunk = re.sub(r"[\u0000-\u001f\u007f\u2028\u2029\u0085]", " ", chunk)
         records.append({
             "id": f"epmc:{pmcid}:chunk:{i:03d}",
             "record_kind": "fulltext_chunk",

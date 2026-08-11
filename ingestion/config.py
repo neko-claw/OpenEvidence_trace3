@@ -221,7 +221,7 @@ EPMC_QUERIES = [
      500),
 ]
 # 下载全文的 OA 文献上限（只对有 PMC 全文的文献下载）
-EPMC_FULLTEXT_LIMIT = 120
+EPMC_FULLTEXT_LIMIT = 700
 # 全文分块参数
 FULLTEXT_CHUNK_MAX_CHARS = 4000
 FULLTEXT_CHUNK_CAP_PER_ARTICLE = 20
@@ -242,6 +242,7 @@ LIPID_TERMS = [
 
 # ---------------------------------------------------------------- 默认输出
 EVIDENCE_JSONL = DATA_PROCESSED / "evidence.jsonl"
+FULLTEXT_CHUNKS_JSONL = DATA_PROCESSED / "fulltext_chunks.jsonl"
 EVIDENCE_DB = DATA_PROCESSED / "evidence.db"
 MANIFEST_JSON = DATA_PROCESSED / "manifest.json"
 STATS_JSON = ARTIFACTS / "dataset_stats.json"
