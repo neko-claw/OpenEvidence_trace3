@@ -225,8 +225,13 @@ EPMC_FULLTEXT_LIMIT = 700
 # 全文分块参数
 FULLTEXT_CHUNK_MAX_CHARS = 4000
 FULLTEXT_CHUNK_CAP_PER_ARTICLE = 20
+FULLTEXT_CHUNK_OVERLAP_CHARS = 150   # 同小节相邻块重叠长度（句子边界对齐）
+FULLTEXT_MIN_CHUNK_CHARS = 50        # 过短 chunk 视为噪声，不写入语料
 FULLTEXT_SKIP_SECTIONS = {"references", "author information", "competing interests",
-                          "declarations", "funding", "acknowledgements", "abbreviations"}
+                          "conflicts of interest", "conflict of interest", "declarations",
+                          "funding", "acknowledgements", "acknowledgment", "abbreviations",
+                          "data availability statement", "ethics statement",
+                          "ethics approval", "supplementary materials"}
 
 # ---------------------------------------------------------------- 主题标签词表
 HYPERTENSION_TERMS = [

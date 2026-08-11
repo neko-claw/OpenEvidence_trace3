@@ -1,16 +1,16 @@
 # OpenEvidence 风格证据智能助手 MVP —— 第一部分：数据集采集
 
 > 主题范围：**高血压（hypertension）+ 血脂异常（dyslipidemia）**，与实施规划一致。
-> 状态：✅ 已完成（v0.1.0）。仅供教学研究，不用于临床诊疗。
+> 状态：✅ 已完成（v0.2.0：跨源去重 + 空摘要标记 + XML 清洗 + 小节感知分块）。仅供教学研究，不用于临床诊疗。
 
 ## 1. 本部分交付物
 
 | 交付物 | 路径 | 说明 |
 |---|---|---|
-| 统一证据集（主集） | `data/processed/evidence.jsonl` | 10,197 条题录/摘要 + 试验 + 指南（用于检索召回） |
-| 全文增强层 | `data/processed/fulltext_chunks.jsonl` | **12,182 条 Europe PMC OA 全文分块（698 篇）**，生成/验证时按需加载 |
+| 统一证据集（主集） | `data/processed/evidence.jsonl` | 10,183 条题录/摘要 + 试验 + 指南（用于检索召回） |
+| 全文增强层 | `data/processed/fulltext_chunks.jsonl` | **11,607 条 Europe PMC OA 全文分块（696 篇，小节感知 + 句子边界 + 重叠）**，生成/验证时按需加载 |
 | 证据数据库 | `data/processed/evidence.db` | SQLite 索引（主集+全文 chunk 同表，`record_kind` 区分） |
-| 数据集清单 | `data/processed/manifest.json` | DatasetManifest（版本、来源、去重策略、哈希） |
+| 数据集清单 | `data/processed/manifest.json` | DatasetManifest（版本、来源、去重策略、哈希、分块策略、处理统计） |
 | 统计报告 | `artifacts/dataset_stats.md` / `.json` | 全量统计 |
 | 采集代码 | `ingestion/` | 多源连接器 + 标准化 + 建库（可一键重建） |
 | 按需全文服务 | `ingestion/fulltext_service.py` | 按 PMID/PMCID 拉取 OA 全文并分块（供 RAG/MCP 用） |
@@ -18,15 +18,15 @@
 
 ## 2. 数据规模（2026-08-11 采集）
 
-- **文献/证据篇数：10,197**（≥ 2000 目标，超额 5 倍）
-  - PubMed 摘要：**7,947**（唯一 PMID 8,597）
+- **文献/证据篇数：10,183**（≥ 2000 目标，超额 5 倍）
+  - PubMed 摘要：**7,933**（唯一 PMID 8,583）
   - Europe PMC 独有摘要：691
   - ClinicalTrials.gov 干预性试验：**1,541**（NCT 去重）
   - 人工确认指南：**18**（14 条已用 PubMed 真实记录回填 PMID/DOI）
-- **全文增强层**：Europe PMC OA **全文 698 篇 / 12,182 个分块**，其中 667 篇与 PubMed 摘要双覆盖
-  （meta-analysis 124 / rct 53 / systematic-review 19 篇带全文，是生成与验证的关键支撑）
-- 证据等级分布：guideline 228 / systematic-review 429 / meta-analysis 929 / rct 598 / review 1,194 / clinical-trial 1,564 / other 5,255
-- 主题覆盖：hypertension 8,480 条、lipids 6,534 条（可重叠）
+- **全文增强层**：Europe PMC OA **全文 696 篇 / 11,607 个分块**，其中 667 篇与 PubMed 摘要双覆盖
+  （meta-analysis / rct / systematic-review 带全文，是生成与验证的关键支撑）
+- 证据等级分布：guideline 221 / systematic-review 429 / meta-analysis 929 / rct 598 / review 1,192 / clinical-trial 1,565 / other 16,856
+- 主题覆盖：hypertension 14,669 条、lipids 9,487 条（可重叠）
 - 时间跨度：1995 – 2026，重点覆盖 2020 后最新研究，同时包含经典里程碑证据
   （SPRINT、DASH、ALLHAT、JUPITER、HYVET、CTT meta 分析、BPLTTC、FOURIER、IMPROVE-IT、孟德尔随机化研究等）
 
@@ -36,9 +36,9 @@
 
 | 来源 | API | 采集方式 | 采集量 |
 |---|---|---|---|
-| PubMed | E-utilities（esearch/efetch） | 35 组检索式（指南/系统综述/Meta/RCT/细分主题/经典证据），按 PMID 去重后批量 efetch 摘要 | 7,947 条摘要 |
+| PubMed | E-utilities（esearch/efetch） | 35 组检索式（指南/系统综述/Meta/RCT/细分主题/经典证据），按 PMID 去重后批量 efetch 摘要 | 7,933 条摘要 |
 | ClinicalTrials.gov | Data API v2 | `query.cond`（hypertension / dyslipidemia OR hyperlipidemia OR hypercholesterolemia OR hypertriglyceridemia），`filter.advanced=AREA[StudyType]INTERVENTIONAL` | 1,541 项试验 |
-| Europe PMC | REST API | OA 系统综述/指南/试验检索（去重）+ 全文 XML 下载与分块 | 691 摘要 + 2,083 chunk |
+| Europe PMC | REST API | OA 系统综述/指南/试验检索（与 PubMed 按 PMID 去重）+ 全文 XML 下载与分块 | 691 摘要 + 11,607 chunk |
 | 指南（人工确认） | — | 人工确认权威指南清单 + 用 PubMed 检索回填元数据（见 §6） | 18 条 |
 
 ### 检索式覆盖的题型（对应实施规划 3.3 路由矩阵）
@@ -53,8 +53,9 @@
 
 **为什么分层？** 检索召回用摘要（快、全），全文只在生成/验证时按需加载，避免把全部正文塞进索引（规划 12.3）。
 
-- `evidence.jsonl`（主集）：`record_kind = abstract | trial | guideline`
-- `fulltext_chunks.jsonl`（增强层）：`record_kind = fulltext_chunk`，`pmcid` 关联同文摘要
+- `evidence.jsonl`（主集）：`record_kind = abstract | trial | guideline`（同 PMID 跨源已合并，无重复）
+- `fulltext_chunks.jsonl`（增强层）：`record_kind = fulltext_chunk`，`pmcid` 关联同文摘要；
+  每个 chunk 的 `extras.section / char_start / char_end` 记录所属小节与字符区间，供证据 span 定位
 - `evidence.db`：两文件同表（`evidence`），`record_kind` 区分，全文层可随时按 `pmcid` 定位
 - 按需全文：`python -m ingestion.fulltext_service --pmid 39210715`（Europe PMC OA 子集；
   非 OA 文献返回明确提示，引用校验走 PMID/DOI 层）
@@ -88,10 +89,24 @@
 > 说明：PICO 字段已为试验填充（人群=入组条件，干预=干预名，结局=主要结局指标）；
 > 文献摘要的 PICO 解析属于后续 A3 流水线任务，本部分保留空值。
 
+### 分块策略（v0.2.0 改进）
+
+- **小节感知**：每个 chunk 严格属于单一章节（正文 `<sec>` 层级），绝不把不同章节切到同一块；
+  章节标题编号规范化（`1. Introduction` → `Introduction`），参考文献/致谢/数据可用性等噪声小节跳过。
+- **句子边界 + 重叠**：按句末标点切分，块长 ≤ 4000 字符；同小节相邻块重叠约 150 字符，避免硬切丢上下文。
+- **XML 清洗**：数学公式替换为 `[MATH]` 占位符；交叉引用 `<xref>` 与残留 `[1]`/`[9,10,11]` 引用编号剥离，
+  防止 LLM 误当成项目引用 `[E#]`；表格按 单元格用 `|`、行用 `||` 分隔。
+- **span 元数据**：`extras.section / char_start / char_end`，支撑 §5.7 Gate 5 的 evidence span 定位。
+
 ## 5. 去重与溯源
 
 - **跨源去重**：PubMed 与 Europe PMC 以 **PMID** 为稳定键；试验以 **NCT ID**；指南以人工 key。
+- **同 PMID 跨源合并**（v0.2.0）：同一文献同时以 guideline + pubmed / pubmed + europepmc 出现时，
+  合并为一条规范记录（优先级 指南 > PubMed > Europe PMC），保留规范 id，被合并 id 记录于
+  `extras.dedup_merged_ids`；全文 chunk 层不参与合并（是证据片段而非重复文献）。
 - **content_hash**：sha256(title + abstract)，供后续增量更新与重复检测。
+- **空摘要标记**：PubMed/Europe PMC 无摘要记录以标题回退并标记 `extras.content_status=title_only`，
+  避免空文本进检索索引；过短全文 chunk（< 50 字符）直接丢弃（计数见 manifest）。
 - **指南编号不人工编造**：指南的 PMID/DOI 全部来自 PubMed 真实检索结果，经
   `verify_terms`（标题必须包含）+ `exclude_terms`（排除评论/勘误/译文）+ 年份/期刊约束
   三重验证后才回填（见 `ingestion/guidelines.py`）；检索不到可靠记录的（NICE 网页版、
@@ -129,14 +144,13 @@ python -m ingestion.run_all --force  # 忽略缓存全量重抓
 
 ## 8. 已知局限
 
-- **全文覆盖**：仅 Europe PMC OA 子集（698 篇，多为系统综述/试验）；ESC/ACC/AHA 等指南全文在出版商
+- **全文覆盖**：仅 Europe PMC OA 子集（696 篇，多为系统综述/试验）；ESC/ACC/AHA 等指南全文在出版商
   网站，检索用摘要+ID 溯源，全文补全属 P1（指南 PDF 解析 / Crossref/OpenAlex 元数据补全）。
-- content_hash 存在少量跨 PMID 重复（同一指南的多期刊变体、个别重复索引的预印本、极少数字段重复的全文 chunk）：
-  这正是 `content_hash` 字段的用途，下游可按需合并；正式评测的检索层可按 ID 去重。
-- 中文文献：PubMed 收录的中文指南以英文题录为主；中文全文 PDF 解析属 P1（按规划降级）。
-- 指南全文：本部分保存书目元数据 + 已验证 PMID/DOI/URL；指南 PDF 解析与分块在 P1 进行。
-- 时效：`corpus_cutoff=2026-08-11`；正式评测前如需要可增量更新（content_hash 支持）。
-- 伦理边界：不包含真实患者数据；所有页面/报告需标注“仅供教学研究，不用于临床诊疗”。
+- **指南正文**：多数权威指南的 PubMed 条目本身无摘要（如 ACC/AHA 2017、ESC 2024），
+  本部分保存书目元数据 + 已验证 PMID/DOI/URL；指南 PDF 解析与分块在 P1 进行，报告需披露。
+- **中文文献**：PubMed 收录的中文指南以英文题录为主；中文全文 PDF 解析属 P1（按规划降级）。
+- **时效**：`corpus_cutoff=2026-08-11`；正式评测前如需要可增量更新（content_hash 支持）。
+- **伦理边界**：不包含真实患者数据；所有页面/报告需标注“仅供教学研究，不用于临床诊疗”。
 
 ## 9. 目录结构（本部分相关）
 

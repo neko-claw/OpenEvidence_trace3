@@ -17,6 +17,7 @@ import json
 import logging
 import sys
 import time
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from . import config
@@ -24,7 +25,8 @@ from .sources import clinicaltrials, europepmc, pubmed
 from .guidelines import CURATED_GUIDELINES, enrich_from_pubmed
 from .normalize import (normalize_fulltext_chunks, normalize_guideline,
                         normalize_pubmed, normalize_trial,
-                        normalize_epmc_abstract, evidence_to_line)
+                        normalize_epmc_abstract, evidence_to_line,
+                        merge_duplicate_pmids)
 from . import build_db
 
 logging.basicConfig(level=logging.INFO,
@@ -200,13 +202,18 @@ def build_guidelines(articles, preferred):
 # ---------------------------------------------------------------- 5+6. 标准化入库
 
 def normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, guidelines):
+    stats = {"dedup_merged": 0, "title_only": 0, "tiny_chunks_dropped": 0,
+             "xml_parse_failed": [], "cross_source_dups": 0}
     lines = []
     # PubMed
     for a in articles:
         if not a.get("pmid"):
             continue
         topics = pmid_topics.get(a["pmid"], [])
-        lines.append(normalize_pubmed(a, topics))
+        rec = normalize_pubmed(a, topics)
+        if (rec.get("extras") or {}).get("content_status") == "title_only":
+            stats["title_only"] += 1
+        lines.append(rec)
     # Trials
     for t in trials:
         lines.append(normalize_trial(clinicaltrials.parse_study(t)))
@@ -217,32 +224,44 @@ def normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, gu
         for h in hits:
             pmid = h.get("pmid")
             if pmid and pmid in pubmed_pmids:
+                stats["cross_source_dups"] += 1
                 continue
             key = h.get("pmcid") or f"{h.get('source')}:{h.get('id')}"
             if key in epmc_seen:
                 continue
             epmc_seen.add(key)
-            lines.append(normalize_epmc_abstract(h, config.QUERY_TOPIC.get(slug, [])))
-    # Europe PMC 全文 chunks
+            rec = normalize_epmc_abstract(h, config.QUERY_TOPIC.get(slug, []))
+            if (rec.get("extras") or {}).get("content_status") == "title_only":
+                stats["title_only"] += 1
+            lines.append(rec)
+    # Europe PMC 全文 chunks（改进 4/5：解析容错 + 小节感知分块）
     for pmcid, h in fulltext_meta.items():
         xml_text = (config.EPMC_FULLTEXT_DIR / f"{pmcid}.xml").read_text(encoding="utf-8")
-        sections = europepmc.xml_to_sections(xml_text)
+        try:
+            sections = europepmc.xml_to_sections(xml_text)
+        except ET.ParseError as exc:
+            log.warning("XML 解析失败（隔离，不静默丢弃）: %s: %s", pmcid, exc)
+            stats["xml_parse_failed"].append(pmcid)
+            continue
         chunks = europepmc.chunk_sections(
             sections, max_chars=config.FULLTEXT_CHUNK_MAX_CHARS,
             cap=config.FULLTEXT_CHUNK_CAP_PER_ARTICLE,
-            skip=config.FULLTEXT_SKIP_SECTIONS)
-        lines.extend(normalize_fulltext_chunks(h, chunks, []))
+            skip=config.FULLTEXT_SKIP_SECTIONS,
+            overlap_chars=config.FULLTEXT_CHUNK_OVERLAP_CHARS)
+        before = len(chunks)
+        recs = normalize_fulltext_chunks(h, chunks, [])
+        stats["tiny_chunks_dropped"] += before - len(recs)
+        lines.extend(recs)
     # 指南
     for g in guidelines:
         lines.append(normalize_guideline(g))
 
-    # 按 id 去重 + content_hash 冲突校验
-    seen = {}
-    for ln in lines:
-        seen[ln["id"]] = ln
-    lines = list(seen.values())
+    # 改进 2：跨源同 PMID 合并（指南 > PubMed > Europe PMC），修复重复冗余
+    lines = merge_duplicate_pmids(lines)
+    stats["dedup_merged"] = sum(
+        len((r.get("extras") or {}).get("dedup_merged_ids") or []) for r in lines)
 
-    # 分层存储：主集（题录/摘要/试验/指南）与全文 chunk 分开
+    # 分层存储：主集（题录/摘要/试验/指南）与全文 chunk 分开（改进 1：使用 main 版本布局）
     main_lines = [ln for ln in lines if ln["record_kind"] != "fulltext_chunk"]
     chunk_lines = [ln for ln in lines if ln["record_kind"] == "fulltext_chunk"]
 
@@ -255,7 +274,8 @@ def normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, gu
     _dump(config.FULLTEXT_CHUNKS_JSONL, chunk_lines)
     log.info("evidence.jsonl written: %d records (+ fulltext_chunks.jsonl: %d)",
              len(main_lines), len(chunk_lines))
-    return main_lines, chunk_lines
+    log.info("ingest stats: %s", json.dumps(stats, ensure_ascii=False))
+    return main_lines, chunk_lines, stats
 
 
 def main():
@@ -280,10 +300,10 @@ def main():
     hits_by_slug, hit_map, fulltext_meta = crawl_europepmc(force=args.force)
     guidelines = build_guidelines(articles, preferred)
 
-    lines, chunk_lines = normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, guidelines)
+    lines, chunk_lines, ingest_stats = normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, guidelines)
 
     if not args.no_db:
-        res = build_db.run(force=True, chunk_lines=chunk_lines)
+        res = build_db.run(force=True, chunk_lines=chunk_lines, ingest_stats=ingest_stats)
         log.info("DB rows=%d, total_papers=%d, chunks=%d",
                  res["rows"], res["total_papers"], res.get("chunks", 0))
 

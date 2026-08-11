@@ -182,13 +182,13 @@ def _counter_to_dict(c, topn=None):
     return {k: v for k, v in items}
 
 
-def write_manifest(lines):
+def write_manifest(lines, ingest_stats=None):
     hashes = {}
     for path in (config.EVIDENCE_JSONL, config.FULLTEXT_CHUNKS_JSONL):
         if path.exists():
             hashes[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
     m = {
-        "dataset_version": "v0.1.0",
+        "dataset_version": "v0.2.0",
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "corpus_cutoff": datetime.now(timezone.utc).date().isoformat(),
         "source_datasets": [
@@ -210,10 +210,19 @@ def write_manifest(lines):
         },
         "split_hashes": hashes,
         "source_group_policy": "跨源去重：PubMed 与 Europe PMC 以 PMID 为稳定键；试验以 NCT ID；指南以人工 key",
-        "dedup_method": "PMID/NCT/guideline-key 唯一键 + title+abstract content_hash 校验",
+        "dedup_method": "PMID/NCT/guideline-key 唯一键 + 跨源同 PMID 合并（指南>PubMed>Europe PMC）",
         "dedup_threshold": None,
         "topics": ["hypertension", "dyslipidemia"],
         "record_counts": dict(Counter(r["record_kind"] for r in lines)),
+        "chunk_policy": {
+            "max_chars_per_chunk": config.FULLTEXT_CHUNK_MAX_CHARS,
+            "overlap_chars": config.FULLTEXT_CHUNK_OVERLAP_CHARS,
+            "cap_per_article": config.FULLTEXT_CHUNK_CAP_PER_ARTICLE,
+            "min_chunk_chars": config.FULLTEXT_MIN_CHUNK_CHARS,
+            "section_aware": True,
+            "skip_sections": sorted(config.FULLTEXT_SKIP_SECTIONS),
+        },
+        "processing_stats": ingest_stats or {},
         "pipeline": "cd OpenEvidence && python -m ingestion.run_all",
         "generator": "ingestion.build_db.write_manifest",
     }
@@ -222,7 +231,7 @@ def write_manifest(lines):
     return m
 
 
-def write_stats(lines, stats):
+def write_stats(lines, stats, ingest_stats=None):
     papers = stats["papers"]
     total_papers = (papers["pubmed_abstracts"] + papers["epmc_abstracts"]
                     + papers["trials"] + papers["guidelines"])
@@ -240,6 +249,12 @@ def write_stats(lines, stats):
 - 唯一 PMID 数：{papers['distinct_pmids']}
 - 全文增强层（Europe PMC OA）：{stats.get('fulltext_chunks', {}).get('article_count', 0)} 篇 / {stats.get('fulltext_chunks', {}).get('chunk_count', 0)} 个 chunk
   （存于 data/processed/fulltext_chunks.jsonl，生成/验证时按需加载）
+
+## 数据处理（改进后口径）
+- 跨源同 PMID 合并删除记录数：{ingest_stats.get('dedup_merged', 0) if ingest_stats else 'N/A'}
+- 无摘要回退为标题（title_only）：{ingest_stats.get('title_only', 0) if ingest_stats else 'N/A'}
+- 过短 chunk 丢弃：{ingest_stats.get('tiny_chunks_dropped', 0) if ingest_stats else 'N/A'}
+- XML 解析失败（隔离）：{ingest_stats.get('xml_parse_failed', []) if ingest_stats else 'N/A'}
 
 ## 按记录类型
 {json.dumps(dict(stats['by_record_kind']), ensure_ascii=False, indent=2)}
@@ -283,13 +298,14 @@ def write_stats(lines, stats):
         "by_journal": _counter_to_dict(stats["by_journal"], 20),
         "trials_by_status": _counter_to_dict(stats["trials_by_status"]),
         "trials_by_phase": _counter_to_dict(stats["trials_by_phase"]),
+        "processing_stats": ingest_stats or {},
     }
     config.STATS_JSON.write_text(json.dumps(sj, ensure_ascii=False, indent=2),
                                  encoding="utf-8")
     return total_papers
 
 
-def run(force: bool = False, chunk_lines=None):
+def run(force: bool = False, chunk_lines=None, ingest_stats=None):
     lines = load_evidence_lines()
     if not lines:
         raise RuntimeError("evidence.jsonl 为空，请先运行 python -m ingestion.run_all")
@@ -297,8 +313,8 @@ def run(force: bool = False, chunk_lines=None):
     stats = compute_stats(lines)
     if chunk_lines is not None:
         stats = compute_chunk_stats(chunk_lines, stats)
-    manifest = write_manifest(lines)
-    total_papers = write_stats(lines, stats)
+    manifest = write_manifest(lines, ingest_stats=ingest_stats)
+    total_papers = write_stats(lines, stats, ingest_stats=ingest_stats)
     log.info("manifest written: %s", config.MANIFEST_JSON)
     log.info("stats written: %s / %s", config.STATS_MD, config.STATS_JSON)
     return {"rows": n, "total_papers": total_papers,

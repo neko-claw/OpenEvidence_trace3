@@ -1,6 +1,6 @@
 {
-  "dataset_version": "v0.1.0",
-  "created_at": "2026-08-11T03:38:41+00:00",
+  "dataset_version": "v0.2.0",
+  "created_at": "2026-08-11T05:45:26+00:00",
   "corpus_cutoff": "2026-08-11",
   "source_datasets": [
     "PubMed (E-utilities esearch/efetch, abstracts)",
@@ -20,21 +20,51 @@
     "evidence.db": "SQLite：主集与全文 chunk 同表，record_kind 区分；供检索层查询"
   },
   "split_hashes": {
-    "evidence.jsonl": "ea6dec2221fcf1f3a47320f17a5bc3c1e331feb73fd6b89ce76326a3f783c6ce",
-    "fulltext_chunks.jsonl": "29c20dad6e958a3a0c03965ff5f0f6d6d189cb46366e2304ad192e41cf1cd0a0"
+    "evidence.jsonl": "4c16e33cf9a5ee26f1ee41821612eee165eba6a79a4cb9770e1f360a2eb93a85",
+    "fulltext_chunks.jsonl": "87ea262fd0f687c6a0bc6776d63ae139152594ddeba9ba4d2d8b12cc2c9572f8"
   },
   "source_group_policy": "跨源去重：PubMed 与 Europe PMC 以 PMID 为稳定键；试验以 NCT ID；指南以人工 key",
-  "dedup_method": "PMID/NCT/guideline-key 唯一键 + title+abstract content_hash 校验",
+  "dedup_method": "PMID/NCT/guideline-key 唯一键 + 跨源同 PMID 合并（指南>PubMed>Europe PMC）",
   "dedup_threshold": null,
   "topics": [
     "hypertension",
     "dyslipidemia"
   ],
   "record_counts": {
-    "abstract": 8638,
+    "abstract": 8624,
     "trial": 1541,
     "guideline": 18,
-    "fulltext_chunk": 12182
+    "fulltext_chunk": 11607
+  },
+  "chunk_policy": {
+    "max_chars_per_chunk": 4000,
+    "overlap_chars": 150,
+    "cap_per_article": 20,
+    "min_chunk_chars": 50,
+    "section_aware": true,
+    "skip_sections": [
+      "abbreviations",
+      "acknowledgements",
+      "acknowledgment",
+      "author information",
+      "competing interests",
+      "conflict of interest",
+      "conflicts of interest",
+      "data availability statement",
+      "declarations",
+      "ethics approval",
+      "ethics statement",
+      "funding",
+      "references",
+      "supplementary materials"
+    ]
+  },
+  "processing_stats": {
+    "dedup_merged": 14,
+    "title_only": 391,
+    "tiny_chunks_dropped": 105,
+    "xml_parse_failed": [],
+    "cross_source_dups": 274
   },
   "pipeline": "cd OpenEvidence && python -m ingestion.run_all",
   "generator": "ingestion.build_db.write_manifest"

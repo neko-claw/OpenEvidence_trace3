@@ -67,7 +67,8 @@ def fetch_by_pmid(pmid: str, chunk: bool = True, force: bool = False):
     chunks = europepmc.chunk_sections(
         sections, max_chars=config.FULLTEXT_CHUNK_MAX_CHARS,
         cap=config.FULLTEXT_CHUNK_CAP_PER_ARTICLE,
-        skip=config.FULLTEXT_SKIP_SECTIONS) if chunk else []
+        skip=config.FULLTEXT_SKIP_SECTIONS,
+        overlap_chars=config.FULLTEXT_CHUNK_OVERLAP_CHARS) if chunk else []
     return {
         "pmid": pmid,
         "pmcid": pmcid,
@@ -89,7 +90,8 @@ def fetch_by_pmcid(pmcid: str, chunk: bool = True, force: bool = False):
     chunks = europepmc.chunk_sections(
         sections, max_chars=config.FULLTEXT_CHUNK_MAX_CHARS,
         cap=config.FULLTEXT_CHUNK_CAP_PER_ARTICLE,
-        skip=config.FULLTEXT_SKIP_SECTIONS) if chunk else []
+        skip=config.FULLTEXT_SKIP_SECTIONS,
+        overlap_chars=config.FULLTEXT_CHUNK_OVERLAP_CHARS) if chunk else []
     return {"pmcid": pmcid, "chunk_count": len(chunks), "chunks": chunks}
 
 

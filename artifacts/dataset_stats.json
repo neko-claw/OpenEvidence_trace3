@@ -1,52 +1,52 @@
 {
-  "total_records": 22379,
-  "total_papers": 10197,
+  "total_records": 21790,
+  "total_papers": 10183,
   "papers": {
-    "pubmed_abstracts": 7947,
+    "pubmed_abstracts": 7933,
     "epmc_abstracts": 691,
     "trials": 1541,
     "guidelines": 18,
-    "distinct_pmids": 8597
+    "distinct_pmids": 8583
   },
   "fulltext_chunks": {
-    "chunk_count": 12182,
-    "article_count": 698,
+    "chunk_count": 11607,
+    "article_count": 696,
     "articles_with_pmid": 667
   },
   "by_record_kind": {
-    "fulltext_chunk": 12182,
-    "abstract": 8638,
+    "fulltext_chunk": 11607,
+    "abstract": 8624,
     "trial": 1541,
     "guideline": 18
   },
   "by_source_type": {
-    "europepmc": 12873,
-    "pubmed": 7947,
+    "europepmc": 12298,
+    "pubmed": 7933,
     "clinicaltrial": 1541,
     "guideline": 18
   },
   "by_evidence_level": {
-    "other": 17436,
+    "other": 16856,
     "clinical-trial": 1565,
-    "review": 1194,
+    "review": 1192,
     "meta-analysis": 929,
     "rct": 598,
     "systematic-review": 429,
-    "guideline": 228
+    "guideline": 221
   },
   "by_topic": {
-    "hypertension": 15105,
-    "lipids": 9653
+    "hypertension": 14669,
+    "lipids": 9487
   },
   "by_year": {
-    "2026": 11279,
-    "2025": 7678,
-    "2024": 1053,
+    "2026": 11028,
+    "2025": 7378,
+    "2024": 1025,
     "2020": 225,
-    "2019": 220,
-    "2023": 211,
-    "2018": 210,
-    "2021": 190,
+    "2019": 216,
+    "2018": 209,
+    "2023": 208,
+    "2021": 188,
     "2022": 186,
     "2017": 112,
     "2016": 110,
@@ -58,10 +58,10 @@
   "by_journal": {
     "Nutrients": 149,
     "Cureus": 139,
-    "Journal of hypertension": 113,
+    "Journal of hypertension": 112,
     "PloS one": 104,
     "Medicine": 100,
-    "Hypertension (Dallas, Tex. : 1979)": 100,
+    "Hypertension (Dallas, Tex. : 1979)": 99,
     "Frontiers in endocrinology": 97,
     "Journal of clinical lipidology": 89,
     "Hypertension research : official journal of the Japanese Society of Hypertension": 87,
@@ -71,8 +71,8 @@
     "Journal of clinical medicine": 61,
     "Nutrition, metabolism, and cardiovascular diseases : NMCD": 59,
     "BMJ open": 58,
-    "Atherosclerosis": 57,
     "Frontiers in cardiovascular medicine": 57,
+    "Atherosclerosis": 56,
     "BMC cardiovascular disorders": 56,
     "Frontiers in nutrition": 54,
     "International journal of molecular sciences": 53
@@ -97,5 +97,12 @@
     "PHASE2,PHASE3": 41,
     "PHASE1,PHASE2": 27,
     "EARLY_PHASE1": 17
+  },
+  "processing_stats": {
+    "dedup_merged": 14,
+    "title_only": 391,
+    "tiny_chunks_dropped": 105,
+    "xml_parse_failed": [],
+    "cross_source_dups": 274
   }
 }
