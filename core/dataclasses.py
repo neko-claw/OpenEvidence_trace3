@@ -1,0 +1,195 @@
+"""数据契约：Question / Evidence / Claim / Run / Score（与实施规划 §3.1 对齐）"""
+from __future__ import annotations
+
+import json
+import time
+import uuid
+from dataclasses import dataclass, field, asdict
+from typing import Any, Optional
+
+
+def _now() -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%S%z")
+
+
+def _uid(prefix: str) -> str:
+    return f"{prefix}_{uuid.uuid4().hex[:12]}"
+
+
+@dataclass
+class Question:
+    id: str
+    topic: str                # hypertension | lipids | ...
+    difficulty: str           # easy | medium | hard
+    question: str
+    question_type: str        # mechanism | guideline | latest_trial | insufficient
+    freshness: str            # stable | up_to_date
+    gold_source_ids: list[str] = field(default_factory=list)
+    rubric: dict[str, Any] = field(default_factory=dict)  # 关键回答点 + 扣分项
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Question":
+        valid = {k: v for k, v in d.items() if k in cls.__dataclass_fields__}
+        return cls(**valid)
+
+
+@dataclass
+class Evidence:
+    id: str
+    source_type: str          # pubmed | clinicaltrial | guideline | europepmc | wiki
+    title: str
+    text: str                 # abstract 或 chunk
+    authors: str = ""
+    published_at: str = ""    # YYYY-MM-DD
+    url: str = ""
+    pmid: str = ""
+    doi: str = ""
+    nct_id: str = ""
+    guideline_name: str = ""
+    page: str = ""
+    evidence_level: str = "unknown"  # guideline | systematic_review | rct | cohort | expert | unknown
+    population: str = ""
+    intervention: str = ""
+    comparator: str = ""
+    outcome: str = ""
+    fetched_at: str = ""
+    content_hash: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Evidence":
+        # 兼容 WSL 采集管线的字段名：abstract_or_chunk -> text（构造前注入，text 为必填）
+        d = dict(d)
+        d.setdefault("text", d.get("abstract_or_chunk") or "")
+        valid = {k: v for k, v in d.items() if k in cls.__dataclass_fields__}
+        ev = cls(**valid)
+        if not ev.text:
+            ev.text = d.get("abstract_or_chunk", "") or ""
+        return ev
+
+
+@dataclass
+class Claim:
+    claim_id: str
+    run_id: str
+    text: str
+    criticality: str = "important"   # critical | important | context
+    evidence_ids: list[str] = field(default_factory=list)
+    evidence_span_ids: list[str] = field(default_factory=list)
+    entailment_score: Optional[float] = None
+    population_match: Optional[bool] = None
+    time_match: Optional[bool] = None
+    conflict_ids: list[str] = field(default_factory=list)
+    verification_method: str = ""
+    decision: str = "pending"        # supported | unsupported | insufficient | refused
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass
+class Run:
+    """一次实验运行记录（对齐实施规划 §3.1 Run 契约）
+
+    condition: A | A2 | B | C | D | E
+    - A   : closed-book 纯 LLM（B3 主责）
+    - A2  : 通用搜索对照，不使用项目 Evidence store（B3 主责，可选）
+    - B   : 冻结语料 + BM25/向量 RRF top-k，无 rerank（B3 主责）
+    - C/D/E : rerank / 完整组件包 / 劣化（B4 主责）
+    """
+    run_id: str = field(default_factory=lambda: _uid("run"))
+    question_id: str = ""
+    condition: str = ""
+    replicate: int = 1                # REPEAT 子集重复序号
+    seed: int = 0                     # 条件顺序 / 采样随机种子
+    model: str = ""
+    model_snapshot: str = ""         # 模型快照标识（默认与 model 相同）
+    prompt_version: str = ""
+    config_hash: str = ""            # 配置版本哈希（config.yaml 内容 sha1）
+    dataset_version: str = ""        # 数据集 manifest 版本
+    corpus_version: str = ""         # 证据语料版本（证据内容 hash 集合）
+    index_version: str = ""
+    provider_fingerprint: str = ""   # LLM provider 标识（base_url + model）
+    retrieved_evidence: list[dict] = field(default_factory=list)
+    answer: str = ""
+    claims: list[dict] = field(default_factory=list)
+    citations: list[str] = field(default_factory=list)   # A2 条件为 ["S1",...] 与 [E#] 区分
+    verification_decision: str = "PASS"   # PASS | WARN | REFUSE
+    agent_plan: list[str] = field(default_factory=list)
+    tool_trace: list[dict] = field(default_factory=list)
+    latency_ms: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    estimated_cost: float = 0.0       # LLM + 检索/搜索成本合计（美元）
+    cache_hits: int = 0               # 检索缓存命中数（确定性检索去重）
+    attempt_count: int = 0            # LLM 调用实际尝试次数（重试日志）
+    status: str = "ok"                # ok | error
+    error: str = ""
+    created_at: str = field(default_factory=_now)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Run":
+        valid = {k: v for k, v in d.items() if k in cls.__dataclass_fields__}
+        return cls(**valid)
+
+
+@dataclass
+class Score:
+    run_id: str
+    question_id: str
+    condition: str = ""
+    judge_id: str = ""
+    # 检索
+    hit_at_5: Optional[float] = None
+    mrr: Optional[float] = None
+    recall_at_50: Optional[float] = None
+    rerank_ndcg_8: Optional[float] = None
+    # 内容（1-5，LLM judge / 人工）
+    relevance: Optional[float] = None
+    correctness: Optional[float] = None
+    completeness: Optional[float] = None
+    faithfulness: Optional[float] = None
+    # 引用
+    citation_precision: Optional[float] = None
+    citation_coverage: Optional[float] = None
+    claim_support_rate: Optional[float] = None
+    unsupported_claim_rate: Optional[float] = None
+    abstention_quality: Optional[float] = None   # 证据不足合理拒答 / 证据充分误拒答
+    # 系统
+    latency_ms: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    estimated_cost: float = 0.0
+    # 审阅
+    reviewer: str = ""
+    notes: str = ""
+    created_at: str = field(default_factory=_now)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+def load_jsonl(path: str) -> list[dict]:
+    out = []
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                out.append(json.loads(line))
+    return out
+
+
+def save_jsonl(path: str, records: list[dict], mode: str = "a") -> None:
+    import os
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w" if mode == "w" else "a", encoding="utf-8") as f:
+        for r in records:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
