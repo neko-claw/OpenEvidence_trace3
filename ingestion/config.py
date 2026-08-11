@@ -121,11 +121,33 @@ PUBMED_QUERIES = [
      300, None),
     # ---- 近三年宽覆盖（保证总量与时效性） ----
     ("broad_hypertension",
-     'hypertension[MeSH] AND English[lang] AND hasabstract[text] AND ("2022"[dp]:"2026"[dp])',
-     600, "pub_date"),
+     'hypertension[MeSH] AND English[lang] AND hasabstract[text] AND ("2015"[dp]:"2026"[dp])',
+     600, None),
     ("broad_lipids",
-     '(dyslipidemias[MeSH] OR hypercholesterolemia[MeSH] OR hypertriglyceridemia[MeSH] OR hyperlipidemia[tiab]) AND English[lang] AND hasabstract[text] AND ("2022"[dp]:"2026"[dp])',
-     600, "pub_date"),
+     '(dyslipidemias[MeSH] OR hypercholesterolemia[MeSH] OR hypertriglyceridemia[MeSH] OR hyperlipidemia[tiab]) AND English[lang] AND hasabstract[text] AND ("2015"[dp]:"2026"[dp])',
+     600, None),
+    # ---- 经典里程碑试验与证据（补足早年证据、覆盖“稳定机制”题型） ----
+    ("classic_sprint",
+     '("Systolic Blood Pressure Intervention Trial"[tiab] OR SPRINT[tiab]) AND hypertension[tiab] AND ("2015"[dp]:"2020"[dp])',
+     100, None),
+    ("classic_dash",
+     '("Dietary Approaches to Stop Hypertension"[tiab] OR "DASH diet"[tiab]) AND ("1997"[dp]:"2018"[dp])',
+     100, None),
+    ("classic_landmark_rct",
+     '(JUPITER[tiab] OR ALLHAT[tiab] OR HYVET[tiab] OR ONTARGET[tiab] OR TRANSCEND[tiab] OR SHEP[tiab] OR HOPE[tiab] OR ACCORD[tiab]) AND (blood pressure[tiab] OR hypertension[tiab] OR statin[tiab] OR cholesterol[tiab])',
+     200, None),
+    ("classic_ctt",
+     '("Cholesterol Treatment Trialists"[tiab] OR "intensive lowering of LDL cholesterol"[tiab] OR "Blood Pressure Lowering Treatment Trialists"[tiab])',
+     100, None),
+    ("classic_fournier_improveit",
+     '(FOURIER[tiab] OR "IMPROVE-IT"[tiab] OR "simvastatin-ezetimibe"[tiab]) AND ("2015"[dp]:"2019"[dp])',
+     60, None),
+    ("classic_mr_lipids",
+     '"Mendelian randomization"[tiab] AND (LDL[tiab] OR cholesterol[tiab] OR "coronary heart disease"[tiab]) AND ("2014"[dp]:"2020"[dp])',
+     80, None),
+    ("classic_bpltc_era",
+     '("blood pressure lowering"[tiab]) AND meta-analysis[pt] AND ("2005"[dp]:"2018"[dp])',
+     100, None),
 ]
 
 # 每个检索查询对应的主题标签（用于记录级 topic 标注）
@@ -140,6 +162,10 @@ QUERY_TOPIC = {
     "triglycerides": ["lipids"], "omega3_lipids": ["lipids"], "mediterranean_diet": ["lipids"],
     "lipoprotein_a": ["lipids"], "cv_risk_both": ["hypertension", "lipids"],
     "broad_hypertension": ["hypertension"], "broad_lipids": ["lipids"],
+    "classic_sprint": ["hypertension"], "classic_dash": ["hypertension", "lipids"],
+    "classic_landmark_rct": ["hypertension", "lipids"], "classic_ctt": ["lipids"],
+    "classic_fournier_improveit": ["lipids"], "classic_mr_lipids": ["lipids"],
+    "classic_bpltc_era": ["hypertension"],
 }
 
 # 指南标题专用检索（短关键词组合；长短语引号检索在 PubMed 上不可靠，故用可验证的关键词）
