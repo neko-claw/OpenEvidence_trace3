@@ -18,21 +18,50 @@ def _uid(prefix: str) -> str:
 
 @dataclass
 class Question:
+    """题目契约（兼容 B1 蓝图格式与 B3 运行器格式，双向可用）。
+
+    B1 蓝图样例题字段（sample_questions.jsonl / B2 正式题将按此交付）：
+      id/split/dataset_pack/topic/question_type/difficulty/question/answerable/
+      as_of_date/source_provenance/source_group_id/gold_source_ids/key_points/rubric_version...
+    B3 运行器题集（dev8/formal12/stress）使用精简字段 + rubric 内嵌 key_points。
+
+    加载时：
+    - `key_points`（蓝图顶层字段）自动映射进 rubric["key_points"]，judge 可直接消费；
+    - 未识别的字段（language/note/source_provenance/rubric_version 等）保留在 extras，
+      不再被静默丢弃。
+    """
     id: str
     topic: str                # hypertension | lipids | ...
-    difficulty: str           # easy | medium | hard
+    difficulty: str           # easy | medium | hard（蓝图可为 int 2/3，兼容）
     question: str
     question_type: str        # mechanism | guideline | latest_trial | insufficient
-    freshness: str            # stable | up_to_date
+    freshness: str = "stable" # stable | up_to_date（蓝图格式无此字段，给默认值）
     gold_source_ids: list[str] = field(default_factory=list)
     rubric: dict[str, Any] = field(default_factory=dict)  # 关键回答点 + 扣分项
+    # ---- B1 蓝图字段（B2 正式题交付格式；运行器可选） ----
+    split: str = ""           # DEV | TEST | STRESS | EXTERNAL | RESERVE
+    dataset_pack: str = ""
+    answerable: bool | None = None
+    as_of_date: str = ""
+    source_group_id: str = ""
+    extras: dict[str, Any] = field(default_factory=dict)  # 其余未识别字段保留，不丢弃
 
     def to_dict(self) -> dict:
         return asdict(self)
 
     @classmethod
     def from_dict(cls, d: dict) -> "Question":
-        valid = {k: v for k, v in d.items() if k in cls.__dataclass_fields__}
+        d = dict(d)
+        # 蓝图顶层 key_points -> rubric.key_points（judge 按 rubric 读取评分点）
+        if "key_points" in d:
+            rubric = dict(d.get("rubric") or {})
+            rubric.setdefault("key_points", d["key_points"])
+            d["rubric"] = rubric
+        known = set(cls.__dataclass_fields__)
+        extras = {k: v for k, v in d.items() if k not in known}
+        if extras:
+            d["extras"] = extras
+        valid = {k: v for k, v in d.items() if k in known}
         return cls(**valid)
 
 
@@ -114,6 +143,7 @@ class Run:
     dataset_version: str = ""        # 数据集 manifest 版本
     corpus_version: str = ""         # 证据语料版本（证据内容 hash 集合）
     index_version: str = ""
+    code_commit: str = ""            # git 提交短哈希（run.schema.json 必填字段；冻结版本留痕）
     provider_fingerprint: str = ""   # LLM provider 标识（base_url + model）
     retrieved_evidence: list[dict] = field(default_factory=list)
     candidate_ids: list[str] = field(default_factory=list)   # RRF 初检候选 ID（≤100，供同源核验）
@@ -148,6 +178,9 @@ class Score:
     question_id: str
     condition: str = ""
     judge_id: str = ""
+    # 版本（score.schema.json 必填；judge 写入）
+    metric_version: str = ""
+    rubric_version: str = ""
     # 检索
     hit_at_5: Optional[float] = None
     mrr: Optional[float] = None
@@ -163,6 +196,7 @@ class Score:
     citation_coverage: Optional[float] = None
     claim_support_rate: Optional[float] = None
     unsupported_claim_rate: Optional[float] = None
+    unsupported_critical_claim_rate: Optional[float] = None   # 主终点之一（B5 确定性计算）
     abstention_quality: Optional[float] = None   # 证据不足合理拒答 / 证据充分误拒答
     # 系统
     latency_ms: int = 0
@@ -171,7 +205,17 @@ class Score:
     estimated_cost: float = 0.0
     # 审阅
     reviewer: str = ""
+    adjudication: str = ""
     notes: str = ""
+    # ---- judge 偏差审计字段（§6.3 匿名随机 + 位置/长度/家族偏差审计；可选） ----
+    position: Optional[int] = None                 # 匿名展示位置（随机）
+    anonymous_label: str = ""                      # 匿名标签，如 OPT①
+    randomization_seed: Optional[int] = None       # 每题位置随机种子
+    judge_family: str = ""                        # judge 模型家族（偏差审计分组）
+    citation_count: Optional[int] = None           # 展示给 judge 的引用数量
+    displayed_citation_count: Optional[int] = None # 引用外观偏差审计
+    control_type: str = ""                        # style | position_swap | wrong_citations
+    control_id: str = ""                          # 控制样本配对 ID
     created_at: str = field(default_factory=_now)
 
     def to_dict(self) -> dict:

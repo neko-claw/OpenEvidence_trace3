@@ -40,18 +40,26 @@ QUESTION_ALIASES = {
 }
 
 
+def get_git_commit(cfg: Config) -> str:
+    """当前 git 提交短哈希（不存在时返回空串）。"""
+    try:
+        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True, cwd=cfg.root, timeout=5)
+        if out.returncode == 0 and out.stdout.strip():
+            return out.stdout.strip()
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    return ""
+
+
 def compute_config_hash(cfg: Config) -> str:
     """配置版本哈希：config.yaml 内容 sha1 + git commit（存在时）。"""
     h = hashlib.sha1()
     h.update((cfg.root / "config.yaml").read_bytes())
     digest = h.hexdigest()[:12]
-    try:
-        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
-                             capture_output=True, text=True, cwd=cfg.root, timeout=5)
-        if out.returncode == 0 and out.stdout.strip():
-            digest += f"-{out.stdout.strip()}"
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        pass
+    commit = get_git_commit(cfg)
+    if commit:
+        digest += f"-{commit}"
     return digest
 
 
@@ -93,6 +101,7 @@ def run_experiment(cfg: Config, questions: list[Question], conditions: list[str]
     ts = time.strftime("%Y%m%d_%H%M%S")
     runs_path = cfg.path("runs_dir") / f"runs_{tag or ts}.jsonl"
     config_hash = compute_config_hash(cfg)
+    code_commit = get_git_commit(cfg)
     dataset_version = cfg.get("config_version", "v0.1.0")
     provider_fingerprint = f"{getattr(llm, 'base_url', 'offline')}/{llm.model}"
     model_snapshot = cfg["llm"].get("model_snapshot") or llm.model
@@ -116,14 +125,22 @@ def run_experiment(cfg: Config, questions: list[Question], conditions: list[str]
             run.seed = seed
             run.replicate = replicate
             run.config_hash = config_hash
+            run.code_commit = code_commit
             run.dataset_version = dataset_version
             run.provider_fingerprint = provider_fingerprint
             run.model_snapshot = model_snapshot
             if store is not None:
                 run.corpus_version = run.corpus_version or store.corpus_version
-            # run_id 由实验层最终确定后重建 claims 的 claim_id/run_id，保证一致
+            # run_id 由实验层最终确定后重建 claims 的 claim_id/run_id，保证一致；
+            # decision 按引用编号存在性判定（A 无证据上下文 -> pending）
             if run.status == "ok":
-                run.claims = split_claims(run.answer, run_id)
+                n_ev = len(run.retrieved_evidence)
+                if run.condition == "A2":
+                    run.claims = split_claims(run.answer, run_id, n_search=n_ev)
+                elif run.condition == "A":
+                    run.claims = split_claims(run.answer, run_id)
+                else:
+                    run.claims = split_claims(run.answer, run_id, n_evidence=n_ev)
             runs.append(run)
             print(f"[{run.condition}] {q.id} -> {run.verification_decision} "
                   f"({run.latency_ms}ms, cost=${run.estimated_cost:.4f}, "

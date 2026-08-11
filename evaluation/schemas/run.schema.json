@@ -27,12 +27,25 @@
     "index_version": { "type": "string" },
     "code_commit": { "type": "string" },
     "provider_fingerprint": { "type": ["string", "null"] },
-    "agent_plan": { "type": ["array", "null"], "items": { "type": "object" }, "description": "仅 D 条件" },
+    "candidate_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "RRF 初检候选 ID 列表（≤100，供 B/C 同源核验与 Recall@50/Hit@5/MRR 计算）"
+    },
+    "agent_plan": { "type": ["array", "null"], "items": { "type": ["string", "object"] }, "description": "条件/Agent 计划说明（D 条件为计划步骤对象；A 等条件为字符串说明）" },
     "tool_trace": { "type": ["array", "null"], "items": { "type": "object" }, "description": "仅 D 条件；工具名/输入/输出/耗时" },
     "retrieved_evidence": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "实际进入上下文的证据 ID 列表（白名单）"
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string", "description": "证据稳定 ID（pmid/nct/guideline/epmc chunk）" },
+          "title": { "type": ["string", "null"] },
+          "text": { "type": ["string", "null"] }
+        }
+      },
+      "description": "实际进入上下文的证据记录（完整快照，供追溯与引用校验）"
     },
     "answer": { "type": "string" },
     "claims": {
@@ -60,7 +73,7 @@
     "estimated_cost": { "type": "number" },
     "cache_hits": { "type": ["integer", "null"] },
     "attempt_count": { "type": "integer", "description": "含重试次数" },
-    "status": { "type": "string", "enum": ["pending", "running", "completed", "failed", "aborted"] },
+    "status": { "type": "string", "enum": ["pending", "running", "completed", "failed", "aborted", "ok", "error"], "description": "运行状态：编排生命周期用 pending/running/completed/failed/aborted；运行器实际写入 ok/error" },
     "error": { "type": ["string", "null"] }
   }
 }
