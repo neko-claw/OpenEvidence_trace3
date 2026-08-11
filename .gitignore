@@ -1,11 +1,15 @@
+# API key / 敏感信息
+.env
+
 # 原始 API 缓存体积较大，不入库；processed 数据可重建
 data/raw/
 *.db
-__pycache__/
-*.pyc
-.env
-.venv/
 
 # 实验运行产物与图表不入库（可重建）
 data/experiments/
-artifacts/*.png
+artifacts/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
