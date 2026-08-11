@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "score.schema.json",
+  "title": "Score",
+  "description": "赛道3 评分记录（与实施规划 3.1 契约一致；B1 冻结）",
+  "type": "object",
+  "required": [
+    "run_id", "metric_version", "rubric_version", "judge_id",
+    "relevance", "correctness", "completeness", "faithfulness",
+    "citation_precision", "citation_coverage", "claim_support_rate",
+    "unsupported_claim_rate", "abstention_quality"
+  ],
+  "properties": {
+    "run_id": { "type": "string", "description": "对应 Run.run_id" },
+    "retrieval_hit_at_k": { "type": ["number", "null"], "description": "Hit@K；仅 B/C/D/E" },
+    "rerank_ndcg": { "type": ["number", "null"], "description": "nDCG@K；仅 B/C/D/E" },
+    "relevance": { "type": "number", "minimum": 1, "maximum": 5 },
+    "correctness": { "type": "number", "description": "按每题关键点与扣分项" },
+    "completeness": { "type": "number" },
+    "faithfulness": { "type": "number", "minimum": 1, "maximum": 5 },
+    "citation_precision": { "type": "number", "description": "被引用证据中真正支持相邻主张的比例 [0,1]" },
+    "citation_coverage": { "type": "number", "description": "应引用的关键主张中实际附有效引用的比例 [0,1]" },
+    "claim_support_rate": { "type": "number", "description": "主张被证据支持的比例 [0,1]" },
+    "unsupported_claim_rate": { "type": "number", "description": "未获支持主张比例 [0,1]；主终点之一" },
+    "abstention_quality": { "type": "number", "description": "证据不足时合理拒答 / 证据充分时误拒答的联合评分" },
+    "metric_version": { "type": "string" },
+    "rubric_version": { "type": "string" },
+    "judge_id": { "type": "string", "description": "自动或人工 judge 标识（匿名）" },
+    "reviewer": { "type": ["string", "null"], "description": "人工复核人" },
+    "adjudication": { "type": ["string", "null"], "description": "分歧裁定结论" },
+    "notes": { "type": ["string", "null"] }
+  }
+}

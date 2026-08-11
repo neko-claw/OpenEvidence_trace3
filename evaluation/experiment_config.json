@@ -1,0 +1,72 @@
+{
+  "config_version": "v0.1.0",
+  "owner": "B1（冻结清单；v0.1 为起始建议值，须在 30 道 DEV 题上校准后冻结）",
+  "model": {
+    "generation": {
+      "name": "TBD（第1天上午前回填，OpenAI 兼容）",
+      "snapshot": "TBD",
+      "temperature": 0.2,
+      "max_output_tokens": 1024,
+      "prompt_version": "v0.1"
+    },
+    "embedding": {
+      "name": "TBD（text-embedding-3-small 或 BGE-M3，开工前二选一，中途不换）",
+      "batch_size": 64
+    },
+    "verifier": {
+      "name": "TBD（独立于生成模型的 verifier；critical claim 双重通过）"
+    }
+  },
+  "retrieval": {
+    "k_bm25": 50,
+    "k_vec": 50,
+    "k0": 100,
+    "k1": 30,
+    "k2": 8,
+    "max_chunks_per_doc": 2,
+    "max_chunks_per_source": 4,
+    "rrf_k": 60,
+    "note": "K0∈{20,50,80,100,150} K1∈{10,20,30,50} K2∈{3,5,8,10} 在 DEV 上网格选择后冻结"
+  },
+  "rerank": {
+    "method": "S_feature 加权特征重排 + MMR",
+    "weights_v010": {
+      "semantic": 0.3,
+      "lexical": 0.2,
+      "pico_match": 0.15,
+      "evidence_level": 0.15,
+      "freshness": 0.1,
+      "source_quality": 0.1,
+      "redundancy": -0.15
+    },
+    "mmr_lambda": 0.7,
+    "note": "权重只可在 DEV 上调整；写入 rerank_config_version 并随 Run 记录"
+  },
+  "gates": {
+    "evidence_min_count_for_guidance": 2,
+    "critical_claim_double_check": true,
+    "citation_id_whitelist": true,
+    "fake_identifier_tolerance": 0,
+    "abstain_on_insufficient": true
+  },
+  "budget": {
+    "max_agent_tool_calls": 5,
+    "max_agent_retrieval_calls": 3,
+    "a2_max_searches": 3,
+    "a2_max_time_sec": 60,
+    "max_attempts_per_run": 3
+  },
+  "e_perturbation": {
+    "ref": "evaluation/preregistration/e_perturbation_rules.json",
+    "baseline_condition": "C",
+    "note": "E 条件只在 20 道 STRESS 题上执行，单独报告"
+  },
+  "repeat_subset": {
+    "count": 20,
+    "extra_replicates": 2,
+    "sampling": "TEST 内预分层抽取，与 STRESS 相互独立"
+  },
+  "api_budget": {
+    "note": "按模型 token 单价估算，写入每次 Run 的 estimated_cost；预算不足时按降级顺序处理（见实施规划 §10）"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "run.schema.json",
+  "title": "Run",
+  "description": "赛道3 单次实验运行记录（与实施规划 3.1 契约一致；B1 冻结）",
+  "type": "object",
+  "required": [
+    "run_id", "question_id", "condition", "replicate", "model",
+    "model_snapshot", "prompt_version", "config_hash", "dataset_version",
+    "corpus_version", "index_version", "code_commit",
+    "retrieved_evidence", "answer", "verification_decision",
+    "latency_ms", "input_tokens", "output_tokens", "estimated_cost",
+    "attempt_count", "status"
+  ],
+  "properties": {
+    "run_id": { "type": "string", "description": "唯一运行 ID，如 r-20260811-001" },
+    "question_id": { "type": "string" },
+    "condition": { "type": "string", "enum": ["A", "A2", "B", "C", "D", "E"] },
+    "replicate": { "type": "integer", "minimum": 1, "description": "REPEAT 子集重复序号；主跑为 1" },
+    "seed": { "type": ["integer", "null"] },
+    "model": { "type": "string" },
+    "model_snapshot": { "type": "string", "description": "模型名+版本快照" },
+    "prompt_version": { "type": "string" },
+    "config_hash": { "type": "string", "description": "experiment_config.json 的 sha256" },
+    "dataset_version": { "type": "string" },
+    "corpus_version": { "type": "string" },
+    "index_version": { "type": "string" },
+    "code_commit": { "type": "string" },
+    "provider_fingerprint": { "type": ["string", "null"] },
+    "agent_plan": { "type": ["array", "null"], "items": { "type": "object" }, "description": "仅 D 条件" },
+    "tool_trace": { "type": ["array", "null"], "items": { "type": "object" }, "description": "仅 D 条件；工具名/输入/输出/耗时" },
+    "retrieved_evidence": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "实际进入上下文的证据 ID 列表（白名单）"
+    },
+    "answer": { "type": "string" },
+    "claims": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "object",
+        "properties": {
+          "claim_id": { "type": "string" },
+          "text": { "type": "string" },
+          "criticality": { "type": "string", "enum": ["critical", "important", "context"] },
+          "evidence_ids": { "type": "array", "items": { "type": "string" } },
+          "decision": { "type": "string", "enum": ["supported", "contradicted", "insufficient", "pending"] }
+        }
+      }
+    },
+    "citations": { "type": ["array", "null"], "items": { "type": "string" } },
+    "verification_decision": {
+      "type": "string",
+      "enum": ["PASS", "WARN", "REFUSE"],
+      "description": "支持性门禁输出"
+    },
+    "latency_ms": { "type": "integer" },
+    "input_tokens": { "type": "integer" },
+    "output_tokens": { "type": "integer" },
+    "estimated_cost": { "type": "number" },
+    "cache_hits": { "type": ["integer", "null"] },
+    "attempt_count": { "type": "integer", "description": "含重试次数" },
+    "status": { "type": "string", "enum": ["pending", "running", "completed", "failed", "aborted"] },
+    "error": { "type": ["string", "null"] }
+  }
+}

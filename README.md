@@ -142,20 +142,29 @@ python -m ingestion.run_all --force  # 忽略缓存全量重抓
 
 ```text
 OpenEvidence/
-├── ingestion/
+├── ingestion/               # 数据集采集（第一部分）
 │   ├── config.py          # 检索式、限速、路径
 │   ├── http_utils.py      # 限速/重试请求
-│   ├── sources/
-│   │   ├── pubmed.py      # PubMed E-utilities
-│   │   ├── clinicaltrials.py  # ClinicalTrials.gov v2
-│   │   └── europepmc.py   # Europe PMC REST + 全文解析分块
+│   ├── sources/           # PubMed / ClinicalTrials / Europe PMC 连接器
 │   ├── guidelines.py      # 人工确认指南 + 验证式回填
 │   ├── normalize.py       # Evidence 标准化
 │   ├── build_db.py        # SQLite + Manifest + 统计
+│   ├── fulltext_service.py# 按需全文拉取（供 RAG/MCP）
 │   └── run_all.py         # 一键执行
+├── evaluation/               # 赛道3 对比评估（B1 交付）
+│   ├── blueprints/question_blueprint.json   # 130 题蓝图
+│   ├── schemas/run.schema.json              # Run 记录契约
+│   ├── schemas/score.schema.json            # Score 评分契约
+│   ├── experiment_config.json               # 配置清单（K/权重/阈值/预算）
+│   ├── preregistration/e_perturbation_rules.json  # E 劣化预注册规则
+│   └── make_fixtures.py                     # 离线 fixture 生成
+├── docs/
+│   ├── experiment_protocol.md               # 赛道3 实验协议（B1 核心交付）
+│   └── ...（需求/规划文档）
 ├── data/
 │   ├── raw/               # 原始 API 缓存（gitignore）
-│   └── processed/         # evidence.jsonl / evidence.db / manifest.json
+│   └── processed/         # evidence.jsonl / fulltext_chunks.jsonl / evidence.db / manifest.json
+│       └── fixtures/      # 离线 Evidence fixture + 样例题
 ├── artifacts/             # dataset_stats.md / .json
 ├── pyproject.toml
 └── README.md
