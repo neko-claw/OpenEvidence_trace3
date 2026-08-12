@@ -18,7 +18,8 @@ from retrieval.index import EvidenceStore
 def run_condition(q: Question, condition: str, cfg: Config,
                   store: Optional[EvidenceStore] = None,
                   llm: Optional[LLMClient] = None,
-                  verbose: bool = False) -> Run:
+                  verbose: bool = False,
+                  seed: int = 0) -> Run:
     """执行一个条件。store 为 None 时视为纯 LLM 条件（A）。
 
     condition 取值: A | A2 | B | C | D | E
@@ -27,9 +28,10 @@ def run_condition(q: Question, condition: str, cfg: Config,
     - B  : BM25 + 向量 + RRF 后直接取 top-k，无 rerank（B3 主责）
     - C  : B + 特征重排 + MMR（B4）
     - D  : C + Wiki/Agent（B4）
-    - E  : 劣化检索（B4 主责）。骨架：在 B 的基线初检候选上按预注册规则派生
-           （当前仅实现"top-k 减半"一种扰动；完整扰动集由 B4 读取
-           evaluation/preregistration/e_perturbation_rules.json 后重写）
+    - E  : 劣化检索（B4 主责）。统一走 evaluation/stress.py 预注册规则引擎
+           （drop_all_gold_v1 / topk_reduced / inject_unsupporting_v1 /
+           unanswerable_malicious，见 evaluation/preregistration/e_perturbation_rules.json），
+           在 B/C 同源的 RRF 初检候选上派生，seed 参与注入/选择保证可复现。
     """
     llm = llm or LLMClient(cfg["llm"])
     gen = AnswerGenerator(cfg, llm)
@@ -98,9 +100,8 @@ def run_condition(q: Question, condition: str, cfg: Config,
         run.cache_hits = 1 if stats.get("cache_hit") else 0
         run.candidate_ids = stats.get("candidate_ids", [])
     elif condition == "E":
-        # 劣化派生（§6.2）：先在 B 的基线初检（use_rerank=False）上取候选，
-        # 再按预注册规则截断/扰动。当前骨架只实现 top-k 减半；
-        # B4 合入 e_perturbation_rules.json 后在此扩展删除 gold / 注入不支持证据等扰动。
+        # 劣化派生（§6.2）：在 B/C 同源的 RRF 初检候选上按预注册规则派生（drop gold /
+        # 降 top-k / 注入不支持证据 / 范围外+注入题），统一走 evaluation/stress.py。
         base_evs, base_feats = store.retrieve(
             q.question, use_rerank=False, verbose=verbose, stats=stats,
             q_freshness=q.freshness)
@@ -109,7 +110,7 @@ def run_condition(q: Question, condition: str, cfg: Config,
             for candidate in stats.get("rrf_candidates", [])
         ]
         perturbed, manifest = apply_stress(
-            candidates, q.to_dict(), seed=0,
+            candidates, q.to_dict(), seed=seed,
             final_k=cfg["retrieval"]["k_final"],
         )
         top_evs = [
@@ -121,9 +122,6 @@ def run_condition(q: Question, condition: str, cfg: Config,
             {**candidate, "doc_id": candidate["evidence_id"]}
             for candidate in perturbed
         ]
-        # 扰动标签优先取题目声明（stress 题 rubric.perturbation），执行逻辑仍为 top-k 减半骨架；
-        # B4 合入 e_perturbation_rules.json 后按声明实现 gold 删除/注入不支持证据等扰动。
-        declared = q.rubric.get("perturbation") if isinstance(q.rubric, dict) else None
         run.tool_trace.append({"tools": ["bm25", "vector", "rrf", "degrade"],
                                "derived_from": "rrf_candidates_shared_by_B_and_C",
                                "perturbation": manifest.stress_rule,

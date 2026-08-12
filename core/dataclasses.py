@@ -37,20 +37,13 @@ class Question:
     question_type: str        # mechanism | guideline | latest_trial | insufficient
     freshness: str = "stable"  # stable | up_to_date（蓝图格式无此字段，给默认值）
     gold_source_ids: list[str] = field(default_factory=list)
-    split: str = ""
-    dataset_pack: str = ""
-    answerable: bool | None = None
-    as_of_date: str = ""
-    source_group_id: str = ""
-    extras: dict[str, Any] = field(default_factory=dict)
-    rubric: dict[str, Any] = field(default_factory=dict)  # 关键回答点 + 扣分项
-    # ---- B1 蓝图字段（B2 正式题交付格式；运行器可选） ----
     split: str = ""           # DEV | TEST | STRESS | EXTERNAL | RESERVE
     dataset_pack: str = ""
     answerable: bool | None = None
     as_of_date: str = ""
     source_group_id: str = ""
     extras: dict[str, Any] = field(default_factory=dict)  # 其余未识别字段保留，不丢弃
+    rubric: dict[str, Any] = field(default_factory=dict)  # 关键回答点 + 扣分项
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -192,6 +185,8 @@ class Score:
     mrr: Optional[float] = None
     recall_at_50: Optional[float] = None
     rerank_ndcg: Optional[float] = None
+    # 主终点（§6.4）：关键主张中未获证据支持的比例（critical claim 单独统计）
+    unsupported_critical_claim_rate: Optional[float] = None
     # 内容（1-5，LLM judge / 人工）
     relevance: Optional[float] = None
     correctness: Optional[float] = None

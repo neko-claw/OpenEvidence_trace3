@@ -128,7 +128,8 @@ def run_experiment(cfg: Config, questions: list[Question], conditions: list[str]
             t0 = time.time()
             run_id = f"run_{uuid.uuid4().hex[:10]}"
             try:
-                run = run_condition(q, cond, cfg, store=store, llm=llm, verbose=verbose)
+                run = run_condition(q, cond, cfg, store=store, llm=llm, verbose=verbose,
+                                    seed=seed)
                 run.status = "ok"
             except Exception as e:  # 失败不静默丢弃，写入 error + status=error
                 run = Run(question_id=q.id, condition=cond, model=llm.model,

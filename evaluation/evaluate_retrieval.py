@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from evaluation.metrics import ndcg_at_k
+
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -107,6 +109,16 @@ def evaluate_pair(
         (rank for rank, evidence_id in enumerate(rrf_ids, start=1) if evidence_id in relevant_ids),
         None,
     )
+    # nDCG@8（§4.2/§6.4 重排验收指标）：分别以 RRF 融合候选与 rerank 后候选计算，
+    # 反映“重排是否把高价值证据推到前 8”；gold 为空时返回 None。
+    rrf_ndcg_8 = (
+        round(ndcg_at_k(rrf_ids, relevant_ids, 8), 6)
+        if relevant_ids else None
+    )
+    rerank_ndcg_8 = (
+        round(ndcg_at_k(rerank_ids, relevant_ids, 8), 6)
+        if relevant_ids else None
+    )
     bm25_mrr = 1 / bm25_first_rank if bm25_first_rank else (None if relevant_ids else None)
     vector_mrr = 1 / vector_first_rank if vector_first_rank else (None if relevant_ids else None)
     rrf_mrr = 1 / rrf_first_rank if rrf_first_rank else (None if relevant_ids else None)
@@ -163,6 +175,8 @@ def evaluate_pair(
         "bm25_mrr": round(bm25_mrr, 6) if bm25_mrr is not None else None,
         "vector_mrr": round(vector_mrr, 6) if vector_mrr is not None else None,
         "rrf_mrr": round(rrf_mrr, 6) if rrf_mrr is not None else None,
+        "rrf_ndcg_8": rrf_ndcg_8,
+        "rerank_ndcg_8": rerank_ndcg_8,
         "rerank_hit_at_5": rerank_hit5,
         "rerank_hit_at_10": rerank_hit10,
         "rerank_mrr": round(rerank_mrr, 6) if rerank_mrr is not None else None,
@@ -198,6 +212,8 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "bm25_mrr": _mean(row["bm25_mrr"] for row in evaluated),
             "vector_mrr": _mean(row["vector_mrr"] for row in evaluated),
             "rrf_mrr": _mean(row["rrf_mrr"] for row in evaluated),
+            "rrf_ndcg_8": _mean(row["rrf_ndcg_8"] for row in evaluated),
+            "rerank_ndcg_8": _mean(row["rerank_ndcg_8"] for row in evaluated),
             "rerank_hit_at_5": _mean(row["rerank_hit_at_5"] for row in evaluated),
             "rerank_hit_at_10": _mean(row["rerank_hit_at_10"] for row in evaluated),
             "rerank_mrr": _mean(row["rerank_mrr"] for row in evaluated),
@@ -227,8 +243,8 @@ def markdown_report(payload: dict[str, Any]) -> str:
         "",
         "## 汇总",
         "",
-        "| 条件 | 题数 | BM25 Recall@50 | Vector Recall@50 | RRF Recall@50 | Rerank Hit@5 | 最终 Gold 命中率 | 最终 Recall |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| 条件 | 题数 | BM25 Recall@50 | Vector Recall@50 | RRF Recall@50 | RRF nDCG@8 | Rerank nDCG@8 | Rerank Hit@5 | 最终 Gold 命中率 | 最终 Recall |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for condition, metrics in payload["summary"].items():
         def display(key: str) -> str:
@@ -238,6 +254,7 @@ def markdown_report(payload: dict[str, Any]) -> str:
         lines.append(
             f"| {condition} | {metrics['evaluated_questions']} | {display('bm25_recall_at_50')} | "
             f"{display('vector_recall_at_50')} | {display('rrf_recall_at_50')} | "
+            f"{display('rrf_ndcg_8')} | {display('rerank_ndcg_8')} | "
             f"{display('rerank_hit_at_5')} | {display('final_context_gold_hit_rate')} | "
             f"{display('final_context_recall')} |"
         )
@@ -264,6 +281,7 @@ def markdown_report(payload: dict[str, Any]) -> str:
         "## 解释",
         "",
         "- `Recall@50` / `Hit@5` / `MRR` 以检索阶段融合候选集（BM25+Vector+RRF，K0≤100）为口径，观察初检是否召回 qrels 相关证据；分阶段指标（bm25/vector/rrf）用于消融对比。",
+        "- `nDCG@8` 分别以 RRF 融合候选与 rerank 后候选计算（§6.4 重排验收指标），反映重排是否把高价值证据推到前 8；gold 为空时计为 None 不参与均值。",
         "- `最终上下文 Gold 命中率` 观察证据是否真正进入生成上下文；E 条件使用劣化后的运行记录。",
         "- `not_recalled_in_top50` 是检索问题；`recalled_but_not_in_final_context` 是候选到上下文选择问题。",
         "- 自动指标只用于回归诊断，不替代医学证据的人工核验。",

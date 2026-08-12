@@ -145,6 +145,23 @@ python -m evaluation.stats --scores data/experiments/scores/scores_<时间戳>.j
 python -m evaluation.charts --scores data/experiments/scores/scores_<时间戳>.jsonl
 ```
 
+**B4 离线检索/劣化评测链路**（fixture 断网可跑；`--retriever` 可选 `fixture` / `reference-rerank` / `hybrid-rerank`）：
+
+```bash
+# C/D/E 统一运行入口（fixture，STRESS 上 C/E 配对；--seed 确定性复现劣化）
+python -m evaluation.run_conditions --retriever fixture --condition C,D,E --split ALL --final-k 4 --seed 7
+# 真实检索栈：BM25 + 向量 + RRF + 特征重排 + MMR（embedding backend: fallback|local|api）
+python -m evaluation.run_conditions --retriever hybrid-rerank --embedding-backend fallback --condition C,E --split STRESS
+# 检索诊断：Recall@50 / Hit@5 / MRR / nDCG@8 / 分阶段消融 / 失败分类
+python -m evaluation.evaluate_retrieval --retrieval artifacts/b4/retrieval-*.jsonl --runs artifacts/b4/runs-*.jsonl --qrels data/fixtures/qrels.jsonl --output-dir artifacts/b4
+# STRESS 题集契约校验（正式模式要求 20 题、四类规则各 5 题；fixture-smoke 为当前样例）
+python scripts/validate_stress_fixture.py --fixture-smoke
+# D 接入赛道一 A5 完整系统（输出统一 RunRecord JSONL）
+python -m evaluation.run_a5 --a5-root <赛道一仓库路径> --demo
+```
+
+输出：`artifacts/b4/runs-*.jsonl`（Run 契约）、`retrieval-*.jsonl`（分阶段候选与特征分）、`stress-*.jsonl`（E 扰动 manifest：规则/seed/删除注入项/扰动前后候选集）。
+
 ### 3.3 五个实验条件说明
 
 | 条件 | 含义 | 目的 | 主责 |
@@ -154,6 +171,7 @@ python -m evaluation.charts --scores data/experiments/scores/scores_<时间戳>.
 | B | BM25 + 向量 + RRF 直接取 top-k（无 rerank） | 看"有没有 RAG" | B3 |
 | C | B + 特征重排 + MMR | 看"rerank 增益" | B4 |
 | D | 完整系统（工具轨迹） | 看"完整编排成本" | B4 |
+| E | 劣化 RAG（预注册规则派生候选集） | STRESS 题 C/E 配对：看"检索失败是否拖累回答/能否拒答" | B4 |
 
 A/A2/B/C/D 使用**同一模型、同一温度、同一输出上限**，公平对比。
 A2 引用用 [S#] 单独标识（与项目证据 [E#] 区分），mock 模式结果标注"离线模拟"，
