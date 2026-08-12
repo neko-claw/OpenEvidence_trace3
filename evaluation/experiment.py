@@ -123,7 +123,12 @@ def run_experiment(cfg: Config, questions: list[Question], conditions: list[str]
                 run.corpus_version = run.corpus_version or store.corpus_version
             # run_id 由实验层最终确定后重建 claims 的 claim_id/run_id，保证一致
             if run.status == "ok":
-                run.claims = split_claims(run.answer, run_id)
+                if cond == "A2":
+                    run.claims = split_claims(run.answer, run_id, n_search=len(run.retrieved_evidence))
+                elif cond == "A":
+                    run.claims = split_claims(run.answer, run_id)
+                else:
+                    run.claims = split_claims(run.answer, run_id, n_evidence=len(run.retrieved_evidence))
             runs.append(run)
             print(f"[{run.condition}] {q.id} -> {run.verification_decision} "
                   f"({run.latency_ms}ms, cost=${run.estimated_cost:.4f}, "

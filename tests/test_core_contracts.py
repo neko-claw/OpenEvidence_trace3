@@ -9,7 +9,9 @@ from evaluation.metrics import (hit_at_k, mrr, recall_at_k, ndcg_at_k,
                                 unsupported_claim_rate, abstention_quality)
 from generation.citation_check import (extract_citations, check_citation_whitelist,
                                        citation_precision as ccp,
-                                       check_claims_supported, find_invalid_urls)
+                                       check_claims_supported, find_invalid_urls,
+                                       split_claims)
+from core.dataclasses import Question
 
 
 def test_hit_at_k():
@@ -77,3 +79,27 @@ def test_find_invalid_urls():
     assert find_invalid_urls("见 https://pubmed.ncbi.nlm.nih.gov/x 的来源") == \
         ["https://pubmed.ncbi.nlm.nih.gov/x"]
     assert find_invalid_urls("无链接") == []
+
+
+def test_question_blueprint_fields_are_preserved():
+    q = Question.from_dict({
+        "id": "DEV-S01", "split": "DEV", "dataset_pack": "DEV",
+        "topic": "hypertension", "question_type": "mechanism",
+        "difficulty": 2, "question": "为什么长期血压升高会造成心肌重构？",
+        "answerable": True, "as_of_date": "2026-08-01",
+        "source_group_id": "source-01", "gold_source_ids": [],
+        "key_points": ["压力负荷"], "language": "zh-CN",
+        "rubric_version": "rubric-v0.1",
+    })
+    assert q.freshness == "stable"
+    assert q.split == "DEV" and q.dataset_pack == "DEV"
+    assert q.answerable is True and q.source_group_id == "source-01"
+    assert q.rubric["key_points"] == ["压力负荷"]
+    assert q.extras["rubric_version"] == "rubric-v0.1"
+
+
+def test_split_claims_has_condition_aware_decisions():
+    claims = split_claims("- 有效引用 [E1]\n- 这是一条没有引用的补充结论。", "run-1", n_evidence=2)
+    assert [claim["decision"] for claim in claims] == ["supported", "insufficient"]
+    assert claims[0]["verification_method"] == "citation_existence"
+    assert split_claims("- 这是一条没有检索上下文的主张。", "run-2")[0]["decision"] == "pending"

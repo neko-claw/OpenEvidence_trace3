@@ -73,7 +73,7 @@ def test_offline_condition_e_derived_from_b_baseline():
     store = _small_store(cfg)
     run_b = run_condition(_q(), "B", cfg, store=store, llm=OfflineLLM())
     run_e = run_condition(_q(), "E", cfg, store=store, llm=OfflineLLM())
-    assert run_e.tool_trace[0]["derived_from"] == "B_baseline_rerank_false"
+    assert run_e.tool_trace[0]["derived_from"] == "rrf_candidates_shared_by_B_and_C"
     assert run_e.tool_trace[0]["degraded"] is True
     # E 候选 <= B 候选（top-k 减半）
     assert len(run_e.retrieved_evidence) <= len(run_b.retrieved_evidence)
@@ -87,11 +87,14 @@ def test_e_perturbation_label_follows_question_declaration():
     q = Question(id="s01", topic="hypertension", difficulty="hard",
                  question="阿利吉仑联合用药的长期结局证据？",
                  question_type="insufficient", freshness="up_to_date",
-                 rubric={"perturbation": "gold_removed"})
+                 rubric={"stress_rule": "topk_reduced"})
     run_e = run_condition(q, "E", cfg, store=store, llm=OfflineLLM())
     trace = run_e.tool_trace[0]
-    assert trace["perturbation"] == "gold_removed"   # 题目声明
-    assert trace["perturbation_executed"] == "topk_halved"  # 实际执行（B4 扩展）
+    assert trace["perturbation"] == "topk_reduced"   # 题目级预注册规则
+    assert trace["perturbation_executed"] in {
+        "drop_all_gold_v1", "drop_gold_v1", "topk_reduced",
+        "inject_unsupporting_v1", "unanswerable_malicious",
+    }
 
 
 def test_offline_experiment_smoke_writes_jsonl():

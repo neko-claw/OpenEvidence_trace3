@@ -13,7 +13,7 @@
     "attempt_count", "status"
   ],
   "properties": {
-    "run_id": { "type": "string", "description": "唯一运行 ID，如 r-20260811-001" },
+    "run_id": { "type": "string", "description": "唯一运行 ID，包含题目、条件、配置、seed 和 replicate" },
     "question_id": { "type": "string" },
     "condition": { "type": "string", "enum": ["A", "A2", "B", "C", "D", "E"] },
     "replicate": { "type": "integer", "minimum": 1, "description": "REPEAT 子集重复序号；主跑为 1" },
@@ -27,14 +27,21 @@
     "index_version": { "type": "string" },
     "code_commit": { "type": "string" },
     "provider_fingerprint": { "type": ["string", "null"] },
-    "agent_plan": { "type": ["array", "null"], "items": { "type": "object" }, "description": "仅 D 条件" },
+    "candidate_ids": { "type": "array", "items": { "type": "string" } },
+    "agent_plan": { "type": ["array", "object", "null"], "description": "condition or D agent plan" },
     "tool_trace": { "type": ["array", "null"], "items": { "type": "object" }, "description": "仅 D 条件；工具名/输入/输出/耗时" },
     "retrieved_evidence": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "object",
+        "anyOf": [
+          { "required": ["evidence_id"] },
+          { "required": ["id"] }
+        ]
+      },
       "description": "实际进入上下文的证据 ID 列表（白名单）"
     },
-    "answer": { "type": "string" },
+    "answer": { "type": ["string", "null"] },
     "claims": {
       "type": ["array", "null"],
       "items": {
@@ -44,23 +51,35 @@
           "text": { "type": "string" },
           "criticality": { "type": "string", "enum": ["critical", "important", "context"] },
           "evidence_ids": { "type": "array", "items": { "type": "string" } },
-          "decision": { "type": "string", "enum": ["supported", "contradicted", "insufficient", "pending"] }
+          "decision": { "type": "string", "enum": ["supported", "contradicted", "insufficient", "pending", "SUPPORTED", "CONTRADICTED", "INSUFFICIENT"] }
         }
       }
     },
-    "citations": { "type": ["array", "null"], "items": { "type": "string" } },
+    "citations": {
+      "type": ["array", "null"],
+      "items": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "object" }
+        ]
+      }
+    },
     "verification_decision": {
       "type": "string",
       "enum": ["PASS", "WARN", "REFUSE"],
       "description": "支持性门禁输出"
     },
     "latency_ms": { "type": "integer" },
-    "input_tokens": { "type": "integer" },
-    "output_tokens": { "type": "integer" },
-    "estimated_cost": { "type": "number" },
+    "input_tokens": { "type": ["integer", "null"] },
+    "output_tokens": { "type": ["integer", "null"] },
+    "estimated_cost": { "type": ["number", "null"] },
+    "d_extra_latency_ms": { "type": ["integer", "null"], "description": "D full-system overhead latency" },
+    "d_extra_input_tokens": { "type": ["integer", "null"], "description": "D full-system overhead input tokens" },
+    "d_extra_output_tokens": { "type": ["integer", "null"], "description": "D full-system overhead output tokens" },
+    "d_extra_estimated_cost": { "type": ["number", "null"], "description": "D full-system overhead cost" },
     "cache_hits": { "type": ["integer", "null"] },
     "attempt_count": { "type": "integer", "description": "含重试次数" },
-    "status": { "type": "string", "enum": ["pending", "running", "completed", "failed", "aborted"] },
-    "error": { "type": ["string", "null"] }
+    "status": { "type": "string", "enum": ["pending", "running", "completed", "failed", "aborted", "ok", "error", "success", "not_applicable"] },
+    "error": { "type": ["string", "object", "null"] }
   }
 }

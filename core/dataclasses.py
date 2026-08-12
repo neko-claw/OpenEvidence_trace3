@@ -23,8 +23,14 @@ class Question:
     difficulty: str           # easy | medium | hard
     question: str
     question_type: str        # mechanism | guideline | latest_trial | insufficient
-    freshness: str            # stable | up_to_date
+    freshness: str = "stable"
     gold_source_ids: list[str] = field(default_factory=list)
+    split: str = ""
+    dataset_pack: str = ""
+    answerable: bool | None = None
+    as_of_date: str = ""
+    source_group_id: str = ""
+    extras: dict[str, Any] = field(default_factory=dict)
     rubric: dict[str, Any] = field(default_factory=dict)  # 关键回答点 + 扣分项
 
     def to_dict(self) -> dict:
@@ -32,7 +38,16 @@ class Question:
 
     @classmethod
     def from_dict(cls, d: dict) -> "Question":
-        valid = {k: v for k, v in d.items() if k in cls.__dataclass_fields__}
+        d = dict(d)
+        if "key_points" in d:
+            rubric = dict(d.get("rubric") or {})
+            rubric.setdefault("key_points", d["key_points"])
+            d["rubric"] = rubric
+        known = set(cls.__dataclass_fields__)
+        extras = {k: v for k, v in d.items() if k not in known}
+        if extras:
+            d["extras"] = {**(d.get("extras") or {}), **extras}
+        valid = {k: v for k, v in d.items() if k in known}
         return cls(**valid)
 
 
@@ -148,6 +163,8 @@ class Score:
     question_id: str
     condition: str = ""
     judge_id: str = ""
+    metric_version: str = "v0.1"
+    rubric_version: str = "v0.1"
     # 检索
     hit_at_5: Optional[float] = None
     mrr: Optional[float] = None

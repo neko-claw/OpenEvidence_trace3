@@ -42,9 +42,18 @@ def citation_precision(text: str, n_evidence: int) -> float:
     return len(valid) / total
 
 
-def split_claims(answer: str, run_id: str) -> list[dict]:
+def split_claims(answer: str, run_id: str, n_evidence: int | None = None,
+                 n_search: int | None = None) -> list[dict]:
     """把回答按行拆成候选 Claim（P0 简化：按"证据说明"章节的列表项拆分，绑定 [E#]/[S#] 引用）。
     正式实现应由生成模型返回结构化 Claim[]；此处为确定性回退，保证主终点可算。"""
+    def _valid(ids: list[str], limit: int | None) -> bool:
+        if not ids:
+            return False
+        if limit is None:
+            return True
+        return all(1 <= int(item) <= limit for item in ids)
+
+    has_context = (n_evidence or 0) > 0 or (n_search or 0) > 0
     claims = []
     n = 0
     for line in answer.splitlines():
@@ -54,11 +63,19 @@ def split_claims(answer: str, run_id: str) -> list[dict]:
             text = line.lstrip("-* ")
             e_ids = extract_citations(text)
             s_ids = extract_search_citations(text)
+            if _valid(e_ids, n_evidence) or _valid(s_ids, n_search):
+                decision = "supported"
+            elif has_context:
+                decision = "insufficient"
+            else:
+                decision = "pending"
             claims.append(Claim(
                 claim_id=f"{run_id}_c{n}", run_id=run_id, text=text,
                 criticality="important",
                 # P0 简化：evidence_ids 暂存引用编号（E1/S1），Score 阶段按 retrieved_evidence 映射回证据 ID
                 evidence_ids=[f"E{i}" for i in e_ids] + [f"S{i}" for i in s_ids],
+                decision=decision,
+                verification_method="citation_existence",
             ).to_dict())
     return claims
 

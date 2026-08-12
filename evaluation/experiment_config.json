@@ -59,6 +59,7 @@
   "e_perturbation": {
     "ref": "evaluation/preregistration/e_perturbation_rules.json",
     "baseline_condition": "C",
+    "derivation_rule": "E derives from the B/C shared RRF candidate set",
     "note": "E 条件只在 20 道 STRESS 题上执行，单独报告"
   },
   "repeat_subset": {

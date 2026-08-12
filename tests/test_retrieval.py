@@ -48,6 +48,8 @@ def test_evidence_level_score():
 
 def test_freshness_score():
     assert _freshness_score("2024-01-01", "stable") > _freshness_score("2010-01-01", "stable")
+    assert _freshness_score("2024-01-01", "stable") < _freshness_score("2024-01-01", "up_to_date")
+    assert _freshness_score("2010-01-01", "stable") < _freshness_score("2010-01-01", "up_to_date")
 
 
 def test_source_quality():

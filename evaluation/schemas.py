@@ -72,6 +72,7 @@ class RunRecord:
     provider_fingerprint: str = ""    # LLM provider 标识（base_url + model）
     code_commit: str = ""             # 运行时代码 commit（config_hash 已含时可为空）
     verification_decision: str = "PASS"  # PASS | WARN | REFUSE
+    candidate_ids: List[str] = field(default_factory=list)
     agent_plan: Dict[str, Any] = field(default_factory=dict)
     tool_trace: List[Dict[str, Any]] = field(default_factory=list)
     stress_manifest: Optional[Dict[str, Any]] = None
@@ -79,6 +80,10 @@ class RunRecord:
     input_tokens: Optional[int] = None
     output_tokens: Optional[int] = None
     estimated_cost: Optional[float] = None
+    d_extra_latency_ms: Optional[int] = None
+    d_extra_input_tokens: Optional[int] = None
+    d_extra_output_tokens: Optional[int] = None
+    d_extra_estimated_cost: Optional[float] = None
     cache_hits: int = 0
     attempt_count: int = 1
     error: Optional[Dict[str, Any]] = None

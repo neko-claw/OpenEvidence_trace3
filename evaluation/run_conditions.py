@@ -5,7 +5,10 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .adapters.a5_retriever import A5EvidenceRetrieverAdapter
+from .adapters.a5_system import build_a5_workflow
 from .adapters.fixture_retriever import FixtureRetriever
+from .adapters.full_system import A5FullSystemAdapter, MockFullSystem
 from .adapters.hybrid_retriever import HybridReferenceRetriever
 from .adapters.reference_retriever import ReferenceRetriever
 from .diagnostics import config_hash, retrieval_trace, write_jsonl
@@ -44,6 +47,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--final-k", type=int, default=4, help="最终放入上下文的证据条数")
     parser.add_argument("--seed", type=int, default=0, help="E 劣化/条件顺序随机种子（确定性复现）")
     parser.add_argument("--replicate", type=int, default=1, help="REPEAT 子集重复序号（写入 RunRecord）")
+    parser.add_argument("--full-system", default="mock", choices=["mock", "a5"])
+    parser.add_argument("--a5-root", default=None)
+    parser.add_argument("--a5-demo", action="store_true")
     return parser.parse_args()
 
 
@@ -94,6 +100,34 @@ def main() -> int:
         config["corpus_version"] = retriever.store.corpus_version
     else:
         retriever = FixtureRetriever(evidence_path, qrels_path, index_version=config["index_version"])
+
+    if args.full_system == "a5":
+        if not args.a5_root:
+            raise SystemExit("--full-system a5 requires --a5-root")
+        a5_root = Path(args.a5_root).resolve()
+        if not a5_root.is_dir():
+            raise SystemExit(f"A5 root does not exist: {a5_root}")
+        if not isinstance(retriever, HybridReferenceRetriever):
+            raise SystemExit("--full-system a5 requires --retriever hybrid or hybrid-rerank")
+        a5_retriever = A5EvidenceRetrieverAdapter(
+            evidence_path,
+            a5_root,
+            config_path=ROOT / "config.yaml",
+            embedding_backend=args.embedding_backend,
+            use_rerank=True,
+            final_k=args.final_k,
+        )
+        config["full_system_adapter"] = A5FullSystemAdapter(
+            a5_root,
+            build_a5_workflow(a5_root, a5_retriever, demo=args.a5_demo),
+        )
+        config["model"] = "a5-mock-claim-generator"
+        config["model_snapshot"] = "a5-mock-claim-generator"
+        config["provider_fingerprint"] = "offline/a5-workflow"
+        config["a5_demo"] = args.a5_demo
+        config["system_version"] = "a5-workflow-v0.1"
+    else:
+        config["full_system_adapter"] = MockFullSystem()
 
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     run_path = output_dir / f"runs-{timestamp}.jsonl"

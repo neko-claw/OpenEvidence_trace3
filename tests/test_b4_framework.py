@@ -41,6 +41,83 @@ class B4FrameworkTests(unittest.TestCase):
             self.assertTrue(run.answer)
             self.assertIsNotNone(trace["retrieval"])
 
+    def test_d_uses_full_system_adapter_contract(self):
+        from evaluation.adapters.full_system import MockFullSystem
+
+        question = next(q for q in self.questions if q["id"] == "dev-001")
+        calls = []
+
+        class RecordingAdapter(MockFullSystem):
+            def run(self, question, config):
+                calls.append((question["id"], len(config["evidence"])))
+                return super().run(question, config)
+
+        run, _ = run_condition(
+            question, "D", self.retriever,
+            config={"full_system_adapter": RecordingAdapter()},
+        )
+        self.assertEqual(run.status, "success")
+        self.assertEqual(run.condition, "D")
+        self.assertEqual(calls[0][0], "dev-001")
+        self.assertTrue(run.agent_plan)
+        self.assertTrue(run.tool_trace)
+        self.assertIn("mock-system", run.system_version)
+
+    def test_d_preserves_adapter_diagnostics(self):
+        from evaluation.adapters.full_system import FullSystemResult
+
+        question = next(q for q in self.questions if q["id"] == "dev-001")
+
+        class TraceAdapter:
+            def run(self, question, config):
+                return FullSystemResult(
+                    question_id=question["id"],
+                    system_version="custom-system-v1",
+                    agent_plan={"source": "adapter"},
+                    tool_trace=[{"tool": "custom_tool", "status": "ok"}],
+                    retrieved_evidence=config["evidence"],
+                    answer="adapter answer",
+                    claims=[],
+                    citations=[],
+                )
+
+        run, _ = run_condition(
+            question, "D", self.retriever,
+            config={"full_system_adapter": TraceAdapter()},
+        )
+        self.assertEqual(run.system_version, "custom-system-v1")
+        self.assertEqual(run.agent_plan, {"source": "adapter"})
+        self.assertEqual(run.tool_trace, [{"tool": "custom_tool", "status": "ok"}])
+
+    def test_d_records_adapter_overhead_separately(self):
+        from evaluation.adapters.full_system import FullSystemResult
+
+        question = next(q for q in self.questions if q["id"] == "dev-001")
+
+        class CostedAdapter:
+            def run(self, question, config):
+                return FullSystemResult(
+                    question_id=question["id"],
+                    system_version="costed-system-v1",
+                    retrieved_evidence=config["evidence"],
+                    answer="answer",
+                    claims=[],
+                    citations=[],
+                    latency_ms=17,
+                    input_tokens=11,
+                    output_tokens=13,
+                    estimated_cost=0.004,
+                )
+
+        run, _ = run_condition(
+            question, "D", self.retriever,
+            config={"full_system_adapter": CostedAdapter()},
+        )
+        self.assertEqual(run.d_extra_latency_ms, 17)
+        self.assertEqual(run.d_extra_input_tokens, 11)
+        self.assertEqual(run.d_extra_output_tokens, 13)
+        self.assertEqual(run.d_extra_estimated_cost, 0.004)
+
     def test_a_and_b_run(self):
         question = next(q for q in self.questions if q["id"] == "dev-001")
         run_a, trace_a = run_condition(question, "A", self.retriever)

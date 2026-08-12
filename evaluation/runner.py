@@ -5,13 +5,14 @@ import time
 from typing import Any, Dict, Optional, Tuple
 
 from .conditions import get_condition_config
+from .adapters.full_system import FullSystemResult, build_full_system_adapter
 from .providers.mock import MockProvider
 from .schemas import RunRecord
 from .stress import apply_stress
 
 
-def _run_id(question_id: str, condition: str, config_hash: str) -> str:
-    raw = f"{question_id}:{condition}:{config_hash}"
+def _run_id(question_id: str, condition: str, config_hash: str, seed: int, replicate: int) -> str:
+    raw = f"{question_id}:{condition}:{config_hash}:seed={seed}:replicate={replicate}"
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
 
 
@@ -41,7 +42,7 @@ def run_condition(
         provider, "provider_fingerprint", ""
     )
     code_commit = config.get("code_commit", "")
-    run_id = _run_id(question["id"], condition, config_hash)
+    run_id = _run_id(question["id"], condition, config_hash, seed, replicate)
     started = time.perf_counter()
 
     if condition == "E" and question.get("split") != "STRESS":
@@ -63,6 +64,7 @@ def run_condition(
             model_snapshot=model_snapshot,
             provider_fingerprint=provider_fingerprint,
             code_commit=code_commit,
+            candidate_ids=[],
             retrieved_evidence=[],
             answer=None,
             claims=[],
@@ -91,6 +93,7 @@ def run_condition(
             model_snapshot=model_snapshot,
             provider_fingerprint=provider_fingerprint,
             code_commit=code_commit,
+            candidate_ids=[],
             retrieved_evidence=[],
             answer=generated["answer"],
             claims=generated["claims"],
@@ -112,16 +115,24 @@ def run_condition(
     tool_trace = []
     agent_plan = {}
     system_version = None
+    full_system_result: FullSystemResult | None = None
 
     if condition == "D":
         # D 骨架：完整组件包（Wiki/Skill/MCP/Agent）尚未接入时用 mock plan/trace 占位；
         # 真实 D 应通过 FullSystemAdapter（见 run_a5.py）产出，并单独计入额外延迟/token/成本。
-        system_version = condition_config.get("system_version")
-        agent_plan = {"skill": "evidence_research@v0.1", "steps": ["retrieve", "rerank", "audit"]}
-        tool_trace = [
-            {"tool": "search_evidence", "status": "mock_success", "count": len(final_evidence)},
-            {"tool": "validate_citation", "status": "mock_success", "count": len(final_evidence)},
-        ]
+        adapter = build_full_system_adapter(config)
+        full_system_result = adapter.run(question, {
+            **config,
+            "system_version": config.get("system_version")
+            or condition_config.get("system_version")
+            or "mock-full-system-v0.1",
+            "evidence": final_evidence,
+            "retrieval": retrieval.to_dict(),
+        })
+        final_evidence = list(full_system_result.retrieved_evidence)
+        system_version = full_system_result.system_version
+        agent_plan = full_system_result.agent_plan
+        tool_trace = full_system_result.tool_trace
     elif condition == "E":
         # E 劣化：在“检索阶段候选集”（B/C 同源的 RRF 融合候选）上按预注册规则派生，
         # 返回的劣化列表即 E 的最终上下文（截断到 final_k），保证劣化对生成可见；
@@ -140,7 +151,19 @@ def run_condition(
         )
         stress_manifest = stress.to_dict()
 
-    generated = provider.generate(question, final_evidence, condition)
+    generated = (
+        {
+            "answer": full_system_result.answer,
+            "claims": full_system_result.claims,
+            "citations": full_system_result.citations,
+            "verification_decision": full_system_result.verification_decision,
+            "input_tokens": full_system_result.input_tokens,
+            "output_tokens": full_system_result.output_tokens,
+            "estimated_cost": full_system_result.estimated_cost,
+        }
+        if full_system_result is not None
+        else provider.generate(question, final_evidence, condition)
+    )
     elapsed = max(1, int((time.perf_counter() - started) * 1000))
     run = RunRecord(
         run_id=run_id,
@@ -160,6 +183,7 @@ def run_condition(
         model_snapshot=model_snapshot,
         provider_fingerprint=provider_fingerprint,
         code_commit=code_commit,
+        candidate_ids=[item.get("evidence_id", "") for item in retrieval.rrf_candidates],
         retrieved_evidence=final_evidence,
         answer=generated["answer"],
         claims=generated["claims"],
@@ -172,6 +196,15 @@ def run_condition(
         input_tokens=generated.get("input_tokens"),
         output_tokens=generated.get("output_tokens"),
         estimated_cost=generated.get("estimated_cost"),
+        d_extra_latency_ms=(full_system_result.latency_ms if full_system_result is not None else None),
+        d_extra_input_tokens=(full_system_result.input_tokens if full_system_result is not None else None),
+        d_extra_output_tokens=(full_system_result.output_tokens if full_system_result is not None else None),
+        d_extra_estimated_cost=(full_system_result.estimated_cost if full_system_result is not None else None),
+        error=(
+            {"code": "FULL_SYSTEM_ERROR", "details": full_system_result.errors}
+            if full_system_result is not None and full_system_result.errors
+            else None
+        ),
     )
     trace = {"retrieval": retrieval.to_dict(), "stress": stress_manifest}
     return run, trace

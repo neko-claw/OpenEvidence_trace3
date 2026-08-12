@@ -25,8 +25,12 @@ def _freshness_score(published_at: str, q_freshness: str, now: date | None = Non
         return 0.5
     age = max(0, now.year - y)
     if age <= 1:
-        return 1.0
-    return max(0.1, 1.0 - 0.08 * (age - 1))
+        score = 1.0
+    else:
+        score = max(0.1, 1.0 - 0.08 * (age - 1))
+    if str(q_freshness).lower() in {"stable", "mechanism"}:
+        return 0.5 * score
+    return score
 
 
 def _source_quality_score(source_type: str) -> float:

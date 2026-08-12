@@ -88,7 +88,12 @@ class AnswerGenerator:
                 run.error = f"非法引用编号(超出本次证据范围): {invalid}"
             run.citations = extract_citations(text)
         # claims 留痕（P0-2）：主终点 rubric_keypoint_score / unsupported_critical_claim_rate 依赖
-        run.claims = split_claims(run.answer, run.run_id)
+        if condition == "A2":
+            run.claims = split_claims(run.answer, run.run_id, n_search=n_ev)
+        elif condition == "A":
+            run.claims = split_claims(run.answer, run.run_id)
+        else:
+            run.claims = split_claims(run.answer, run.run_id, n_evidence=n_ev)
         return run, features
 
     def _abstain_text(self, q: Question) -> str:
