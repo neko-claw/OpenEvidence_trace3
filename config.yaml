@@ -6,22 +6,36 @@ llm:
   provider: deepseek            # 从环境变量 DEEPSEEK_API_KEY 读取 key
   base_url: https://api.deepseek.com
   model: deepseek-chat          # 生成模型快照，四条件必须一致
-  judge_model: deepseek-chat    # judge 与生成同家族有偏差，有条件请换成不同模型
+  judge_model: qwen3.8-max      # judge 与生成不同家族（deepseek 生成 / qwen 评审）降低同源偏差
+  judge_provider: dashscope     # judge 走独立 provider（见下方 judge 段）
   temperature: 0.3
   max_tokens: 1500
   timeout: 120
   retries: 3
 
+# judge 独立 provider：qwen3.8-max（DashScope），与生成模型 deepseek 不同家族
+judge:
+  provider: dashscope
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  model: qwen3.8-max
+  api_key_env: DASHSCOPE_API_KEY
+  temperature: 0.0
+  max_tokens: 1500
+  timeout: 120
+  retries: 2
+
 embedding:
   # backend: api | local | fallback
-  #   api      -> 走 OpenAI 兼容 embedding 接口（如 SiliconFlow），需配置 key
+  #   api      -> DashScope qwen3.7-text-embedding（OpenAI 兼容接口，需 DASHSCOPE_API_KEY）
   #   local    -> sentence-transformers 本地模型，首次运行自动下载
   #   fallback -> 不依赖任何模型，基于词表哈希（仅保证代码可跑，质量差）
-  backend: local
-  api_base_url: ""              # 例如 https://api.siliconflow.cn/v1
-  api_model: "BAAI/bge-m3"
+  backend: api
+  api_base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  api_model: "qwen3.7-text-embedding"
+  api_key_env: DASHSCOPE_API_KEY
   local_model: "BAAI/bge-small-zh-v1.5"
-  dim: 512
+  dim: 1024
+  batch_size: 20    # qwen3.7-text-embedding 单请求上限 20 条
 
 retrieval:
   k_bm25: 50
@@ -29,6 +43,8 @@ retrieval:
   k_rrf: 100
   k_final: 8
   rrf_k: 60
+  # 全文增强层（Europe PMC OA 分块 12023 条）接入检索：true 时 EvidenceStore 一并索引
+  include_fulltext: true
   # K1 分层（实施规划 §4.3.2）：RRF 合并后先特征重排到 K1 条，再 MMR 选 k_final
   # P0 当前实现：特征重排作用在全量 RRF 候选上；K1 为 A4 调参预留，默认 None=不截断
   k1_rerank: null

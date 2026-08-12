@@ -59,13 +59,15 @@ python -m pytest tests/ -q        # 期望输出: 104 passed
 
 ### 2.1 需要一个什么 key
 
-生成模型和评测（judge）共用 **DeepSeek API key**：
+| 用途 | Provider | 模型 | 环境变量 | 必需 |
+|---|---|---|---|---|
+| 生成模型（A/B/C/D/E） | DeepSeek | `deepseek-chat` | `DEEPSEEK_API_KEY` | ✅ |
+| judge 盲评（独立家族） | 阿里云百炼 DashScope | `qwen3.8-max` | `DASHSCOPE_API_KEY` | ✅ |
+| 嵌入模型 | 阿里云百炼 DashScope | `qwen3.7-text-embedding` | `DASHSCOPE_API_KEY`（兼容 `EMBEDDING_API_KEY`） | ✅ |
 
-1. 注册 DeepSeek 开放平台：https://platform.deepseek.com
-2. 充值少量余额（约 ¥10 足够跑完整实验）
-3. 创建 API key（形如 `sk-xxxxxxxx`）
-
-> 也可以换成任何 OpenAI 兼容接口（如硅基流动/通义/月之暗面），只需改 `config.yaml` 里的 `llm.base_url` 和 `llm.model`。
+- 生成与 judge 使用**不同模型家族**（deepseek 生成 / qwen 评审），降低 LLM judge 同源偏差（规划 §6.3）。
+- judge provider 在 `config.yaml` 的 `judge:` 段独立配置；嵌入在 `embedding:` 段（`backend: api`）。
+- 嵌入也可用本地 BGE（`backend: local`，需 `pip install sentence-transformers`）。
 
 ### 2.2 写入项目 `.env`
 

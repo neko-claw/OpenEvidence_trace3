@@ -30,13 +30,16 @@ class EmbeddingClient:
     def _init_api(self) -> None:
         import httpx
         base = self.cfg.get("api_base_url", "").rstrip("/")
-        key = self.cfg.get("api_key", "") or os.environ.get("EMBEDDING_API_KEY", "")
+        key_env = self.cfg.get("api_key_env", "") or "EMBEDDING_API_KEY"
+        key = self.cfg.get("api_key", "") or os.environ.get(key_env, "") or os.environ.get("EMBEDDING_API_KEY", "")
         if not base or not key:
-            raise RuntimeError("embedding.backend=api 需要配置 api_base_url 与 key")
+            raise RuntimeError(
+                f"embedding.backend=api 需要配置 api_base_url 与 key（env {key_env} 或 EMBEDDING_API_KEY）")
         self._api_base = f"{base}/embeddings"
         self._api_model = self.cfg.get("api_model", "BAAI/bge-m3")
         self._session = httpx.Client(
-            headers={"Authorization": f"Bearer {key}"}, timeout=60)
+            headers={"Authorization": f"Bearer {key}"}, timeout=120)
+        self._session.base_url = self._api_base
 
     def _init_local(self) -> None:
         try:
@@ -56,10 +59,30 @@ class EmbeddingClient:
         if not texts:
             return np.zeros((0, self.dim), dtype=np.float32)
         if self.backend == "api":
-            resp = self._session.post("", json={"model": self._api_model, "input": texts})
-            resp.raise_for_status()
-            data = resp.json()["data"]
-            arr = np.array([d["embedding"] for d in data], dtype=np.float32)
+            batch = max(1, int(self.cfg.get("batch_size", 64)))
+            vecs = []
+            for i in range(0, len(texts), batch):
+                chunk = texts[i:i + batch]
+                last_err = None
+                for attempt in range(3):
+                    try:
+                        resp = self._session.post(
+                            self._api_base,
+                            json={"model": self._api_model, "input": chunk, "encoding_format": "float"})
+                        if resp.status_code != 200:
+                            raise RuntimeError(
+                                f"embedding API {resp.status_code}: {resp.text[:300]}"
+                                f" | batch {len(chunk)} | sample: {str(chunk[0])[:80]!r}")
+                        data = resp.json()["data"]
+                        vecs.extend(d["embedding"] for d in data)
+                        break
+                    except Exception as e:  # 连接/超时等瞬态错误 -> 退避重试
+                        last_err = e
+                        import time as _t
+                        _t.sleep(2 ** attempt)
+                else:
+                    raise RuntimeError(f"embedding batch 重试 3 次仍失败: {last_err}")
+            arr = np.array(vecs, dtype=np.float32)
             self.dim = arr.shape[1]
             return arr
         if self.backend == "local":

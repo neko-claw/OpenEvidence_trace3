@@ -58,3 +58,34 @@ python -m pytest tests/ -q             # 104 passed
 python -m evaluation.experiment --questions testset --conditions A B C D
 python -m evaluation.experiment --questions stress --conditions C E
 ```
+
+---
+
+## 6. 后续修复（嵌入/评审/门禁/全文层，2026-08-12 第二轮）
+
+| 项 | 内容 | 验证 |
+|---|---|---|
+| 嵌入模型 | 阿里云百炼 **qwen3.7-text-embedding**（1024 维，`embedding.backend=api`，batch=20 上限，重试+退避） | 22,206 文档索引构建完成（含全文层），检索命中最新研究题 gold |
+| judge 独立家族 | **qwen3.8-max**（DashScope）作 judge，与生成模型 deepseek 不同家族（`config.judge` 段独立 provider） | 实测双 judge 评分出现真实分歧（faith 3 vs 4） |
+| 拒答语义门禁 | `generation/citation_check.detect_refusal`：回答主体出现"无法回答/证据不足/现有证据不支持"等标记 → 无引用判 REFUSE，有引用判 WARN | STRESS 范围外题 C/E 均正确 WARN（不再误报 PASS） |
+| A2 离线 mock 修复 | prompt 示例改为 `[S#]`/`[E#]` 占位符（不再含字面 `[S2]`），OfflineLLM 不再生成越界引用 | A2 离线 run 只引用实际结果编号，无越界 WARN |
+| claims 结构化增强 | `split_claims` 增加 criticality 规则判定（高风险/安全/剂量表述→critical）+ evidence_ids 映射为真实证据 ID | `unsupported_critical_claim_rate` 主终点不再恒为 None；107 tests |
+| 全文层接入检索 | `retrieval.include_fulltext=true`：12,023 个 Europe PMC OA 分块进入 BM25/向量索引（共 22,206 文档） | 索引版本更新，全文 gold 可检索 |
+| STRESS gold 库内化 | retrieval_damage 题 gold 由语料库内同主题证据替换（删除 gold 扰动真正生效） | validate PASS，qrels 含 STRESS 26 条 |
+| .env 统一加载 | `load_config()` 自动注入 .env（嵌入/judge 各后端不再依赖调用方） | 各 CLI 入口直接可用 |
+| 索引断点续跑 | `scripts/build_index_checkpoint.py`：分批嵌入+增量检查点，网络中断可续跑 | 全程 ~30 分钟完成 22,206 条 |
+
+## 7. rerank 分析方式（实测，DEV 33 题含 gold 25 题）
+
+**方案**：可解释特征加权重排（`S_feature = w1·semantic + w2·lexical + w3·pico + w4·level + w5·freshness + w6·source − w7·redundancy`）+ MMR 去冗余，四层分离记录（bm25/vector/rrf/rerank 候选 + 特征分），消融用 `scripts/ablate_rerank_components.py`。
+
+**消融实证**（`final-k=8`，DEV 25 题有 gold）：
+
+| 变体 | Recall@50 | 最终上下文 gold 命中 | 最终召回 |
+|---|---:|---:|---:|
+| R0 rrf_only | 0.613 | **0.32** | 0.21 |
+| R1 default（特征+MMR） | 0.613 | **0.56** (+75%) | 0.40 |
+| R1 + lexical_rescue | 0.613 | **0.60** (+88%) | 0.44 |
+| R1 + rank_guard_no_authority | 0.613 | 0.60 | 0.41 |
+
+结论：rerank 不改变初检召回（Recall@50 恒定 0.613，由 BM25/向量决定），但显著提高 gold 进入最终上下文的比例（0.32→0.56）。P1 可选 Cross-Encoder/BGE 在 R1 基础上对前 30 条精排（`rerank_config_version` 记录，只调 DEV 不调 TEST）。

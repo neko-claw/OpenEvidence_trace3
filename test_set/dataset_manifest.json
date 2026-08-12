@@ -37,9 +37,9 @@
   },
   "split_hashes": {
     "questions.jsonl": "51494574bf597d4c17e2a7587d5076ad4bc4548ae347af559567923c9ad3b284",
-    "stress_20.jsonl": "75175d602dd855780928f6148b074ee3cdf12a1134c5198a771d34e811d7fc38",
+    "stress_20.jsonl": "39952932cbc083d3f329a2eb9d237d8c7e72ae69cc475780a605e49616bf937b",
     "scoring_guide.json": "8cf98ccae59569339fb30c0d5bf80df3b5f4c0b247ff92f3ffd73e5f62118a39",
-    "qrels.jsonl": "a44dfe909860197448b71db04c698e6235eb679896f1895a1a722e45320696de"
+    "qrels.jsonl": "06327c59884c65c192fe26e309671eb583e2a6495df2e24b73a33cd6126318ca"
   },
   "note": "由 scripts/rebuild_test_set.py 重建；正式题文本/gold/rubric 冻结前须医学人工核验"
 }

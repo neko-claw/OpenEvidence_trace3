@@ -120,8 +120,26 @@ def main() -> None:
     args = ap.parse_args()
 
     cfg = load_config()
-    llm = LLMClient(cfg["llm"])
-    model = args.model or cfg["llm"].get("judge_model") or "unknown-judge-family"
+    # judge 优先使用独立 provider（config.judge，如 qwen3.8-max / DashScope），
+    # 与生成模型（deepseek）不同家族，降低同源偏差；未配置时回退 cfg.llm + judge_model。
+    judge_cfg = cfg.get("judge") or {}
+    if judge_cfg.get("base_url") and judge_cfg.get("model"):
+        llm_cfg = {
+            "base_url": judge_cfg["base_url"],
+            "model": judge_cfg["model"],
+            "temperature": judge_cfg.get("temperature", 0.0),
+            "max_tokens": judge_cfg.get("max_tokens", 1500),
+            "timeout": judge_cfg.get("timeout", 120),
+            "retries": judge_cfg.get("retries", 2),
+        }
+        key_env = judge_cfg.get("api_key_env", "DASHSCOPE_API_KEY")
+        import os
+        judge_api_key = os.environ.get(key_env, "")
+        llm = LLMClient(llm_cfg, api_key=judge_api_key or None)
+        model = args.model or judge_cfg["model"]
+    else:
+        llm = LLMClient(cfg["llm"])
+        model = args.model or cfg["llm"].get("judge_model") or "unknown-judge-family"
     questions = {q["id"]: Question.from_dict(q) for q in load_jsonl(args.questions)}
     raw_runs = load_jsonl(args.runs)
     if args.sample < 1.0:

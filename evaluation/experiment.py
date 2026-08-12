@@ -157,7 +157,8 @@ def run_experiment(cfg: Config, questions: list[Question], conditions: list[str]
                 elif run.condition == "A":
                     run.claims = split_claims(run.answer, run_id)
                 else:
-                    run.claims = split_claims(run.answer, run_id, n_evidence=n_ev)
+                    run.claims = split_claims(run.answer, run_id, n_evidence=n_ev,
+                                              evidence_records=run.retrieved_evidence)
             runs.append(run)
             print(f"[{run.condition}] {q.id} -> {run.verification_decision} "
                   f"({run.latency_ms}ms, cost=${run.estimated_cost:.4f}, "

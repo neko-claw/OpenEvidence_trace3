@@ -33,9 +33,9 @@ VARIANTS = {
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="仅使用 DEV 调整 Vector+RRF rerank/MMR")
     parser.add_argument("--evidence", default="data/processed/evidence.jsonl")
-    parser.add_argument("--questions", default="data/fixtures/questions.jsonl")
-    parser.add_argument("--qrels", default="data/fixtures/qrels.jsonl")
-    parser.add_argument("--embedding-backend", default="local", choices=["local", "fallback"])
+    parser.add_argument("--questions", default="test_set/questions.jsonl")
+    parser.add_argument("--qrels", default="test_set/qrels.jsonl")
+    parser.add_argument("--embedding-backend", default="api", choices=["api", "local", "fallback"])
     parser.add_argument("--final-k", type=int, default=4)
     parser.add_argument("--output-dir", default="artifacts/b4")
     return parser.parse_args()

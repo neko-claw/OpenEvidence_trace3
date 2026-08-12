@@ -10,7 +10,8 @@ from core.llm import LLMClient
 from generation import prompts
 from generation.citation_check import (check_citation_whitelist, check_search_citation_whitelist,
                                        find_invalid_urls, extract_citations,
-                                       extract_search_citations, split_claims)
+                                       extract_search_citations, split_claims,
+                                       detect_refusal)
 
 
 class AnswerGenerator:
@@ -87,14 +88,29 @@ class AnswerGenerator:
                 run.verification_decision = "WARN"
                 run.error = f"非法引用编号(超出本次证据范围): {invalid}"
             run.citations = extract_citations(text)
+        # ---- 语义拒答门禁（Gate 6 简化版）----
+        # 有证据上下文时，若回答主体明确表示“无法回答/证据不足/检索缺口”：
+        #   无实质引用 -> REFUSE；有引用但整体仍拒答 -> WARN（部分回答+明确边界）
+        if condition in ("B", "C", "D", "E", "A2"):
+            is_refusal, reason = detect_refusal(text, has_context=n_ev > 0)
+            if is_refusal and run.verification_decision == "PASS":
+                has_cites = bool(
+                    extract_citations(text) or extract_search_citations(text))
+                if has_cites:
+                    run.verification_decision = "WARN"
+                    run.error = (run.error or "") + f" | refusal_gate(WARN): {reason}"
+                else:
+                    run.verification_decision = "REFUSE"
+                    run.error = (run.error or "") + f" | refusal_gate: {reason}"
         # claims 留痕（P0-2）：主终点 rubric_keypoint_score / unsupported_critical_claim_rate 依赖
-        # decision 按引用编号存在性判定（v0.1 口径）：A 无证据上下文 -> pending；其余 supported/insufficient
+        # decision 按引用编号存在性判定；v0.2 增强：criticality 规则判定 + evidence_ids 映射为真实证据 ID
         if condition == "A2":
             run.claims = split_claims(run.answer, run.run_id, n_search=n_ev)
         elif condition == "A":
             run.claims = split_claims(run.answer, run.run_id)
         else:
-            run.claims = split_claims(run.answer, run.run_id, n_evidence=n_ev)
+            run.claims = split_claims(run.answer, run.run_id, n_evidence=n_ev,
+                                      evidence_records=retrieved)
         return run, features
 
     def _abstain_text(self, q: Question) -> str:

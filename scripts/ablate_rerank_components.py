@@ -2,8 +2,13 @@ from __future__ import annotations
 
 import copy
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from core.embeddings import EmbeddingClient
 from retrieval.mmr import lexical_rescue_select, mmr_select
@@ -188,25 +193,37 @@ def _run_variant(store, questions, qrels, name, override, final_k):
 
 
 def main() -> int:
+    import argparse
+    ap = argparse.ArgumentParser(description="Rerank 组件消融（R0 RRF-only vs R1 特征+MMR 变体）")
+    ap.add_argument("--questions", default="test_set/questions.jsonl",
+                    help="题集 JSONL（默认正式主集，取 DEV/STRESS split）")
+    ap.add_argument("--qrels", default="test_set/qrels.jsonl")
+    ap.add_argument("--emb-backend", default=None, choices=["api", "local", "fallback"],
+                    help="覆盖嵌入后端（默认取 config）")
+    ap.add_argument("--final-k", type=int, default=4)
+    args = ap.parse_args()
+
     evidence = ROOT / "data/processed/evidence.jsonl"
-    questions = load_jsonl(ROOT / "data/fixtures/questions.jsonl")
-    qrels = load_qrels(ROOT / "data/fixtures/qrels.jsonl", relevance_threshold=1)
+    questions = load_jsonl(ROOT / args.questions)
+    qrels = load_qrels(ROOT / args.qrels, relevance_threshold=1)
+    # STRESS 在独立文件（stress_20.jsonl），与主集分开加载
+    stress_questions = load_jsonl(ROOT / "test_set/stress_20.jsonl")
     retriever = HybridReferenceRetriever(
         evidence,
         config_path=ROOT / "config.yaml",
-        embedding_backend="local",
+        embedding_backend=args.emb_backend or "api",
         use_vector=True,
         use_rerank=False,
-        final_k=4,
+        final_k=args.final_k,
     )
     base_weights = copy.deepcopy(retriever.store.cfg.data["rerank"]["weights"])
     variants = _variants(base_weights)
     results = []
     for name, override in variants.items():
-        dev = [q for q in questions if q.get("split") == "DEV"]
-        stress = [q for q in questions if q.get("split") == "STRESS"]
-        dev_rows = _run_variant(retriever.store, dev, qrels, name, override, 4)
-        stress_rows = _run_variant(retriever.store, stress, qrels, name, override, 4)
+        dev = [q for q in questions if str(q.get("split")).lower() == "dev"]
+        stress = [q for q in stress_questions]
+        dev_rows = _run_variant(retriever.store, dev, qrels, name, override, args.final_k)
+        stress_rows = _run_variant(retriever.store, stress, qrels, name, override, args.final_k)
         results.append({
             "variant": name,
             "override": override,
@@ -222,7 +239,9 @@ def main() -> int:
     output = output_dir / f"rerank-component-ablation-{timestamp}.json"
     output.write_text(json.dumps({
         "report_version": "rerank-component-ablation-v0.1",
-        "embedding_backend": "local",
+        "embedding_backend": retriever.embedding_backend,
+        "questions": str(ROOT / args.questions),
+        "qrels": str(ROOT / args.qrels),
         "results": results,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({
@@ -232,7 +251,8 @@ def main() -> int:
                 "variant": item["variant"],
                 "dev_final_hit": item["dev"]["final_context_gold_hit_rate"],
                 "dev_final_recall": item["dev"]["final_context_recall"],
-                "stress_rerank_hit5": item["stress"]["rerank_hit_at_5"],
+                "dev_rerank_hit5": item["dev"].get("rerank_hit_at_5"),
+                "stress_rerank_hit5": item["stress"].get("rerank_hit_at_5"),
                 "stress_final_hit": item["stress"]["final_context_gold_hit_rate"],
                 "stress_final_recall": item["stress"]["final_context_recall"],
             }

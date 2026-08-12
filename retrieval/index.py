@@ -51,6 +51,22 @@ class EvidenceStore:
             raise FileNotFoundError(f"证据文件不存在: {p}。请先运行数据采集或构建样例。")
         for rec in load_jsonl(p):
             self.add_evidence(rec)
+        # 全文增强层（Europe PMC OA 分块）接入检索：config retrieval.include_fulltext=true 时加载
+        rc = self.cfg.get("retrieval", {})
+        if rc.get("include_fulltext", False):
+            ft_path = self.cfg.get("fulltext_path") or (
+                str(self.cfg.path("fulltext")) if "fulltext" in self.cfg["paths"] else "")
+            ft_path = ft_path or str(
+                (self.cfg.root / "data" / "processed" / "fulltext_chunks.jsonl").resolve())
+            if os.path.exists(ft_path):
+                loaded = 0
+                for rec in load_jsonl(ft_path):
+                    rec["source_type"] = rec.get("source_type") or "europepmc"
+                    self.add_evidence(rec)
+                    loaded += 1
+                print(f"全文增强层已接入检索: {loaded} 个 chunk")
+            else:
+                print(f"[warn] include_fulltext=true 但未找到 {ft_path}")
         return self
 
     def build_index(self, emb_backend: str | None = None,

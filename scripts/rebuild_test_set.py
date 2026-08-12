@@ -615,6 +615,15 @@ def main() -> int:
                 need = 3 - len(new_polluted)
                 new_polluted += pool[:need]
             sq["polluted_evidence_ids"] = new_polluted[:3]
+        elif q.get("perturb_type") == "retrieval_damage":
+            # 删除 gold 语义要求 gold 在语料库内：库外（wikipedia 等）gold 替换为库内同主题证据
+            gold = q.get("gold_source_ids") or []
+            if not all(g in corpus_records for g in gold):
+                pool = [eid for eid in topic_keyword_pool(corpus_records, q.get("topic", "hypertension"))
+                        if eid not in set(gold)]
+                sq["gold_source_ids"] = pool[: max(1, len(gold))]
+                sq["note"] = str(q.get("note") or "") + (
+                    " | gold 由语料库内同主题证据替换（原 wikipedia 证据不可检索，删除 gold 扰动才能生效）")
         sq["expected_action"] = "REFUSE" if q.get("perturb_type") in (
             "no_evidence_outscope", "malicious_injection_fake_id") else "ANSWER"
         sq["answerability"] = False if sq["expected_action"] == "REFUSE" else True
@@ -632,9 +641,9 @@ def main() -> int:
         json.dumps({"questions": guide, "version": "v0.2-draft"}, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8")
 
-    # ---- 输出 qrels.jsonl ----
+    # ---- 输出 qrels.jsonl（主集 + STRESS，STRESS 供 C/E 检索诊断用）----
     with (P / "qrels.jsonl").open("w", encoding="utf-8") as f:
-        for q in final:
+        for q in final + stress_out:
             gold = list(dict.fromkeys(q.get("gold_source_ids") or []))
             if not gold:
                 continue
