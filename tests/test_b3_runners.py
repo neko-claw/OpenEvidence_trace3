@@ -231,3 +231,17 @@ def test_question_split_preferred_over_path_heuristic(tmp_path):
                       encoding="utf-8")
     splits = _load_question_splits(str(q_path))
     assert splits == {"q1": "test", "q2": "stress"}
+
+
+def test_consistency_cli_runs_with_stress_questions(tmp_path):
+    """consistency main() 必须定义 --questions-stress（此前 AttributeError 崩溃）。"""
+    from evaluation.consistency import main as consistency_main
+
+    q = tmp_path / "questions.jsonl"
+    q.write_text('{"id":"q1","question_type":"guideline"}\n', encoding="utf-8")
+    runs_path = "tests/fixtures/runs_offline_smoke.jsonl"
+    sys.argv = ["consistency", "--runs", runs_path, "--questions", str(q)]
+    try:
+        consistency_main()
+    except SystemExit:
+        pass  # --strict 未传时 main 正常返回；捕获防御性退出

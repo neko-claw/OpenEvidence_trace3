@@ -189,13 +189,21 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="B3 副责：B4 输入一致性 + 搜索预算交叉复核")
     ap.add_argument("--runs", required=True, help="runs JSONL 路径")
     ap.add_argument("--questions", default=None, help="题集 JSONL（用于 STRESS split 判定）")
+    ap.add_argument("--questions-stress", default=None,
+                    help="STRESS 压力题 JSONL（默认取 config questions_stress；与 --questions 合并用于 E 条件 split 判定）")
     ap.add_argument("--out", default=None, help="报告输出 JSON 路径")
     ap.add_argument("--strict", action="store_true", help="存在任何 error 即退出码 1")
     args = ap.parse_args()
 
     cfg = load_config()
     runs = _load_runs(args.runs)
-    q_paths = [p for p in (args.questions, args.questions_stress) if p]
+    stress_default = None
+    if not args.questions_stress:
+        try:
+            stress_default = str(cfg.path("questions_stress"))
+        except Exception:
+            pass
+    q_paths = [p for p in (args.questions, args.questions_stress or stress_default) if p]
     q_splits = _load_question_splits(q_paths)
     report = audit_runs(runs, q_splits, a2_budget=cfg.get("a2", {}))
 
