@@ -140,24 +140,32 @@ def main() -> int:
         "note": "Question 契约已保留 options 并在生成/judge Prompt 渲染（P0-1 已修）",
     }
 
-    # 5) gold 状态诚实（P0-4）
+    # 5) gold 状态诚实（P0-4）+ 核验进度（本轮新增：llm_assisted / gold_flagged）
     ans_true = [q for q in test if q.get("answerability") is True]
     gold_verified = [q["id"] for q in ans_true if q.get("gold_verified") is True]
-    pending = [q["id"] for q in ans_true if q.get("gold_verification_status") == "pending_review"]
+    human_verified = [q["id"] for q in ans_true if q.get("gold_verification_status") == "human_verified"]
+    llm_assisted = [q["id"] for q in ans_true if q.get("gold_verification_status") == "llm_assisted"]
+    flagged = [q["id"] for q in ans_true if q.get("gold_verification_status") == "gold_flagged"]
     missing_gold = [q["id"] for q in ans_true if not q.get("gold_source_ids")]
     report["gold_verification"] = {
         "answerable": len(ans_true),
         "gold_verified_ids": gold_verified,
-        "pending_review": len(pending),
+        "human_verified": len(human_verified),
+        "llm_assisted_supported": len(llm_assisted),
+        "gold_flagged_for_review": len(flagged),
+        "pending_review": len(ans_true) - len(human_verified),
         "missing_gold_ids": missing_gold,
         "ok": not gold_verified and not missing_gold,
-        "note": "gold_verified 一律为 False（无人工核验记录），gold_verification_status=pending_review；"
-                "冻结前必须完成医学人工核验",
+        "note": "gold_verified 一律为 False（无人工核验记录）；llm_assisted=LLM 对齐检查通过（仍需人工终审）；"
+                "gold_flagged=LLM 检查发现 gold 与答案不一致，检索类指标（Hit@5/Recall）对该类题不计数、单独报告；"
+                "冻结前必须由医学评审人完成核验（python scripts/verify_gold.py --finalize）",
     }
 
-    # 6) gold 与语料库一致
+    # 6) gold 与语料库一致（flagged 题另行报告，不阻断主集 PASS——其 gold 待人工重选）
     gold_missing_corpus = []
     for q in ans_true:
+        if q.get("gold_verification_status") == "gold_flagged":
+            continue
         for g in q.get("gold_source_ids") or []:
             if g not in corpus:
                 gold_missing_corpus.append({"question": q["id"], "gold": g})

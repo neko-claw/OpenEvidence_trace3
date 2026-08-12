@@ -151,14 +151,21 @@ def run_experiment(cfg: Config, questions: list[Question], conditions: list[str]
             # run_id 由实验层最终确定后重建 claims 的 claim_id/run_id，保证一致；
             # decision 按引用编号存在性判定（A 无证据上下文 -> pending）
             if run.status == "ok":
-                n_ev = len(run.retrieved_evidence)
-                if run.condition == "A2":
-                    run.claims = split_claims(run.answer, run_id, n_search=n_ev)
-                elif run.condition == "A":
-                    run.claims = split_claims(run.answer, run_id)
+                if run.condition == "D" and run.claims:
+                    # A5 已生成结构化 Claim[]：统一 run_id/claim_id 前缀，保留其 decision/证据绑定
+                    for c in run.claims:
+                        c["run_id"] = run_id
+                        if not str(c.get("claim_id", "")).startswith(run_id):
+                            c["claim_id"] = f"{run_id}_" + str(c.get("claim_id", ""))
                 else:
-                    run.claims = split_claims(run.answer, run_id, n_evidence=n_ev,
-                                              evidence_records=run.retrieved_evidence)
+                    n_ev = len(run.retrieved_evidence)
+                    if run.condition == "A2":
+                        run.claims = split_claims(run.answer, run_id, n_search=n_ev)
+                    elif run.condition == "A":
+                        run.claims = split_claims(run.answer, run_id)
+                    else:
+                        run.claims = split_claims(run.answer, run_id, n_evidence=n_ev,
+                                                  evidence_records=run.retrieved_evidence)
             runs.append(run)
             print(f"[{run.condition}] {q.id} -> {run.verification_decision} "
                   f"({run.latency_ms}ms, cost=${run.estimated_cost:.4f}, "

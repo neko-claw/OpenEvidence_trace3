@@ -107,10 +107,13 @@
   "gold_verification": {
     "answerable": 59,
     "gold_verified_ids": [],
+    "human_verified": 0,
+    "llm_assisted_supported": 13,
+    "gold_flagged_for_review": 20,
     "pending_review": 59,
     "missing_gold_ids": [],
     "ok": true,
-    "note": "gold_verified 一律为 False（无人工核验记录），gold_verification_status=pending_review；冻结前必须完成医学人工核验"
+    "note": "gold_verified 一律为 False（无人工核验记录）；llm_assisted=LLM 对齐检查通过（仍需人工终审）；gold_flagged=LLM 检查发现 gold 与答案不一致，检索类指标（Hit@5/Recall）对该类题不计数、单独报告；冻结前必须由医学评审人完成核验（python scripts/verify_gold.py --finalize）"
   },
   "gold_corpus_coverage": {
     "missing_entries": 0,

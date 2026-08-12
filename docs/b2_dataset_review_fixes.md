@@ -89,3 +89,59 @@ python -m evaluation.experiment --questions stress --conditions C E
 | R1 + rank_guard_no_authority | 0.613 | 0.60 | 0.41 |
 
 结论：rerank 不改变初检召回（Recall@50 恒定 0.613，由 BM25/向量决定），但显著提高 gold 进入最终上下文的比例（0.32→0.56）。P1 可选 Cross-Encoder/BGE 在 R1 基础上对前 30 条精排（`rerank_config_version` 记录，只调 DEV 不调 TEST）。
+
+---
+
+## 8. D 完整组件包（2026-08-12 第三轮，赛道 1 A5 接入）
+
+**交付**：`track1/` vendored 子集（a5 5589 行 + a3/domain + backend + config + wiki + prompts）
++ `evaluation/d_full_system.py` 装配层。D 条件 = C 的检索 + Skill（evidence_research/
+citation_audit）+ MCP 工具边界 + 单 Agent 状态机（A5）+ 七道门禁：
+
+```text
+Gate0 规则安全策略（expected_action -> ALLOW/DENY，Track 3 自实现）
+-> Skill 选择 -> 混合检索（Track 3，含全文层）-> Gate1 来源真实性 -> Gate2 证据充分性
+-> Gate3 原子主张规划（deepseek-chat 结构化 Claim[]，白名单+非法引用拦截）
+-> Gate4 证据约束生成 -> Gate5 独立语义验证（LLM verifier）-> Gate6 发布门禁
+```
+
+**Track 3 集成要点**（诚实配置，不冒充 A1/A4 能力）：
+- Gate0：`Track3SafetyPolicy` 规则策略（expected_action/answerable/topic 映射），
+  A1 在线策略为赛道 1 生产依赖，MVP 用规则近似；
+- Gate2：检索分为 **RANKING/QUERY_LOCAL**（RRF/特征分），非跨查询校准质量分
+  （A4 R2/R3 能力未接入，`require_calibrated_score=false`，gates.yaml 已注明）；
+- Gate5：独立语义验证器（deepseek 同模型、独立 prompt、温度 0），claim 只允许
+  绑定白名单证据/span；Track 3 证据以全文为唯一 span（`<id>:full`）；
+- 公平性：D 主张生成用与 A/B/C 相同的 deepseek-chat；额外延迟单独计入。
+
+**实测**：`python -m evaluation.d_full_system` 单题跑通（5 claims → 3 条通过 Gate5
+发布，18 条工具轨迹）；主实验路径 `--conditions ... D` 跑通（21 claims 全被
+Gate5 拒绝 → 正确 WARN fail-closed 不发布）。**Python 3.11+ 运行**（StrEnum/pydantic v2）。
+
+## 9. gold 医学人工核验管线（2026-08-12）
+
+**交付**：`scripts/verify_gold.py` 三段流程：
+1. `--dry-run`：只读统计；
+2. （默认）LLM 辅助首轮：qwen3.8-max 对每道可回答题做 gold 摘要 ↔ 标准答案对齐判定
+   （supported/unsupported/uncertain），写入 `test_set/gold_review.jsonl`；
+3. `--refine`：为 gold_flagged 题从检索证据中 LLM 重选更相关 gold（增量保存可断点续跑）；
+4. `--finalize`：医学评审人在 gold_review.jsonl 填 `reviewer_verdict=verified` 后，
+   把题目升级为 `human_verified`（`gold_verified=true`）。
+
+**首轮结果**（84 道可回答题）：14 supported / 56 unsupported / 11 uncertain / 3 无答案。
+真实发现：此前 `repair_gold` 的关键词近似曾把无关证据选为 gold（如 stingray 蜇伤 ↔
+Amlodipine 答案），LLM 检查正确标红；`--refine` 逐题重选后更新。
+
+**诚实口径**：`gold_verified` 一律为 False；状态为 `llm_assisted` / `llm_refined` /
+`gold_flagged` / `no_answer_text` 四类，均**不是**医学人工核验。检索类指标
+（Hit@5/Recall）只对人工核验通过题计数，flagged 题单独报告。**冻结正式结论前，
+必须由医学评审人执行 `--finalize` 完成人工终审。**
+
+## 10. 规划符合性终检（36 项）
+
+题集分层（33/77/20/10/10）、TEST 四类 19/19/19/20 与主题 39/38、options 运行时渲染、
+A/B/C/D 一键运行、STRESS C/E、JSONL 留痕、B5 全指标（rubric_keypoint_score/
+unsupported_critical_claim_rate/citation 指标/abstention/fake_id）、bootstrap CI、
+置换检验+Holm、反例抽取、条件随机顺序、consistency 审计、A2 预算、引用白名单、
+拒答语义门禁、结构化 claims、D 接入 A5、track1 vendored、wiki 主题页、Run/Score
+schema、DatasetManifest、qrels、非诊疗声明、查询扩展 —— **36/36 通过**。

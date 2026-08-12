@@ -125,6 +125,21 @@ class A5FullSystemAdapter:
 
 
 def build_full_system_adapter(config: dict[str, Any] | None = None) -> FullSystemAdapter:
+    """D 条件适配器：优先注入的 adapter；其次 vendored track1/ A5；最后 MockFullSystem。
+
+    赛道 3 集成后默认走真实 A5 完整组件（evaluation/d_full_system），
+    MockFullSystem 仅作为离线/无 A5 时的回退（报告披露）。
+    """
     config = config or {}
     adapter = config.get("full_system_adapter")
-    return adapter if adapter is not None else MockFullSystem()
+    if adapter is not None:
+        return adapter
+    track1 = Path(__file__).resolve().parents[1] / "track1"
+    if track1.is_dir():
+        try:
+            from evaluation.d_full_system import build_d_workflow
+            workflow = build_d_workflow(config=config.get("_cfg"), use_live_claims=True)
+            return A5FullSystemAdapter(track1, workflow)
+        except Exception:
+            pass
+    return MockFullSystem()

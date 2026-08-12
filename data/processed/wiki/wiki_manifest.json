@@ -1,0 +1,47 @@
+{
+  "builder": "scripts/build_wiki.py",
+  "model": "qwen3.8-max",
+  "corpus_cutoff": "2026-08-11",
+  "pages": {
+    "hypertension": {
+      "file": "data/processed/wiki/hypertension.md",
+      "evidence_ids": [
+        "pmid:40094355",
+        "pmid:41266862",
+        "pmid:41366616",
+        "pmid:41396466",
+        "pmid:41448576",
+        "pmid:41493051",
+        "pmid:41532177",
+        "pmid:41614648",
+        "pmid:41817473",
+        "pmid:42002632",
+        "pmid:42055655",
+        "pmid:42089223",
+        "pmid:42162470",
+        "pmid:42372819"
+      ],
+      "evidence_count": 14
+    },
+    "dyslipidemia": {
+      "file": "data/processed/wiki/dyslipidemia.md",
+      "evidence_ids": [
+        "pmid:41020749",
+        "pmid:41249078",
+        "pmid:41366604",
+        "pmid:41366616",
+        "pmid:41785983",
+        "pmid:41824552",
+        "pmid:41824590",
+        "pmid:42176978",
+        "pmid:42544493",
+        "pmid:39919851",
+        "pmid:40044341",
+        "pmid:40139108",
+        "pmid:38336003",
+        "pmid:38598969"
+      ],
+      "evidence_count": 14
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "config_version": "0.3.0",
+  "threshold_status": "track3_integration_not_clinically_validated",
+  "gate0_version": "0.2.0",
+  "gate1_version": "0.3.0",
+  "gate2_version": "0.3.0",
+  "gate3_version": "0.4.0",
+  "gate4_version": "0.4.0",
+  "gate5_version": "0.3.0",
+  "gate6_version": "0.3.0",
+  "gate1": {
+    "required_source_metadata": [
+      "stable_id",
+      "url",
+      "fetched_at",
+      "content_hash"
+    ],
+    "accepted_integrity_markers": [
+      "a2_mcp_normalized",
+      "a3_provenance_validated",
+      "a4_a3_provenance_validated"
+    ]
+  },
+  "gate2": {
+    "min_candidates": 2,
+    "min_top_score": 0.01,
+    "min_source_types": 2,
+    "min_source_diversity": 0.15,
+    "accepted_evidence_levels": [
+      "guideline",
+      "systematic_review",
+      "controlled_study",
+      "meta_analysis",
+      "rct"
+    ],
+    "max_age_days": 5475,
+    "min_fresh_fraction": 0.2,
+    "max_conflicts": 1,
+    "required_score_kind": "RANKING",
+    "required_score_scope": "QUERY_LOCAL",
+    "require_calibrated_score": false
+  },
+  "gate5": {
+    "require_span": false,
+    "require_pico_when_claim_specified": false,
+    "require_time_when_fresh": true,
+    "supported_entailment_threshold": 1.0,
+    "require_numeric_consistency": false
+  },
+  "gate6": {
+    "critical_allowed_uncertainty": [
+      "LOW",
+      "MEDIUM"
+    ]
+  }
+}

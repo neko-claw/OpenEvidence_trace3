@@ -45,6 +45,8 @@ retrieval:
   rrf_k: 60
   # 全文增强层（Europe PMC OA 分块 12023 条）接入检索：true 时 EvidenceStore 一并索引
   include_fulltext: true
+  # LLM Wiki 主题页（data/processed/wiki/*.md）作为 BM25 文档接入检索（规划 §5.3）
+  include_wiki: true
   # K1 分层（实施规划 §4.3.2）：RRF 合并后先特征重排到 K1 条，再 MMR 选 k_final
   # P0 当前实现：特征重排作用在全量 RRF 候选上；K1 为 A4 调参预留，默认 None=不截断
   k1_rerank: null

@@ -184,12 +184,33 @@ python -m evaluation.run_a5 --a5-root <赛道一仓库路径> --demo
 | A2 | 通用搜索对照（不用项目证据库，固定搜索预算 + 响应快照） | 外部检索能力次要对照（可选） | B3 |
 | B | BM25 + 向量 + RRF 直接取 top-k（无 rerank） | 看"有没有 RAG" | B3 |
 | C | B + 特征重排 + MMR | 看"rerank 增益" | B4 |
-| D | 完整系统（工具轨迹） | 看"完整编排成本" | B4 |
+| D | 完整系统（A5 受限编排：Wiki 导航 + Skill + MCP 边界 + Agent 状态机 + 七道门禁） | 看"完整编排成本" | B4 |
 | E | 劣化 RAG（预注册规则派生候选集） | STRESS 题 C/E 配对：看"检索失败是否拖累回答/能否拒答" | B4 |
 
-A/A2/B/C/D 使用**同一模型、同一温度、同一输出上限**，公平对比。
+A/A2/B/C/D 使用**同一模型、同一温度、同一输出上限**（D 的 A5 主张生成也用 deepseek-chat，
+额外编排延迟/token 单独计入 d_extra 字段）。
 A2 引用用 [S#] 单独标识（与项目证据 [E#] 区分），mock 模式结果标注"离线模拟"，
 不用于声称真实通用搜索能力。
+
+### 3.4 D 完整组件（赛道 1 A5，vendored）
+
+D 条件接入赛道 1 的 A5 受限编排器（`track1/` 目录 vendored 子集），链路：
+
+```text
+Gate0 规则安全策略（expected_action -> ALLOW/DENY）
+  -> Skill 选择（evidence_research@0.2.0 / citation_audit@0.3.0）
+  -> 混合检索（BM25+向量+RRF+特征重排+MMR，含全文层 12023 chunk）
+  -> Gate1 来源真实性 / Gate2 证据充分性
+  -> Gate3 原子主张规划（deepseek-chat 结构化 Claim[]，白名单校验）
+  -> Gate4 证据约束生成 / Gate5 独立语义验证（LLM verifier）/ Gate6 发布门禁
+```
+
+- 运行：`python -m evaluation.experiment --questions testset --conditions A B C D`
+  （Python 3.11+，`track1/` 已在仓库内；`evaluation/d_full_system.py` 装配，
+  `--offline` 用 MockClaimGenerator 验收链路）
+- 单独验证：`python -m evaluation.d_full_system [--offline]`
+- 备注：D 只解释为“完整组件包整体增量”，不做 Wiki/Skill/MCP/Agent 单组件归因；
+  D 的 Gate2 按 Track 3 检索语义（RANKING/QUERY_LOCAL 分）配置，非跨查询校准质量分。
 
 ---
 

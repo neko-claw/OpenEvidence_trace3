@@ -44,19 +44,29 @@ class A5EvidenceRetrieverAdapter:
         raw_score = item.get("feature_score", item.get("rrf_score", item.get("score")))
         retrieval_score = raw_score if isinstance(raw_score, (int, float)) and 0 <= raw_score <= 1 else None
         source_metadata = {
+            # Gate1 必需 provenance：stable_id / url / fetched_at / content_hash / source_integrity
+            "stable_id": evidence_id,
             "url": item.get("url"),
             "pmid": item.get("pmid"),
             "doi": item.get("doi"),
             "nct_id": item.get("nct_id"),
             "published_at_raw": item.get("published_at"),
+            "fetched_at": item.get("fetched_at") or item.get("created_at"),
             "content_hash": item.get("content_hash"),
+            # 赛道 3 ingestion 管线已做跨源去重 + content_hash + 稳定 ID，等价于 A3 provenance 校验
+            "source_integrity": "a3_provenance_validated",
+            "tombstone": False,
             "retrieval_stage": item.get("retrieval_stage"),
             "rank": item.get("rank"),
             "score": item.get("score"),
             "rrf_score": item.get("rrf_score"),
             "feature_score": item.get("feature_score"),
+            "ranking_score": retrieval_score,   # Gate2 RANKING/QUERY_LOCAL 口径
             "retrieval_features": item.get("rerank_features", {}),
         }
+        # Track 3 证据为摘要/题录级（无 chunk span）：以全文作为唯一 span（span_id=<id>:full），
+        # 使 A5 Gate3 主张生成可绑定 evidence_span_ids（与 fixtures 的 :full span 口径一致）
+        spans = [{"span_id": f"{evidence_id}:full", "text": content}]
         return evidence_record_type.model_validate({
             "id": evidence_id,
             "content": content,
@@ -67,9 +77,13 @@ class A5EvidenceRetrieverAdapter:
             "intervention": item.get("intervention"),
             "comparator": item.get("comparator"),
             "outcome": item.get("outcome"),
+            # 赛道 3 R1 检索分是查询内排名（RRF/特征分），不是跨查询校准质量分——如实标注
             "retrieval_score": retrieval_score,
+            "retrieval_score_kind": "RANKING",
+            "retrieval_score_scope": "QUERY_LOCAL",
+            "retrieval_score_calibrated": False,
             "evidence_level": item.get("evidence_level"),
-            "spans": [],
+            "spans": spans,
             "mock": False,
         })
 

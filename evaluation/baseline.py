@@ -4,7 +4,7 @@ B3 主责：A / A2 / B 三个条件在此实现；C/D/E 由 B4 扩展（E 骨架
 """
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional
 
 from core.config import Config
 from core.dataclasses import Question, Run
@@ -13,6 +13,21 @@ from evaluation.a2_search import search_general
 from evaluation.stress import apply_stress
 from generation.answer import AnswerGenerator
 from retrieval.index import EvidenceStore
+
+# D 完整组件工作流缓存（A5 装配一次、多题复用；vendored track1/ 不可用时回退 D≡C）
+_D_WORKFLOW: Any = None
+_D_WORKFLOW_ERROR: Optional[str] = None
+
+
+def _get_d_workflow(cfg: Config):
+    global _D_WORKFLOW, _D_WORKFLOW_ERROR
+    if _D_WORKFLOW is None and _D_WORKFLOW_ERROR is None:
+        try:
+            from evaluation.d_full_system import build_d_workflow
+            _D_WORKFLOW = build_d_workflow(cfg, use_live_claims=True)
+        except Exception as e:  # vendored A5 缺失/导入失败 -> 记录并回退 D≡C
+            _D_WORKFLOW_ERROR = f"{type(e).__name__}: {e}"
+    return _D_WORKFLOW
 
 
 def run_condition(q: Question, condition: str, cfg: Config,
@@ -81,16 +96,16 @@ def run_condition(q: Question, condition: str, cfg: Config,
 
     # ---- 检索 ----
     stats: dict = {}
-    if condition in ("B", "C", "D"):
+    if condition in ("B", "C"):
         top_evs, features = store.retrieve(
             q.question,
-            use_rerank=(condition in ("C", "D")),
+            use_rerank=(condition == "C"),
             verbose=verbose,
             stats=stats,
             q_freshness=q.freshness,
         )
         trace = {"tools": ["bm25", "vector", "rrf"],
-                 "rerank": condition in ("C", "D"),
+                 "rerank": condition == "C",
                  "retrieved": len(top_evs),
                  "candidates": len(stats.get("candidate_ids", [])),
                  "cache_hit": stats.get("cache_hit", False)}
@@ -99,6 +114,42 @@ def run_condition(q: Question, condition: str, cfg: Config,
         run.corpus_version = store.corpus_version
         run.cache_hits = 1 if stats.get("cache_hit") else 0
         run.candidate_ids = stats.get("candidate_ids", [])
+    elif condition == "D":
+        # D 完整组件包：A5（Wiki/Skill/MCP/Agent + 七道门禁）受限编排。
+        # 由 evaluation.d_full_system 装配，检索走 A5 注入的混合检索器；
+        # vendored track1/ 不可用或装配失败时回退 C（记录错误，报告披露）。
+        workflow = _get_d_workflow(cfg)
+        if workflow is not None:
+            from evaluation.d_full_system import run_d_question
+            d_res = run_d_question(q, workflow, cfg)
+            run.answer = d_res.get("answer") or ""
+            run.verification_decision = d_res.get("verification_decision") or "REFUSE"
+            run.claims = d_res.get("claims") or []
+            run.citations = [c.get("evidence_id") for c in (d_res.get("citations") or [])]
+            run.retrieved_evidence = d_res.get("retrieved_evidence") or []
+            run.agent_plan = d_res.get("agent_plan") or {}
+            run.tool_trace = d_res.get("tool_trace") or []
+            run.latency_ms = d_res.get("d_extra_latency_ms") or 0
+            run.system_version = d_res.get("system_version") or ""
+            errs = d_res.get("errors") or []
+            if errs:
+                run.error = "; ".join(str(e) for e in errs)
+                run.status = "error"
+            return run
+        # 回退：D≡C（完整组件不可用，明确标记）
+        top_evs, features = store.retrieve(
+            q.question, use_rerank=True, verbose=verbose, stats=stats,
+            q_freshness=q.freshness)
+        run.tool_trace.append({"tools": ["bm25", "vector", "rrf", "rerank"],
+                               "rerank": True, "d_fallback": True,
+                               "d_error": _D_WORKFLOW_ERROR or "workflow unavailable",
+                               "retrieved": len(top_evs),
+                               "cache_hit": stats.get("cache_hit", False)})
+        run.index_version = store.index_version
+        run.corpus_version = store.corpus_version
+        run.cache_hits = 1 if stats.get("cache_hit") else 0
+        run.candidate_ids = stats.get("candidate_ids", [])
+        run.agent_plan = ["D fallback: A5 full-system unavailable -> D≡C"]
     elif condition == "E":
         # 劣化派生（§6.2）：在 B/C 同源的 RRF 初检候选上按预注册规则派生（drop gold /
         # 降 top-k / 注入不支持证据 / 范围外+注入题），统一走 evaluation/stress.py。

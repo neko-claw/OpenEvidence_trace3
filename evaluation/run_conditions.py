@@ -102,8 +102,14 @@ def main() -> int:
         retriever = FixtureRetriever(evidence_path, qrels_path, index_version=config["index_version"])
 
     if args.full_system == "a5":
+        # 默认使用 vendored track1/（赛道 1 A5 完整组件包）；也可 --a5-root 指定外部仓库
         if not args.a5_root:
-            raise SystemExit("--full-system a5 requires --a5-root")
+            from pathlib import Path as _P
+            _vendored = ROOT / "track1"
+            if _vendored.is_dir():
+                args.a5_root = str(_vendored)
+            else:
+                raise SystemExit("--full-system a5 需要 --a5-root 或 vendored track1/ 目录")
         a5_root = Path(args.a5_root).resolve()
         if not a5_root.is_dir():
             raise SystemExit(f"A5 root does not exist: {a5_root}")

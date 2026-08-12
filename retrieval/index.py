@@ -67,6 +67,35 @@ class EvidenceStore:
                 print(f"全文增强层已接入检索: {loaded} 个 chunk")
             else:
                 print(f"[warn] include_fulltext=true 但未找到 {ft_path}")
+        # LLM Wiki 主题页（规划 §5.3）：Wiki 作为 BM25 高质量文档 + Agent 主题入口，
+        # 页内保留真实 Evidence ID，回答仍回到原始证据。
+        if rc.get("include_wiki", False):
+            wiki_dir = self.cfg.get("wiki_dir") or str(
+                (self.cfg.root / "data" / "processed" / "wiki").resolve())
+            if os.path.isdir(wiki_dir):
+                loaded = 0
+                for fname in sorted(os.listdir(wiki_dir)):
+                    if not fname.endswith(".md"):
+                        continue
+                    fpath = os.path.join(wiki_dir, fname)
+                    text = open(fpath, encoding="utf-8").read()
+                    topic = fname[:-3]
+                    self.add_evidence({
+                        "id": f"wiki:{topic}",
+                        "source_type": "wiki",
+                        "title": f"LLM Wiki: {topic}",
+                        "abstract_or_chunk": text,
+                        "published_at": "2026-08-11",
+                        "evidence_level": "wiki",
+                        "url": "",
+                        "content_hash": hashlib.sha256(text.encode()).hexdigest(),
+                        "fetched_at": "2026-08-11",
+                    })
+                    loaded += 1
+                if loaded:
+                    print(f"LLM Wiki 已接入检索: {loaded} 个主题页")
+            else:
+                print(f"[warn] include_wiki=true 但未找到 {wiki_dir}（运行 scripts/build_wiki.py）")
         return self
 
     def build_index(self, emb_backend: str | None = None,

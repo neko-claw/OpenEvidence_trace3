@@ -304,3 +304,36 @@ class B4FrameworkTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDFullSystem:
+    """D 完整组件（vendored A5）集成测试。"""
+
+    def test_d_full_system_module_importable(self):
+        """evaluation.d_full_system 可导入（Python 3.10+；低版本跳过）。"""
+        import sys
+        if sys.version_info < (3, 10):
+            import pytest
+            pytest.skip("A5 需要 Python 3.10+")
+        import evaluation.d_full_system as d
+        assert hasattr(d, "build_d_workflow")
+        assert hasattr(d, "run_d_question")
+        assert d.TRACK1_ROOT.is_dir()
+
+    def test_track1_vendored_a5_imports(self):
+        import sys
+        if sys.version_info < (3, 10):
+            import pytest
+            pytest.skip("A5 需要 Python 3.10+")
+        import pathlib
+        root = pathlib.Path("track1").resolve()
+        if not root.is_dir():
+            import pytest
+            pytest.skip("track1 未 vendor")
+        sys.path.insert(0, str(root))
+        from a5.agent.workflow import A5Workflow
+        from a5.runtime_config import load_runtime_config
+        cfg = load_runtime_config(root / "config")
+        assert cfg.agent.config_version
+        assert cfg.gates.config_version
+        assert cfg.skills.evidence_research.version
