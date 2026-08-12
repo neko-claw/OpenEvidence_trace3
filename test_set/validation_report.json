@@ -1,0 +1,154 @@
+{
+  "packs": {
+    "DEV": 33,
+    "TEST": 77,
+    "STRESS": 20,
+    "note": "运行时唯一主集 = questions.jsonl（DEV+TEST）；补充包（latest/supp/external/reserve）仅留档，不参与主集配额"
+  },
+  "test_question_type": {
+    "stable_knowledge_mechanism": {
+      "count": 19,
+      "floor": 15,
+      "goal": 19,
+      "ok": true
+    },
+    "guideline_treatment": {
+      "count": 19,
+      "floor": 15,
+      "goal": 19,
+      "ok": true
+    },
+    "latest_research_trial": {
+      "count": 19,
+      "floor": 15,
+      "goal": 19,
+      "ok": true
+    },
+    "insufficient_conflict_out_of_scope": {
+      "count": 20,
+      "floor": 15,
+      "goal": 19,
+      "ok": true
+    },
+    "unknown_or_missing": {
+      "count": 0,
+      "goal": 0,
+      "ok": true
+    }
+  },
+  "test_topic": {
+    "hypertension": {
+      "count": 39,
+      "floor": 30,
+      "goal": 39,
+      "ok": true
+    },
+    "dyslipidemia": {
+      "count": 38,
+      "floor": 30,
+      "goal": 38,
+      "ok": true
+    }
+  },
+  "test_source_family": {
+    "MIRAGE_family": {
+      "count": 26,
+      "percent": 33.8,
+      "ok": true
+    },
+    "GUIDELINE_LITERATURE_ABSTRACT": {
+      "count": 15,
+      "percent": 19.5,
+      "ok": true
+    },
+    "MedQA_USMLE_family": {
+      "count": 9,
+      "percent": 11.7,
+      "ok": true
+    },
+    "ORIGINAL_REFUSAL": {
+      "count": 8,
+      "percent": 10.4,
+      "ok": true
+    },
+    "HUMAN_TEACHER_REFUSAL": {
+      "count": 5,
+      "percent": 6.5,
+      "ok": true
+    },
+    "HUMAN_TEACHER": {
+      "count": 5,
+      "percent": 6.5,
+      "ok": true
+    },
+    "MedExpQA_family": {
+      "count": 5,
+      "percent": 6.5,
+      "ok": true
+    },
+    "LLM_CANDIDATE": {
+      "count": 4,
+      "percent": 5.2,
+      "ok": true
+    }
+  },
+  "source_cap": {
+    "cap_percent": 40.0,
+    "violations": [],
+    "ok": true
+  },
+  "options_coverage": {
+    "test_with_options": 40,
+    "test_total": 77,
+    "answer_without_options": [],
+    "ok": true,
+    "note": "Question 契约已保留 options 并在生成/judge Prompt 渲染（P0-1 已修）"
+  },
+  "gold_verification": {
+    "answerable": 59,
+    "gold_verified_ids": [],
+    "pending_review": 59,
+    "missing_gold_ids": [],
+    "ok": true,
+    "note": "gold_verified 一律为 False（无人工核验记录），gold_verification_status=pending_review；冻结前必须完成医学人工核验"
+  },
+  "gold_corpus_coverage": {
+    "missing_entries": 0,
+    "samples": [],
+    "ok": true,
+    "note": "gold_source_ids 必须存在于 data/processed/evidence.jsonl（否则检索指标不可算）"
+  },
+  "scoring_guide": {
+    "unique_entries": 164,
+    "duplicate_ids": [],
+    "empty_keypoints_ids": [],
+    "questions_without_guide": [],
+    "ok": true
+  },
+  "dev_test_isolation": {
+    "cross_split_duplicates": [],
+    "ok": true
+  },
+  "stress": {
+    "count": 20,
+    "by_perturb_type": {
+      "retrieval_damage": 5,
+      "injected_unsupported": 5,
+      "no_evidence_outscope": 5,
+      "malicious_injection_fake_id": 5
+    },
+    "missing_rule_ids": [],
+    "ok": true,
+    "note": "E 条件按 stress_rule 执行（delete_gold_v1/inject_polluted_v1/out_of_scope/malicious_fake_id）"
+  },
+  "action_answerability_consistency": {
+    "mismatches": [],
+    "ok": true,
+    "note": "REFUSE↔answerability=false；ANSWER/WARN↔answerability=true"
+  },
+  "summary": {
+    "fails": [],
+    "pass": true,
+    "note": "口径=运行时唯一主集 questions.jsonl（77 TEST + 33 DEV）+ stress_20.jsonl；gold 仍为 pending_review，冻结前须医学人工核验；TEST 题型当前 19/19/19/20、主题 39/38（高于规划下限 15/30）"
+  }
+}

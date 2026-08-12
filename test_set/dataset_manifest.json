@@ -1,0 +1,45 @@
+{
+  "dataset_version": "v0.3.0",
+  "questionset_id": "OpenEvidence-track3-test-set-110-v0.3.0",
+  "created_at": "2026-08-12",
+  "corpus_cutoff": "2026-08-11",
+  "schema_version": "question_blueprint.json v0.3.0",
+  "runtime_entry": {
+    "questions": "test_set/questions.jsonl（33 DEV + 77 TEST，运行时唯一主集入口）",
+    "stress": "test_set/stress_20.jsonl（20 STRESS，C/E 预注册扰动）"
+  },
+  "split_counts": {
+    "dev": 33,
+    "test": 77,
+    "test_types": {
+      "latest_research_trial": 19,
+      "insufficient_conflict_out_of_scope": 20,
+      "stable_knowledge_mechanism": 19,
+      "guideline_treatment": 19
+    },
+    "test_topics": {
+      "hypertension": 39,
+      "dyslipidemia": 38
+    },
+    "stress": 20,
+    "external": 10,
+    "reserve": 10
+  },
+  "verification": {
+    "gold_verified": "pending_review（自动管线产物，未人工核验，冻结前必须完成医学复核）",
+    "options_supported": true,
+    "stress_rules": {
+      "retrieval_damage": "delete_gold_v1",
+      "injected_unsupported": "inject_polluted_v1",
+      "no_evidence_outscope": "out_of_scope",
+      "malicious_injection_fake_id": "malicious_fake_id"
+    }
+  },
+  "split_hashes": {
+    "questions.jsonl": "51494574bf597d4c17e2a7587d5076ad4bc4548ae347af559567923c9ad3b284",
+    "stress_20.jsonl": "75175d602dd855780928f6148b074ee3cdf12a1134c5198a771d34e811d7fc38",
+    "scoring_guide.json": "8cf98ccae59569339fb30c0d5bf80df3b5f4c0b247ff92f3ffd73e5f62118a39",
+    "qrels.jsonl": "a44dfe909860197448b71db04c698e6235eb679896f1895a1a722e45320696de"
+  },
+  "note": "由 scripts/rebuild_test_set.py 重建；正式题文本/gold/rubric 冻结前须医学人工核验"
+}

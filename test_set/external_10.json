@@ -1,0 +1,344 @@
+{
+  "version": "1.0",
+  "created_at": "2026-08-11",
+  "description": "EXTERNAL 外部基准集 10 题（跨来源泛化：ClinicalTrials 5 + Europe PMC 5），只做确定性评分+抽查，不参与 A/B/C/D 主对比",
+  "dataset_pack": "EXTERNAL",
+  "split": "external",
+  "count": 10,
+  "by_source": {
+    "clinicaltrial_literature": 5,
+    "europepmc_literature": 5
+  },
+  "questions": [
+    {
+      "id": "EXT-01",
+      "source": "clinicaltrial_literature",
+      "split": "external",
+      "dataset_pack": "EXTERNAL",
+      "rag_category": "easy",
+      "audit_status": "pass",
+      "answerability": "true",
+      "adjudication_status": "manual",
+      "adjudication_note": "从语料库真实文献/试验抽象，gold 为语料库可检索证据",
+      "question_type": "latest_research_trial",
+      "topic": "hypertension",
+      "language": "zh",
+      "question": "比较替米沙坦与氯沙坦在高血压患者中血压控制效果的 4 期随机开放试验，其主要设计特点是什么？",
+      "options": {},
+      "answer": null,
+      "answer_text": "多中心、随机、开放标签、活性对照的 4 期试验，比较两种 ARB 的血压控制。",
+      "as_of_date": "2026-08-11",
+      "source_provenance": "clinicaltrial_literature",
+      "source_group_id": "EXT-01",
+      "gold_source_ids": [
+        "nct:NCT05843162"
+      ],
+      "gold_literature": [
+        "nct:NCT05843162"
+      ],
+      "gold_verified": false,
+      "gold_verification_status": "pending_review",
+      "rubric_version": "0.2-adjudicated",
+      "evidence_retrieved": [
+        "nct:NCT05843162"
+      ]
+    },
+    {
+      "id": "EXT-02",
+      "source": "clinicaltrial_literature",
+      "split": "external",
+      "dataset_pack": "EXTERNAL",
+      "rag_category": "easy",
+      "audit_status": "pass",
+      "answerability": "true",
+      "adjudication_status": "manual",
+      "adjudication_note": "从语料库真实文献/试验抽象，gold 为语料库可检索证据",
+      "question_type": "latest_research_trial",
+      "topic": "hypertension",
+      "language": "zh",
+      "question": "REACH OUT 社区研究探索用什么方式降低高血压患者的血压？",
+      "options": {},
+      "answer": null,
+      "answer_text": "通过短信（text messaging）进行社区干预以降低血压。",
+      "as_of_date": "2026-08-11",
+      "source_provenance": "clinicaltrial_literature",
+      "source_group_id": "EXT-02",
+      "gold_source_ids": [
+        "nct:NCT02664610"
+      ],
+      "gold_literature": [
+        "nct:NCT02664610"
+      ],
+      "gold_verified": false,
+      "gold_verification_status": "pending_review",
+      "rubric_version": "0.2-adjudicated",
+      "evidence_retrieved": [
+        "nct:NCT02664610"
+      ]
+    },
+    {
+      "id": "EXT-03",
+      "source": "clinicaltrial_literature",
+      "split": "external",
+      "dataset_pack": "EXTERNAL",
+      "rag_category": "easy",
+      "audit_status": "pass",
+      "answerability": "true",
+      "adjudication_status": "manual",
+      "adjudication_note": "从语料库真实文献/试验抽象，gold 为语料库可检索证据",
+      "question_type": "latest_research_trial",
+      "topic": "hypertension",
+      "language": "zh",
+      "question": "老年高血压患者中不同周训练频率的抗阻+有氧联合训练研究关注什么？",
+      "options": {},
+      "answer": null,
+      "answer_text": "联合训练是改善老年高血压患者功能与降低血压的基础干预，研究比较不同周频率。",
+      "as_of_date": "2026-08-11",
+      "source_provenance": "clinicaltrial_literature",
+      "source_group_id": "EXT-03",
+      "gold_source_ids": [
+        "nct:NCT04218903"
+      ],
+      "gold_literature": [
+        "nct:NCT04218903"
+      ],
+      "gold_verified": false,
+      "gold_verification_status": "pending_review",
+      "rubric_version": "0.2-adjudicated",
+      "evidence_retrieved": [
+        "nct:NCT04218903"
+      ]
+    },
+    {
+      "id": "EXT-04",
+      "source": "clinicaltrial_literature",
+      "split": "external",
+      "dataset_pack": "EXTERNAL",
+      "rag_category": "easy",
+      "audit_status": "pass",
+      "answerability": "true",
+      "adjudication_status": "manual",
+      "adjudication_note": "从语料库真实文献/试验抽象，gold 为语料库可检索证据",
+      "question_type": "latest_research_trial",
+      "topic": "hypertension",
+      "language": "zh",
+      "question": "关于运动对高血压患者血压与动脉僵硬度影响的临床试验基于什么推荐？",
+      "options": {},
+      "answer": null,
+      "answer_text": "欧美国指南推荐规律运动作为高血压辅助治疗，试验评估其血压与动脉僵硬度效应。",
+      "as_of_date": "2026-08-11",
+      "source_provenance": "clinicaltrial_literature",
+      "source_group_id": "EXT-04",
+      "gold_source_ids": [
+        "nct:NCT02844413"
+      ],
+      "gold_literature": [
+        "nct:NCT02844413"
+      ],
+      "gold_verified": false,
+      "gold_verification_status": "pending_review",
+      "rubric_version": "0.2-adjudicated",
+      "evidence_retrieved": [
+        "nct:NCT02844413"
+      ]
+    },
+    {
+      "id": "EXT-05",
+      "source": "clinicaltrial_literature",
+      "split": "external",
+      "dataset_pack": "EXTERNAL",
+      "rag_category": "easy",
+      "audit_status": "pass",
+      "answerability": "true",
+      "adjudication_status": "manual",
+      "adjudication_note": "从语料库真实文献/试验抽象，gold 为语料库可检索证据",
+      "question_type": "latest_research_trial",
+      "topic": "hypertension",
+      "language": "zh",
+      "question": "自动诊室血压监测（AOBP）研究比较了哪三种血压测量方法？",
+      "options": {},
+      "answer": null,
+      "answer_text": "比较诊室血压测量（OBPM）、自动诊室血压测量（AOBP）与相关方法的差异。",
+      "as_of_date": "2026-08-11",
+      "source_provenance": "clinicaltrial_literature",
+      "source_group_id": "EXT-05",
+      "gold_source_ids": [
+        "nct:NCT05395403"
+      ],
+      "gold_literature": [
+        "nct:NCT05395403"
+      ],
+      "gold_verified": false,
+      "gold_verification_status": "pending_review",
+      "rubric_version": "0.2-adjudicated",
+      "evidence_retrieved": [
+        "nct:NCT05395403"
+      ]
+    },
+    {
+      "id": "EXT-06",
+      "source": "europepmc_literature",
+      "split": "external",
+      "dataset_pack": "EXTERNAL",
+      "rag_category": "easy",
+      "audit_status": "pass",
+      "answerability": "true",
+      "adjudication_status": "manual",
+      "adjudication_note": "从语料库真实文献/试验抽象，gold 为语料库可检索证据",
+      "question_type": "latest_research_trial",
+      "topic": "dyslipidemia",
+      "language": "zh",
+      "question": "系统综述中，DASH 饮食对血脂谱的影响如何？",
+      "options": {},
+      "answer": null,
+      "answer_text": "DASH 饮食对血脂谱（TC/LDL/HDL/TG）有改善作用（系统综述证据）。",
+      "as_of_date": "2026-08-11",
+      "source_provenance": "europepmc_literature",
+      "source_group_id": "EXT-06",
+      "gold_source_ids": [
+        "pmid:37415367"
+      ],
+      "gold_literature": [
+        "pmid:37415367"
+      ],
+      "gold_verified": false,
+      "gold_verification_status": "pending_review",
+      "rubric_version": "0.2-adjudicated",
+      "evidence_retrieved": [
+        "pmid:37415367"
+      ]
+    },
+    {
+      "id": "EXT-07",
+      "source": "europepmc_literature",
+      "split": "external",
+      "dataset_pack": "EXTERNAL",
+      "rag_category": "easy",
+      "audit_status": "pass",
+      "answerability": "true",
+      "adjudication_status": "manual",
+      "adjudication_note": "从语料库真实文献/试验抽象，gold 为语料库可检索证据",
+      "question_type": "latest_research_trial",
+      "topic": "dyslipidemia",
+      "language": "zh",
+      "question": "限盐背景下 DASH 饮食与地中海饮食对代谢综合征人群的效果比较？",
+      "options": {},
+      "answer": null,
+      "answer_text": "两者结合限盐对代谢综合征相关指标均有改善，DASH 在某些血脂指标上更优（按摘要结论）。",
+      "as_of_date": "2026-08-11",
+      "source_provenance": "europepmc_literature",
+      "source_group_id": "EXT-07",
+      "gold_source_ids": [
+        "pmid:38777087"
+      ],
+      "gold_literature": [
+        "pmid:38777087"
+      ],
+      "gold_verified": false,
+      "gold_verification_status": "pending_review",
+      "rubric_version": "0.2-adjudicated",
+      "evidence_retrieved": [
+        "pmid:38777087"
+      ]
+    },
+    {
+      "id": "EXT-08",
+      "source": "europepmc_literature",
+      "split": "external",
+      "dataset_pack": "EXTERNAL",
+      "rag_category": "easy",
+      "audit_status": "pass",
+      "answerability": "true",
+      "adjudication_status": "manual",
+      "adjudication_note": "从语料库真实文献/试验抽象，gold 为语料库可检索证据",
+      "question_type": "latest_research_trial",
+      "topic": "hypertension",
+      "language": "zh",
+      "question": "系统综述中，远程医疗管理心血管危险因素（含高血压）的结论？",
+      "options": {},
+      "answer": null,
+      "answer_text": "远程医疗在初级保健中管理心血管危险因素显示出可行性/有效性证据（按摘要）。",
+      "as_of_date": "2026-08-11",
+      "source_provenance": "europepmc_literature",
+      "source_group_id": "EXT-08",
+      "gold_source_ids": [
+        "pmid:39194352"
+      ],
+      "gold_literature": [
+        "pmid:39194352"
+      ],
+      "gold_verified": false,
+      "gold_verification_status": "pending_review",
+      "rubric_version": "0.2-adjudicated",
+      "evidence_retrieved": [
+        "pmid:39194352"
+      ]
+    },
+    {
+      "id": "EXT-09",
+      "source": "europepmc_literature",
+      "split": "external",
+      "dataset_pack": "EXTERNAL",
+      "rag_category": "easy",
+      "audit_status": "pass",
+      "answerability": "true",
+      "adjudication_status": "manual",
+      "adjudication_note": "从语料库真实文献/试验抽象，gold 为语料库可检索证据",
+      "question_type": "latest_research_trial",
+      "topic": "dyslipidemia",
+      "language": "zh",
+      "question": "PCSK9 抑制剂在杂合子家族性高胆固醇血症（HeFH）患者中的疗效？",
+      "options": {},
+      "answer": null,
+      "answer_text": "PCSK9 抑制剂显著降低 HeFH 患者 LDL-C（疗效证据）。",
+      "as_of_date": "2026-08-11",
+      "source_provenance": "europepmc_literature",
+      "source_group_id": "EXT-09",
+      "gold_source_ids": [
+        "pmid:39304616"
+      ],
+      "gold_literature": [
+        "pmid:39304616"
+      ],
+      "gold_verified": false,
+      "gold_verification_status": "pending_review",
+      "rubric_version": "0.2-adjudicated",
+      "evidence_retrieved": [
+        "pmid:39304616"
+      ]
+    },
+    {
+      "id": "EXT-10",
+      "source": "europepmc_literature",
+      "split": "external",
+      "dataset_pack": "EXTERNAL",
+      "rag_category": "easy",
+      "audit_status": "pass",
+      "answerability": "true",
+      "adjudication_status": "manual",
+      "adjudication_note": "从语料库真实文献/试验抽象，gold 为语料库可检索证据",
+      "question_type": "latest_research_trial",
+      "topic": "dyslipidemia",
+      "language": "zh",
+      "question": "远程康复（telerehabilitation）对高血压患者心脏重构与血流动力学的影响？",
+      "options": {},
+      "answer": null,
+      "answer_text": "远程康复改善高血压患者心脏重构与血流动力学参数（按摘要）。",
+      "as_of_date": "2026-08-11",
+      "source_provenance": "europepmc_literature",
+      "source_group_id": "EXT-10",
+      "gold_source_ids": [
+        "pmid:38483844"
+      ],
+      "gold_literature": [
+        "pmid:38483844"
+      ],
+      "gold_verified": false,
+      "gold_verification_status": "pending_review",
+      "rubric_version": "0.2-adjudicated",
+      "evidence_retrieved": [
+        "pmid:38483844"
+      ]
+    }
+  ]
+}

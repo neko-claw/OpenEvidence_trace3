@@ -5,8 +5,10 @@ dataset:
   dev_split: "DEV"
   test_split: "TEST"
   stress_split: "STRESS"
-  test_question_count: 40
+  test_question_count: 77
+  test_question_types: "19/19/19/20 (stable/guideline/latest/insufficient)"
   stress_question_count: 20
+  stress_perturb_types: "4类各5: retrieval_damage/injected_unsupported/no_evidence_outscope/malicious_injection_fake_id"
 
 model:
   provider: "openai_compatible"

@@ -1,78 +1,110 @@
 {
-  "blueprint_version": "v0.1.0",
-  "owner": "B1 (蓝图) / B2 (正式题冻结) / A1 (DEV 题)",
-  "total_questions": 130,
-  "purpose": "赛道3 与赛道1 共享证据底座；正式题文本、gold、rubric 冻结前仅对 B2 可见",
-  "packs": {
-    "DEV": {
-      "count": 30,
-      "purpose": "查询改写、K、rerank 权重、拒答阈值选择；系统调参专用",
-      "enters_main_conclusion": false,
-      "locked_after": "第2天上午 DEV 定稿后冻结，不再回退调参",
-      "topic_split": { "hypertension": 15, "dyslipidemia": 15 }
-    },
-    "TEST": {
-      "count": 60,
-      "purpose": "A/B/C/D 配对主评测（A2 可选）",
-      "enters_main_conclusion": true,
-      "topic_split": { "hypertension": 30, "dyslipidemia": 30 },
-      "question_type_split": {
-        "stable_knowledge_mechanism": 15,
-        "guideline_treatment": 15,
-        "latest_research_trial": 15,
-        "insufficient_conflict_out_of_scope": 15
-      }
-    },
-    "STRESS": {
-      "count": 20,
-      "purpose": "C/E 对照：检索劣化、冲突证据、不可回答、提示注入、非法引用",
-      "enters_main_conclusion": false,
-      "reporting": "单独报告，不并入主结论",
-      "question_type_split": {
-        "stable_knowledge_mechanism": 5,
-        "guideline_treatment": 5,
-        "latest_research_trial": 5,
-        "insufficient_conflict_out_of_scope": 5
-      }
-    },
-    "EXTERNAL": {
-      "count": 10,
-      "purpose": "跨题目来源泛化检查（如 MedQA/PubMedQA 许可子集）",
-      "enters_main_conclusion": false,
-      "note": "只做确定性评分 + 抽查，不参与 A/B/C/D 主对比"
-    },
-    "RESERVE": {
-      "count": 10,
-      "purpose": "替换泄漏、重复、gold 失效、解析失败的题目",
-      "enters_main_conclusion": false
-    }
+ "blueprint_version": "v0.2.0",
+ "owner": "B1 (蓝图) / B2 (正式题冻结) / A1 (DEV 题)",
+ "total_questions": 150,
+ "purpose": "赛道3 与赛道1 共享证据底座；正式题文本、gold、rubric 冻结前仅对 B2 可见",
+ "packs": {
+  "DEV": {
+   "count": 33,
+   "purpose": "查询改写、K、rerank 权重、拒答阈值选择；系统调参专用",
+   "enters_main_conclusion": false,
+   "locked_after": "第2天上午 DEV 定稿后冻结，不再回退调参",
+   "topic_split": {
+    "hypertension": 15,
+    "dyslipidemia": 15
+   },
+   "question_type_split": {
+    "stable_knowledge_mechanism": 8,
+    "guideline_treatment": 8,
+    "latest_research_trial": 8,
+    "insufficient_conflict_out_of_scope": 9
+   }
   },
-  "test_source_distribution": {
-    "total": 60,
-    "single_source_cap_percent": 40,
-    "single_source_cap_count": 24,
-    "planned": {
-      "human_teacher": 18,
-      "guideline_literature": 18,
-      "public_benchmark": 12,
-      "llm_candidate": 12
-    },
-    "note": "LLM 只生成候选与变体，gold 必须由人基于真实来源建立；正式题中 LLM 生成占比 <=40%"
+  "TEST": {
+   "count": 77,
+   "purpose": "A/B/C/D 配对主评测（A2 可选）",
+   "enters_main_conclusion": true,
+   "topic_split": {
+    "hypertension": 39,
+    "dyslipidemia": 38
+   },
+   "question_type_split": {
+    "stable_knowledge_mechanism": 19,
+    "guideline_treatment": 19,
+    "latest_research_trial": 19,
+    "insufficient_conflict_out_of_scope": 20
+   }
   },
-  "isolation_rules": [
-    "同源改写共享 source_group_id，只能进入同一个 split",
-    "文本去重 + embedding 聚类检查近义重复",
-    "DEV 与 TEST 不得共享同一 gold 段落的直接派生问题",
-    "TEST 与 STRESS 相互独立",
-    "最新研究题时间留出：as_of_date 晚于模型知识截止，语料按 corpus_cutoff 冻结"
-  ],
-  "question_required_fields": [
-    "id", "split", "dataset_pack", "topic", "difficulty", "language",
-    "question", "question_type", "answerable", "as_of_date",
-    "source_provenance", "source_group_id", "gold_source_ids", "rubric_version"
-  ],
-  "dataset_pack_mapping": {
-    "DEV": "30 DEV", "TEST": "60 TEST", "STRESS": "20 STRESS",
-    "EXTERNAL": "10 EXTERNAL", "RESERVE": "10 RESERVE"
+  "STRESS": {
+   "count": 20,
+   "purpose": "C/E 对照：检索劣化、冲突证据、不可回答、提示注入、非法引用",
+   "enters_main_conclusion": false,
+   "reporting": "单独报告，不并入主结论",
+   "question_type_split": {
+    "stable_knowledge_mechanism": 5,
+    "guideline_treatment": 5,
+    "latest_research_trial": 5,
+    "insufficient_conflict_out_of_scope": 5
+   }
+  },
+  "EXTERNAL": {
+   "count": 10,
+   "purpose": "跨题目来源泛化检查（如 MedQA/PubMedQA 许可子集）",
+   "enters_main_conclusion": false,
+   "note": "只做确定性评分 + 抽查，不参与 A/B/C/D 主对比"
+  },
+  "RESERVE": {
+   "count": 10,
+   "purpose": "替换泄漏、重复、gold 失效、解析失败的题目",
+   "enters_main_conclusion": false
   }
+ },
+ "test_source_distribution": {
+  "total": 77,
+  "single_source_cap_percent": 40,
+  "single_source_cap_count": 30,
+  "planned": {
+   "human_teacher": 18,
+   "guideline_literature": 18,
+   "public_benchmark": 12,
+   "llm_candidate": 12
+  },
+  "note": "LLM 只生成候选与变体，gold 必须由人基于真实来源建立；正式题中 LLM 生成占比 <=40%"
+ },
+ "isolation_rules": [
+  "同源改写共享 source_group_id，只能进入同一个 split",
+  "文本去重 + embedding 聚类检查近义重复",
+  "DEV 与 TEST 不得共享同一 gold 段落的直接派生问题",
+  "TEST 与 STRESS 相互独立",
+  "最新研究题时间留出：as_of_date 晚于模型知识截止，语料按 corpus_cutoff 冻结"
+ ],
+ "question_required_fields": [
+  "id",
+  "split",
+  "dataset_pack",
+  "topic",
+  "difficulty",
+  "language",
+  "question",
+  "question_type",
+  "answerable",
+  "as_of_date",
+  "source_provenance",
+  "source_group_id",
+  "gold_source_ids",
+  "rubric_version"
+ ],
+ "dataset_pack_mapping": {
+  "DEV": "33 DEV",
+  "TEST": "77 TEST",
+  "STRESS": "20 STRESS",
+  "EXTERNAL": "10 EXTERNAL",
+  "RESERVE": "10 RESERVE"
+ },
+ "frozen": {
+  "date": "2026-08-12",
+  "runtime_entry": "test_set/questions.jsonl",
+  "stress_entry": "test_set/stress_20.jsonl",
+  "note": "v0.2.0 按冻结前审阅重建：TEST 19/19/19/20、主题 39/38；gold 全部 pending_review 待医学核验；公开选择题 ≤40%（MIRAGE 家族 33.8%），options 在运行时保留并渲染"
+ }
 }

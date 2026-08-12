@@ -1,0 +1,718 @@
+{
+  "adjudicated_at": "2026-08-12",
+  "reviewer": "B2 review（review/b2-dataset-refactor）",
+  "mislabled_restored": [
+    {
+      "id": "0243",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "dyslipidemia",
+      "note": "他汀肌病：停药后症状缓解，指南推荐减量再挑战（重启原药低剂量）"
+    },
+    {
+      "id": "0405",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "他汀（HMG-CoA 还原酶抑制剂）机制：抑制甲羟戊酸生成"
+    },
+    {
+      "id": "0407",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "烟酸潮红副作用经前列腺素介导，联用阿司匹林预防"
+    },
+    {
+      "id": "0438",
+      "action": "question_type_fill",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "噻嗪类利尿剂作用靶点（Na+/Cl- 共转运体）"
+    },
+    {
+      "id": "0690",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "贝特/烟酸类可致胆石症（药物不良反应机制）"
+    },
+    {
+      "id": "0813",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "老年单纯收缩期高血压机制：大动脉僵硬度增加"
+    },
+    {
+      "id": "0836",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "ACEI+保钾利尿剂联用致高钾血症（药物相互作用）"
+    },
+    {
+      "id": "0859",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "高血压急症静脉用药（硝普钠）血流动力学效应"
+    },
+    {
+      "id": "0862",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "口服避孕药升高血压：换用非激素类避孕措施"
+    },
+    {
+      "id": "1050",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "dyslipidemia",
+      "note": "考来维仑（胆汁酸螯合剂）需与其他药物间隔服用"
+    },
+    {
+      "id": "1164",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "老年收缩期高血压初始药物选择（ACEI 等 4 类之一）"
+    },
+    {
+      "id": "1266",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "糖尿病+未控制高血压：联用二氢吡啶类 CCB（硝苯地平）"
+    },
+    {
+      "id": "b5a8425a-1ddf-41e1-9ffa-c2088ce2897e",
+      "action": "question_type_fill",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "LDL 受体肝摄取配体为 apoB-100"
+    },
+    {
+      "id": "f87f02ae-e248-473d-9a03-5a866b0dfbee",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "LDL 受体识别 apoB100/apoE、介导内吞、肝内外均有"
+    },
+    {
+      "id": "9c7e163e-d22f-43d9-8c77-fb036bc0b064",
+      "action": "question_type_fill",
+      "question_type": "guideline_treatment",
+      "note": "ACS 后强化他汀（阿托伐他汀 80mg）二级预防"
+    },
+    {
+      "id": "1a31abe7-fbc1-41bc-b42d-fab66edfef39",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "血浆胆固醇主要运输载体为 LDL"
+    },
+    {
+      "id": "dd032c3c-d1fc-42c9-bdbf-09d5fcef74fd",
+      "action": "question_type_fill",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "VLDL 在肝脏合成"
+    },
+    {
+      "id": "215befbd-3775-40ea-b2e5-6537ba16ff86",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "HDL 蛋白含量占比最高（载脂蛋白为主）"
+    },
+    {
+      "id": "297ab88f-0697-406b-8994-332269314289",
+      "action": "question_type_fill",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "VLDL 将内源性脂肪酸运往外周组织"
+    },
+    {
+      "id": "22825590",
+      "action": "question_type_fill",
+      "question_type": "latest_research_trial",
+      "note": "PubMedQA 研究问题：行为危险因素与血压转归"
+    },
+    {
+      "id": "17971187",
+      "action": "question_type_fill",
+      "question_type": "latest_research_trial",
+      "note": "PubMedQA 研究问题：儿童胆固醇筛查与家族史"
+    },
+    {
+      "id": "clinical_knowledge-254",
+      "action": "manual_refuse",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "topic": "hypertension",
+      "note": "人工裁定：语料无直接支撑，从 hard 改判 refusal（血压测量体位相关，证据不足）"
+    },
+    {
+      "id": "professional_medicine-105",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "dyslipidemia",
+      "note": "高胆固醇+吸烟+早发 CAD 家族史：戒烟为最优先干预"
+    },
+    {
+      "id": "professional_medicine-202",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "青少年血压升高：生活方式干预（运动+减重）首选"
+    },
+    {
+      "id": "1110",
+      "action": "topic_type_fill",
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "青少年跟腱痛+家族早发心梗：家族性高胆固醇血症（测 LDL）"
+    },
+    {
+      "id": "0e7917ea-310b-4477-9897-f4901f728448",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "脂蛋白电泳：乳糜微粒不向电荷端迁移"
+    },
+    {
+      "id": "93b48788-a643-45c3-ad41-304738ff6f55",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "LDL/HDL 比值是 CVD 风险常用指标"
+    },
+    {
+      "id": "714eb700-67f2-4ce9-ab0d-ffdf8660ac08",
+      "action": "topic_type_fill",
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "脂蛋白密度：乳糜微粒密度最低"
+    },
+    {
+      "id": "0cd0e1c4-aabe-4ac3-ae2b-83b0633cb376",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "无脂高碳水饮食致肝性 VLDL 合成增加"
+    },
+    {
+      "id": "23d04e70-f243-4c16-a7c4-827051a5b62b",
+      "action": "question_type_fill",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "IDL 在血浆中的命运（肝摄取+转 LDL）"
+    },
+    {
+      "id": "4eef4a6b-af8e-4472-9caa-95c1f1a415c8",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "肾活检洋葱皮样改变：恶性高血压增生性小动脉硬化"
+    },
+    {
+      "id": "3a3e9d0e-cf13-4d9c-971f-f9d5cb902994",
+      "action": "topic_type_fill",
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "ApoB-48 存在于乳糜微粒"
+    },
+    {
+      "id": "0489f20c-a0ce-4251-9eec-e8d5e691a49e",
+      "action": "topic_type_fill",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "美托洛尔+维拉帕米联用致心动过缓/房室阻滞（同源组 metoprolol-verapamil）"
+    },
+    {
+      "id": "0489f20c-a0ce-4251-9eec-e8d5e691a49e",
+      "action": "duplicate_to_reserve",
+      "duplicate_of": "41a7eb65-1e8e-46ee-8d9a-8544101fe4db",
+      "source_group_id": "metoprolol-verapamil"
+    },
+    {
+      "id": "41a7eb65-1e8e-46ee-8d9a-8544101fe4db",
+      "action": "topic_type_fill",
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "note": "美托洛尔+维拉帕米联用危险（同源组 metoprolol-verapamil 主题）"
+    },
+    {
+      "id": "5d0bb1e6-fa95-47e6-811e-abeb5a025ce6",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "ARB 兼有 PPARγ 激动活性：替米沙坦"
+    },
+    {
+      "id": "8654832a-f650-4836-82ba-cc59f14e1bb9",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "噻嗪类利尿剂首日尿钠钾升高、尿钙降低"
+    },
+    {
+      "id": "e995894b-0611-4ae2-ae1f-0d35025845ae",
+      "action": "topic_type_fill",
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "note": "无合并症 2 级高血压首选噻嗪类（氯噻酮）"
+    },
+    {
+      "id": "1ea823e8-1b70-4820-96e1-c46d5fd23885",
+      "action": "question_type_fill",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "慢性高血压叠加子痫前期的诊断标准"
+    },
+    {
+      "id": "a20495a2-6aba-40db-b41b-fb328e3a8d00",
+      "action": "out_of_scope",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "topic": "hypertension",
+      "note": "牙科口腔预防处理，超出高血压/血脂证据助手范围，应拒答"
+    },
+    {
+      "id": "57b1ba32-ffad-47ac-b906-d1b6dbca3bc6",
+      "action": "topic_type_fill",
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "note": "同源重复（metoprolol-verapamil），移入 RESERVE"
+    },
+    {
+      "id": "57b1ba32-ffad-47ac-b906-d1b6dbca3bc6",
+      "action": "duplicate_to_reserve",
+      "duplicate_of": "41a7eb65-1e8e-46ee-8d9a-8544101fe4db",
+      "source_group_id": "metoprolol-verapamil"
+    },
+    {
+      "id": "c78509b1-d4e3-473c-9020-3a9dc70e5c97",
+      "action": "topic_type_fill",
+      "topic": "dyslipidemia",
+      "question_type": "guideline_treatment",
+      "note": "CAD 一级预防饮食目标（LDL<100、饱和脂肪<7%）"
+    },
+    {
+      "id": "f608b3a8-f9f0-4096-af64-3fe43798a70f",
+      "action": "topic_type_fill",
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "note": "妊娠禁忌降压药：ACEI（依那普利）"
+    },
+    {
+      "id": "4682d46d-f791-48cc-ac4d-b2a73fbb18c4",
+      "action": "manual_refuse",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "topic": "hypertension",
+      "note": "人工裁定：牙科牙龈收缩线选择，超出证据助手范围"
+    },
+    {
+      "id": "medqa-usmle-train-train-00630",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "年龄相关收缩压升高机制：动脉顺应性下降"
+    },
+    {
+      "id": "medqa-usmle-train-train-00782",
+      "action": "manual_refuse",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "topic": "hypertension",
+      "note": "人工裁定：语料无直接支撑，从 hard 改判 refusal（初始治疗选择，待补 gold 后可恢复）"
+    },
+    {
+      "id": "medqa-usmle-train-train-01389",
+      "action": "manual_refuse",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "topic": "dyslipidemia",
+      "note": "人工裁定：语料无直接支撑，从 hard 改判 refusal（他汀肌病处理，待补 gold 后可恢复）"
+    },
+    {
+      "id": "medqa-usmle-train-train-01657",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "晨起头痛+打鼾：阻塞性睡眠呼吸暂停继发高血压"
+    },
+    {
+      "id": "medqa-usmle-train-train-01779",
+      "action": "question_type_fill",
+      "question_type": "guideline_treatment",
+      "note": "贝特类与他汀联用注意肌病/横纹肌溶解风险"
+    },
+    {
+      "id": "medqa-usmle-train-train-01827",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "dyslipidemia",
+      "note": "高危患者强化他汀（阿托伐他汀 40mg）"
+    },
+    {
+      "id": "medqa-usmle-train-train-01909",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "无合并症 1 级高血压初始治疗：ACEI/ARB/CCB/噻嗪四类均可"
+    },
+    {
+      "id": "medqa-usmle-train-train-02152",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "dyslipidemia",
+      "note": "他汀肌痛：停药后换用普伐他汀（非 CYP3A4 途径）"
+    },
+    {
+      "id": "medqa-usmle-train-train-02266",
+      "action": "question_type_fill",
+      "question_type": "guideline_treatment",
+      "note": "ESRD 肾性贫血：EPO 治疗（含高血压背景管理）"
+    },
+    {
+      "id": "medqa-usmle-train-train-02832",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "妊娠高血压急症用硝苯地平：机制为拮抗 IP3 介导的钙释放"
+    },
+    {
+      "id": "medqa-usmle-train-train-02901",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "初次就诊重度高血压：ACEI（赖诺普利）"
+    },
+    {
+      "id": "medqa-usmle-train-train-04650",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "肥胖女性高血压筛查：尿常规（肾脏损害/蛋白尿）"
+    },
+    {
+      "id": "medqa-usmle-train-train-05346",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "重度高血压眼底改变：视乳头水肿（恶性高血压）"
+    },
+    {
+      "id": "medqa-usmle-train-train-06792",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "队列研究归因风险计算：RR=3.0 时归因分值约 67%"
+    },
+    {
+      "id": "medqa-usmle-train-train-06927",
+      "action": "question_type_fill",
+      "question_type": "guideline_treatment",
+      "note": "备孕停用 ACEI（致畸），换用妊娠安全药物"
+    },
+    {
+      "id": "medqa-usmle-train-train-07858",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "肥胖伴高血压生活方式干预：体重下降收益最大"
+    },
+    {
+      "id": "medqa-usmle-train-train-08100",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "HDL 向其他脂蛋白传递甘油三酯水解活性：ApoC-II（LPL 激活）"
+    },
+    {
+      "id": "medqa-usmle-train-train-08497",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "高血压伴肥胖：减重 15kg 为最有效生活方式干预"
+    },
+    {
+      "id": "medqa-usmle-train-train-08597",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "哮喘+肾功能轻度异常的高血压：CCB（氨氯地平）"
+    },
+    {
+      "id": "medqa-usmle-train-train-09794",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "dyslipidemia",
+      "note": "CKD+DM+高血压伴 LDL 升高：他汀（辛伐他汀）"
+    },
+    {
+      "id": "medqa-usmle-train-train-10034",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "老年收缩期高血压机制：动脉顺应性下降"
+    },
+    {
+      "id": "medqa-usmle-dev-dev-00182",
+      "action": "question_type_fill",
+      "question_type": "guideline_treatment",
+      "note": "高甘油三酯血症：非诺贝特"
+    },
+    {
+      "id": "medqa-usmle-dev-dev-01166",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "hypertension",
+      "note": "二氢吡啶类 CCB 主要作用于血管平滑肌"
+    },
+    {
+      "id": "medexpqa-en-train-304-174",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "老年高血压+NSAID：换对乙酰氨基酚以保护血压控制"
+    },
+    {
+      "id": "medexpqa-en-train-166-82",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "双侧肾动脉狭窄：ACEI/ARB 禁忌（肾功能恶化风险）"
+    },
+    {
+      "id": "medexpqa-en-train-305-174",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "同源重复题（与 304-174 同题改写），移入 RESERVE"
+    },
+    {
+      "id": "medexpqa-en-train-305-174",
+      "action": "duplicate_to_reserve",
+      "duplicate_of": "medexpqa-en-train-304-174",
+      "source_group_id": "medexpqa-304-305"
+    },
+    {
+      "id": "medexpqa-en-train-104-91",
+      "action": "restore_hard",
+      "question_type": "stable_knowledge_mechanism",
+      "topic": "dyslipidemia",
+      "note": "家族性高胆固醇血症（纯合型）遗传与表型特征"
+    },
+    {
+      "id": "medexpqa-en-train-103-89",
+      "action": "restore_hard",
+      "question_type": "guideline_treatment",
+      "topic": "hypertension",
+      "note": "新发高血压伴空腹血糖偏高：查糖化血红蛋白排除糖尿病"
+    },
+    {
+      "id": "medexpqa-en-train-528-134",
+      "action": "question_type_fill",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "隐蔽性高血压（masked hypertension）识别"
+    },
+    {
+      "id": "medexpqa-en-train-356-166",
+      "action": "question_type_fill",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "孕 10 周 160/105：慢性高血压（重复题）"
+    },
+    {
+      "id": "medexpqa-en-train-356-166",
+      "action": "duplicate_to_reserve",
+      "duplicate_of": "medexpqa-en-train-355-166",
+      "source_group_id": "medexpqa-pregnant-354-356"
+    },
+    {
+      "id": "medexpqa-en-train-355-166",
+      "action": "question_type_fill",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "孕 10 周 160/105：慢性高血压"
+    },
+    {
+      "id": "medexpqa-en-dev-354-166",
+      "action": "question_type_fill",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "孕 10 周 160/105：慢性高血压（跨 split 重复题）"
+    },
+    {
+      "id": "medexpqa-en-dev-354-166",
+      "action": "duplicate_to_reserve",
+      "duplicate_of": "medexpqa-en-train-355-166",
+      "source_group_id": "medexpqa-pregnant-354-356"
+    },
+    {
+      "id": "medexpqa-en-test-564-126",
+      "action": "question_type_fill",
+      "question_type": "guideline_treatment",
+      "note": "难治性高血压评估：原发性醛固酮增多症筛查（CT/螺内酯）"
+    },
+    {
+      "id": "medexpqa-en-test-548-126",
+      "action": "question_type_fill",
+      "question_type": "guideline_treatment",
+      "note": "难治性高血压评估（同源改写题）"
+    },
+    {
+      "id": "medexpqa-en-test-548-126",
+      "action": "duplicate_to_reserve",
+      "duplicate_of": "medexpqa-en-test-564-126",
+      "source_group_id": "medexpqa-refractory-548-564"
+    },
+    {
+      "id": "REF-001",
+      "action": "original_refusal"
+    },
+    {
+      "id": "REF-002",
+      "action": "original_refusal"
+    },
+    {
+      "id": "REF-003",
+      "action": "original_refusal"
+    },
+    {
+      "id": "REF-003",
+      "action": "topic_type_fill",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "note": "心梗疑似症状：范围外急诊，应拒答并建议就医"
+    },
+    {
+      "id": "REF-004",
+      "action": "original_refusal"
+    },
+    {
+      "id": "REF-005",
+      "action": "original_refusal"
+    },
+    {
+      "id": "REF-006",
+      "action": "original_refusal"
+    },
+    {
+      "id": "REF-006",
+      "action": "topic_type_fill",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "note": "冥想降压量化声称：无充分证据，应拒答/给出证据不足说明"
+    },
+    {
+      "id": "REF-007",
+      "action": "conflict_warn"
+    },
+    {
+      "id": "REF-008",
+      "action": "original_refusal"
+    },
+    {
+      "id": "REF-008",
+      "action": "topic_type_fill",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "note": "提示注入+伪造 PMID：应拒答并拦截"
+    },
+    {
+      "id": "REF-009",
+      "action": "original_refusal"
+    },
+    {
+      "id": "REF-010",
+      "action": "original_refusal"
+    }
+  ],
+  "out_of_scope": {
+    "a20495a2-6aba-40db-b41b-fb328e3a8d00": {
+      "question_type": "insufficient_conflict_out_of_scope",
+      "topic": "hypertension",
+      "note": "牙科口腔预防处理，超出高血压/血脂证据助手范围，应拒答"
+    }
+  },
+  "unknown_topic_filled": {
+    "1110": {
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "青少年跟腱痛+家族早发心梗：家族性高胆固醇血症（测 LDL）"
+    },
+    "714eb700-67f2-4ce9-ab0d-ffdf8660ac08": {
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "脂蛋白密度：乳糜微粒密度最低"
+    },
+    "3a3e9d0e-cf13-4d9c-971f-f9d5cb902994": {
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "ApoB-48 存在于乳糜微粒"
+    },
+    "0489f20c-a0ce-4251-9eec-e8d5e691a49e": {
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "note": "美托洛尔+维拉帕米联用致心动过缓/房室阻滞（同源组 metoprolol-verapamil）"
+    },
+    "41a7eb65-1e8e-46ee-8d9a-8544101fe4db": {
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "note": "美托洛尔+维拉帕米联用危险（同源组 metoprolol-verapamil 主题）"
+    },
+    "e995894b-0611-4ae2-ae1f-0d35025845ae": {
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "note": "无合并症 2 级高血压首选噻嗪类（氯噻酮）"
+    },
+    "57b1ba32-ffad-47ac-b906-d1b6dbca3bc6": {
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "note": "同源重复（metoprolol-verapamil），移入 RESERVE"
+    },
+    "c78509b1-d4e3-473c-9020-3a9dc70e5c97": {
+      "topic": "dyslipidemia",
+      "question_type": "guideline_treatment",
+      "note": "CAD 一级预防饮食目标（LDL<100、饱和脂肪<7%）"
+    },
+    "f608b3a8-f9f0-4096-af64-3fe43798a70f": {
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "note": "妊娠禁忌降压药：ACEI（依那普利）"
+    },
+    "REF-003": {
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "note": "心梗疑似症状：范围外急诊，应拒答并建议就医"
+    },
+    "REF-006": {
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "note": "冥想降压量化声称：无充分证据，应拒答/给出证据不足说明"
+    },
+    "REF-008": {
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "note": "提示注入+伪造 PMID：应拒答并拦截"
+    }
+  },
+  "duplicate_groups": {
+    "medexpqa-en-train-305-174": {
+      "duplicate_of": "medexpqa-en-train-304-174",
+      "source_group_id": "medexpqa-304-305"
+    },
+    "0489f20c-a0ce-4251-9eec-e8d5e691a49e": {
+      "duplicate_of": "41a7eb65-1e8e-46ee-8d9a-8544101fe4db",
+      "source_group_id": "metoprolol-verapamil"
+    },
+    "57b1ba32-ffad-47ac-b906-d1b6dbca3bc6": {
+      "duplicate_of": "41a7eb65-1e8e-46ee-8d9a-8544101fe4db",
+      "source_group_id": "metoprolol-verapamil"
+    },
+    "medexpqa-en-dev-354-166": {
+      "duplicate_of": "medexpqa-en-train-355-166",
+      "source_group_id": "medexpqa-pregnant-354-356"
+    },
+    "medexpqa-en-train-356-166": {
+      "duplicate_of": "medexpqa-en-train-355-166",
+      "source_group_id": "medexpqa-pregnant-354-356"
+    },
+    "medexpqa-en-test-548-126": {
+      "duplicate_of": "medexpqa-en-test-564-126",
+      "source_group_id": "medexpqa-refractory-548-564"
+    }
+  }
+}

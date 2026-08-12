@@ -1767,7 +1767,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="B5 automated metrics, paired statistics, and judge audit")
     parser.add_argument("--runs", default=None, help="Run JSONL from evaluation.experiment")
     parser.add_argument("--scores", default=None, help="Optional judge Score JSONL")
-    parser.add_argument("--questions", default=str(cfg.path("questions_formal")), help="Question JSONL")
+    parser.add_argument("--questions", default=str(cfg.path("questions")), help="Question JSONL（默认正式主集 test_set/questions.jsonl）")
     parser.add_argument("--questions-stress", default=None,
                         help="STRESS 压力题 JSONL（默认取 config questions_stress；用于 E-C 仅压力集对比）")
     parser.add_argument("--out-dir", default=str(cfg.path("artifacts") / "b5"), help="Output directory")

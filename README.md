@@ -121,28 +121,40 @@ python -m streamlit run app.py
 bash scripts/start.sh smoke      # 冒烟：1 道开发题 × 4 条件（验证全链路）
 bash scripts/start.sh formal     # 正式实验：12 道题 × 4 条件（约 10 分钟）
 
+# 正式主集（B2 冻结版：test_set/questions.jsonl，33 DEV + 77 TEST，题型 19/19/19/20）
+python -m evaluation.experiment --questions testset --conditions A B C D
+python -m evaluation.experiment --questions testset --limit 20 --conditions B C   # 分层抽样子集
+
 # 含 A2 通用搜索对照（可选条件，默认离线 mock；配 SERPER_API_KEY 可真实搜索）
 python -m evaluation.experiment --questions dev8 --limit 2 --include-a2
 python -m evaluation.experiment --conditions A A2 B C D
 
-# STRESS 压力题 C/E 对照（E 为 P0 必做，实施规划 §2.1；正式 20 题由 B2 冻结后替换 stress_sample）
+# STRESS 压力题 C/E 对照（E 为 P0 必做；正式 20 题 = test_set/stress_20.jsonl，4 类预注册扰动各 5）
 python -m evaluation.experiment --questions stress --conditions C E
 
 # 离线回放（无 API key 的链路验收，实施规划 §10 风险降级；输出标注 offline-mock，不作正式结论）
 python -m evaluation.experiment --offline --limit 2
+
+# 题集重建与合规校验（B2 交付，只按真实运行口径判 PASS）
+python scripts/rebuild_test_set.py
+python scripts/validate_dataset.py
 ```
 
 **完整评测闭环**（实验后执行）：
 
 ```bash
-# ① B3 副责：交叉复核 B4 输入一致性 + A2 搜索预算审计
-python -m evaluation.consistency --runs data/experiments/runs/runs_<时间戳>.jsonl --questions data/questions/formal12.jsonl
-# ② judge 盲评（匿名 + 双 judge）
-python -m evaluation.judge --runs data/experiments/runs/runs_<时间戳>.jsonl --judges judge1 judge2
+# ① B3 副责：交叉复核 B4 输入一致性 + A2 搜索预算审计（正式主集 + 正式压力集）
+python -m evaluation.consistency --runs data/experiments/runs/runs_<时间戳>.jsonl \
+    --questions test_set/questions.jsonl --questions-stress test_set/stress_20.jsonl
+# ② judge 盲评（匿名 + 双 judge；正式主集）
+python -m evaluation.judge --runs data/experiments/runs/runs_<时间戳>.jsonl --questions test_set/questions.jsonl --judges judge1 judge2
 # ③ 统计（配对差值 + bootstrap 置信区间 + 按题型分组）
 python -m evaluation.stats --scores data/experiments/scores/scores_<时间戳>.jsonl
 # ④ 图表（配对差值图 + 箱线图 → artifacts/）
 python -m evaluation.charts --scores data/experiments/scores/scores_<时间戳>.jsonl
+# ⑤ B5 综合报告（确定性指标 + 配对统计 + judge 审计 + 反例）
+python -m evaluation.b5_report --runs data/experiments/runs/runs_<时间戳>.jsonl \
+    --questions test_set/questions.jsonl --questions-stress test_set/stress_20.jsonl
 ```
 
 **B4 离线检索/劣化评测链路**（fixture 断网可跑；`--retriever` 可选 `fixture` / `reference-rerank` / `hybrid-rerank`）：
@@ -214,7 +226,10 @@ retrieval/              BM25 + 向量 + RRF + 特征重排 + MMR + 查询扩展
 generation/             Prompt / 生成 / 引用白名单 / 拒答
 evaluation/             实验 / judge / 指标 / 统计 / 图表
 data/processed/evidence.jsonl   10183 条多源证据库（已内置，含 manifest.json）
-data/questions/         题集（formal12 正式 / dev8 开发 / stress_sample 压力样例）
+data/questions/         演示样例题集（dev8/formal12/stress_sample，不进正式指标）
+test_set/               正式题集（questions.jsonl 主集 + stress_20.jsonl 压力集 + 评分指南 + qrels）
+scripts/rebuild_test_set.py   题集重建（可复现）
+scripts/validate_dataset.py   合规校验（真实运行口径 PASS）
 scripts/                start.sh 一键启动 / build_kb 重建库 / view_evidence 浏览
 tests/                  104 个契约测试（含 B5 报告回归）
 ```

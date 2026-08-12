@@ -17,10 +17,27 @@ ANSWER_FORMAT = (
 )
 
 
+def _format_options(q: Question) -> str:
+    """选择题选项渲染：固定顺序，带字母前缀；非选择题返回空串。"""
+    if not q.options:
+        return ""
+    lines = ["选项（请按字母选择或引用）："]
+    for i, opt in enumerate(q.options):
+        letter = chr(ord("A") + i)
+        lines.append(f"{letter}. {opt}")
+    return "\n".join(lines)
+
+
+def _question_text(q: Question) -> str:
+    """题干 + 选项（有选项时附加）。"""
+    opts = _format_options(q)
+    return f"题目：{q.question}\n\n{opts}".rstrip() if opts else f"题目：{q.question}"
+
+
 def build_prompt_a(q: Question) -> list[dict]:
     """条件 A：纯 LLM，无外部证据。不得出现引用，不得声称引用来源。"""
     user = (
-        f"题目：{q.question}\n\n"
+        f"{_question_text(q)}\n\n"
         f"说明：这是一个医学常识/证据问题。请基于你的知识回答。"
         f"如果没有把握，明确说明证据不足。不允许编造文献、数字或来源。\n\n"
         f"{ANSWER_FORMAT}"
@@ -30,9 +47,10 @@ def build_prompt_a(q: Question) -> list[dict]:
 
 def build_prompt_bcd(q: Question, retrieved: list[dict]) -> list[dict]:
     """条件 B/C/D：提供证据上下文，强制用 [E#] 引用且只能引用给定证据。"""
+    q_text = _question_text(q)
     if not retrieved:
         user = (
-            f"题目：{q.question}\n\n"
+            f"{q_text}\n\n"
             f"本次检索未找到可用证据。请如实说明检索缺口，不要补写结论。\n\n{ANSWER_FORMAT}"
         )
         return [{"role": "system", "content": SYSTEM_BASE}, {"role": "user", "content": user}]
@@ -48,7 +66,7 @@ def build_prompt_bcd(q: Question, retrieved: list[dict]) -> list[dict]:
     evidence_text = "\n".join(blocks)
 
     user = (
-        f"题目：{q.question}\n\n"
+        f"{q_text}\n\n"
         f"以下是本次检索到的证据片段（只允许使用这些证据）：\n\n{evidence_text}\n\n"
         f"要求：\n"
         f"1. 只根据上述证据回答；证据不支持的结论不要写。\n"
@@ -77,7 +95,7 @@ def build_prompt_a2(q: Question, search_results: list[dict]) -> list[dict]:
     search_text = "\n".join(blocks) if blocks else "（搜索未返回可用结果）"
 
     user = (
-        f"题目：{q.question}\n\n"
+        f"{_question_text(q)}\n\n"
         f"以下是使用通用搜索工具获得的网页结果（只允许使用这些结果）：\n\n{search_text}\n\n"
         f"要求：\n"
         f"1. 只根据上述搜索结果回答；结果未覆盖的内容不要编造。\n"
@@ -100,7 +118,7 @@ def build_judge_prompt(q: Question, answer: str, rubric: dict) -> list[dict]:
         "只输出 JSON，不要解释。"
     )
     user = (
-        f"题目：{q.question}\n\n评分点：\n{key_points_text}\n\n"
+        f"{_question_text(q)}\n\n评分点：\n{key_points_text}\n\n"
         f"回答：\n{answer}\n\n"
         f'输出 JSON 格式：{{"verdicts": [{{"point": str, "decision": "supported|unsupported|missing"}}], '
         f'"relevance": 1-5, "completeness": 1-5, "faithfulness": 1-5, "correctness": 1-5, '

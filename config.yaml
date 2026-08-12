@@ -77,9 +77,10 @@ a2:
 paths:
   evidence: data/processed/evidence.jsonl
   wiki: data/processed/wiki
-  questions_dev: data/questions/dev8.jsonl
-  questions_formal: data/questions/formal12.jsonl
-  questions_stress: data/questions/stress_sample.jsonl   # STRESS 压力题（正式 20 题由 B2 冻结，当前为样例）
+  questions: test_set/questions.jsonl      # 正式主集（33 DEV + 77 TEST，B2 冻结；split 字段区分 dev/test）
+  questions_dev: data/questions/dev8.jsonl    # 演示样例（demo，不进正式指标）
+  questions_formal: data/questions/formal12.jsonl   # 演示样例（demo，不进正式指标）
+  questions_stress: test_set/stress_20.jsonl   # STRESS 正式 20 题（B2 冻结，C/E 预注册扰动）
   runs_dir: data/experiments/runs
   scores_dir: data/experiments/scores
   artifacts: artifacts

@@ -111,7 +111,7 @@ def judge_run(llm: LLMClient, q: Question, run: dict, judge_id: str,
 def main() -> None:
     ap = argparse.ArgumentParser(description="Run anonymized B5 judge scoring")
     ap.add_argument("--runs", required=True, help="Run JSONL path")
-    ap.add_argument("--questions", default="data/questions/formal12.jsonl")
+    ap.add_argument("--questions", default="test_set/questions.jsonl")
     ap.add_argument("--judges", nargs="+", default=["judge1", "judge2"])
     ap.add_argument("--model", default=None, help="Override judge model")
     ap.add_argument("--sample", type=float, default=1.0, help="Deterministic run sample ratio")

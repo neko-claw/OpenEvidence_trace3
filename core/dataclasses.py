@@ -42,6 +42,8 @@ class Question:
     answerable: bool | None = None
     as_of_date: str = ""
     source_group_id: str = ""
+    options: list[str] = field(default_factory=list)   # 选择题选项（固定顺序，生成/judge Prompt 均渲染）
+    expected_action: str = ""  # ANSWER | WARN | REFUSE（题目级动作声明，与检索难度解耦）
     extras: dict[str, Any] = field(default_factory=dict)  # 其余未识别字段保留，不丢弃
     rubric: dict[str, Any] = field(default_factory=dict)  # 关键回答点 + 扣分项
 

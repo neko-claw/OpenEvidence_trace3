@@ -34,9 +34,11 @@ from retrieval.index import EvidenceStore
 QUESTION_ALIASES = {
     "dev8": "questions_dev",
     "formal12": "questions_formal",
-    "stress": "questions_stress",
+    "stress": "questions_stress",     # 正式压力集：test_set/stress_20.jsonl（B2 冻结）
     "dev": "questions_dev",
     "formal": "questions_formal",
+    "testset": "questions",           # 正式主集：test_set/questions.jsonl（33 DEV + 77 TEST）
+    "test": "questions",
 }
 
 

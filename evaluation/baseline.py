@@ -102,6 +102,11 @@ def run_condition(q: Question, condition: str, cfg: Config,
     elif condition == "E":
         # 劣化派生（§6.2）：在 B/C 同源的 RRF 初检候选上按预注册规则派生（drop gold /
         # 降 top-k / 注入不支持证据 / 范围外+注入题），统一走 evaluation/stress.py。
+        # stress_20.json（B2 正式压力集）的 perturb_type → 预注册规则映射：
+        #   retrieval_damage        -> delete_gold_v1（= drop_all_gold_v1，删除 gold + 截断）
+        #   injected_unsupported    -> inject_polluted_v1（注入题目声明的 polluted_evidence_ids）
+        #   no_evidence_outscope    -> out_of_scope（题面承载，不改候选集）
+        #   malicious_injection_fake_id -> malicious_fake_id（提示注入/伪造 ID，不改候选集）
         base_evs, base_feats = store.retrieve(
             q.question, use_rerank=False, verbose=verbose, stats=stats,
             q_freshness=q.freshness)
@@ -109,9 +114,32 @@ def run_condition(q: Question, condition: str, cfg: Config,
             {**candidate, "evidence_id": candidate["doc_id"]}
             for candidate in stats.get("rrf_candidates", [])
         ]
+        q_dict = q.to_dict()
+        q_extra = q_dict.get("extras") or {}
+        q_rubric = q_dict.get("rubric") or {}
+        perturb_type = (
+            q_extra.get("perturb_type") or q_dict.get("perturb_type") or ""
+        )
+        rule_map = {
+            "retrieval_damage": "delete_gold_v1",
+            "injected_unsupported": "inject_polluted_v1",
+            "no_evidence_outscope": "out_of_scope",
+            "malicious_injection_fake_id": "malicious_fake_id",
+        }
+        declared_rule = (
+            q_extra.get("stress_rule")
+            or q_dict.get("stress_rule")
+            or q_rubric.get("stress_rule")
+        )
+        stress_rule = rule_map.get(perturb_type) or declared_rule or "drop_all_gold_v1"
+        polluted_ids = (
+            q_extra.get("polluted_evidence_ids")
+            or q_dict.get("polluted_evidence_ids")
+        )
         perturbed, manifest = apply_stress(
-            candidates, q.to_dict(), seed=seed,
+            candidates, q_dict, rule=stress_rule, seed=seed,
             final_k=cfg["retrieval"]["k_final"],
+            polluted_ids=polluted_ids,
         )
         top_evs = [
             evidence.to_dict()
@@ -124,7 +152,7 @@ def run_condition(q: Question, condition: str, cfg: Config,
         ]
         run.tool_trace.append({"tools": ["bm25", "vector", "rrf", "degrade"],
                                "derived_from": "rrf_candidates_shared_by_B_and_C",
-                               "perturbation": manifest.stress_rule,
+                               "perturbation": perturb_type or declared_rule or "",
                                "perturbation_executed": manifest.stress_rule,
                                "stress_manifest": manifest.to_dict(),
                                "retrieved": len(top_evs), "degraded": True,
