@@ -2,9 +2,13 @@
 
 本目录是赛道 3 使用的测试数据：**110 道唯一题 = 100 道公开基准题 + 10 道原始拒答题**。
 
+> **口径（2026-08-11 冻结）**：110 题 = 33 dev + 77 test，替代原 130 蓝图；见 `evaluation/blueprints/question_blueprint.json` v0.2.0。
+> 题集版本与完整性见 `dataset_manifest.json`（由 `scripts/build_question_manifest.py` 生成，含逐文件 SHA-256、split 统计和字段审计）。
+
 ## 文件说明
 
 - `questions_110.json`：110 题的合并单文件（推荐入口），包含划分、分类和文献标注。
+- `dataset_manifest.json`：题集级 DatasetManifest（版本、split 统计、来源/语言/字段审计、逐文件哈希）。
 - `questions_test.json`：100 道高血压/血脂相关公开基准题（DeepSeek 筛选、难度归一化和分档）。
 - `refusal_split.json`：10 道原始拒答/超范围题（REF-001～REF-010）。
 - `question_rag_split.jsonl`：110 题开发集/测试集划分（3:7）。
@@ -12,6 +16,7 @@
 - `question_literature_annotation.jsonl`：110 题 RAG 文献标注。
 - `question_literature_summary.json`：文献标注汇总。
 - `oracle_support_annotation.jsonl`：hard 题 oracle 检索支撑判定。
+- `field_annotation_review.jsonl`：topic / question_type 自动标注复核清单（待人工确认）。
 
 ## 划分与分类
 
@@ -30,17 +35,19 @@
 - 基础字段：`id`、`source`、`question`、`options`、`answer`、`answer_text`
 - 难度：`difficulty_raw`、`difficulty_norm1`、`difficulty`（0～100）、`difficulty_level`（1～4）
 - 划分与分类：`split`（dev/test）、`rag_category`（easy/hard/refusal）、`audit_status`（pass/corpus_only/fail）
-- 拒答字段（REF-* 题）：`answerable`、`expected_action`、`refusal_reason`、`note`
+- 蓝图字段：`topic`、`language`、`question_type`、`as_of_date`、`source_provenance`、`source_group_id`、`rubric_version`、`dataset_pack`（已补；topic/question_type 为自动标注，待按 `field_annotation_review.jsonl` 复核）
+- 拒答字段（全部 59 道 refusal 题）：`answerable`、`expected_action`、`refusal_reason`、`refusal_evidence_status`、`refusal_annotation`；49 道自动标注清单见 `refusal_auto_annotation_review.jsonl`（待人工复核）
 - 文献标注：
   - `literature_used`：RAG 检索命中的文章级文献（PMID/PMCID/EPMC/指南/维基）
   - `supported_evidence`：judge 判定支撑的证据（含维基、试验等）
   - `supported_literature`：支撑证据中的文献部分（维基百科可接受）
   - `candidate_literature`：hard 题待优化引入的候选文献
-  - `gold_literature`：最终可接受文献（= supported + 题面 PMID，已确认）
+  - `gold_source_ids`：最终可接受文献的正式字段（= gold_literature；refusal 题为空列表）
+  - `gold_literature`：兼容别名，与 `gold_source_ids` 同值（已确认）
   - `gold_verified`：是否已确认（true/false）
   - `evidence_retrieved`：RAG 原始命中的全部证据 ID
 
-规则：easy/hard 的 `supported_literature` 非空；refusal 的 supported/gold 一律为 `null`。
+规则：easy/hard 的 `supported_literature` 非空；refusal 的 supported/gold_source_ids 为空。
 
 ## 再生脚本
 

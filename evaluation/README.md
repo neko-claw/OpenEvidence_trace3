@@ -8,7 +8,7 @@
 | 文件 | 内容 | 对应协议章节 |
 |---|---|---|
 | `../docs/experiment_protocol.md` | 实验协议（A/A2/B/C/D/E 定义、7 条公平性铁律、预注册、版本冻结、验收清单） | §1-§8 |
-| `blueprints/question_blueprint.json` | 130 题蓝图（DEV30/TEST60/STRESS20/EXTERNAL10/RESERVE10、分层、来源分布、隔离规则） | §3 |
+| `blueprints/question_blueprint.json` | 110 题蓝图（DEV33/TEST77；STRESS/EXTERNAL/RESERVE 待交付、分层、来源分布、隔离规则） | §3 |
 | `schemas/run.schema.json` | Run 记录契约（JSON Schema draft-07） | §6 |
 | `schemas/score.schema.json` | Score 评分契约（JSON Schema draft-07） | §6 |
 | `experiment_config.json` | 配置清单（模型、K 参数、rerank 权重、门禁阈值、预算；v0.1 起始值） | §5 |
@@ -32,3 +32,14 @@ python evaluation/make_fixtures.py   # 从 evidence.db 确定性抽样
 - [x] 20 条 Evidence fixture + 10 条样例题可用
 - [x] D 条件结论仅解释为“组件包整体增量”（协议 §1 H3 / §7）
 - [x] 公平性控制 7 条铁律（协议 §2）
+
+## 统一题集加载入口
+
+运行时默认读取 `config.yaml -> paths.questions`（`test_set/questions_110.json`），
+并保留 `split` 字段分层：
+
+```bash
+python -m evaluation.experiment --questions test_set --split dev    # dev 33 题
+python -m evaluation.experiment --questions test_set --split test   # test 77 题
+python -m evaluation.experiment --questions test_set --split all    # 全部 110 题
+```

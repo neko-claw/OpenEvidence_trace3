@@ -62,9 +62,25 @@ def unsupported_claim_rate(claims: list[dict]) -> float:
     return 1.0 - claim_support_rate(claims) if claims else 1.0
 
 
-def abstention_quality(question_type: str, decision: str) -> float:
-    """证据不足题合理拒答得 1；证据充分题误拒答得 0；否则 0.5"""
-    if question_type == "insufficient":
+def abstention_quality(expected_action: str, decision: str) -> float:
+    """拒答质量：期望动作与模型决策一致得 1，否则 0。
+
+    优先按 expected_action（REFUSE / WARN / PASS）判分：
+    - 期望 REFUSE：模型 REFUSE 得 1；
+    - 期望 WARN（如证据冲突题）：模型 WARN 得 1；
+    - 期望 PASS：模型 PASS 得 1。
+
+    兼容旧调用：传入 question_type（insufficient / 其他）时按旧语义回退，
+    即 insufficient 期望 REFUSE，其余期望 PASS。
+    """
+    expected = (expected_action or "").upper()
+    if expected == "REFUSE":
         return 1.0 if decision == "REFUSE" else 0.0
-    else:
+    if expected == "WARN":
+        return 1.0 if decision == "WARN" else 0.0
+    if expected == "PASS":
         return 1.0 if decision == "PASS" else 0.0
+    if expected in ("INSUFFICIENT", "INSUFFICIENT_CONFLICT_OUT_OF_SCOPE"):
+        return 1.0 if decision == "REFUSE" else 0.0
+    # 旧 question_type 语义兜底：非证据不足题期望正常作答
+    return 1.0 if decision == "PASS" else 0.0

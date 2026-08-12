@@ -1,0 +1,175 @@
+{
+  "dataset_version": "v0.1.0",
+  "questionset_id": "OpenEvidence-track3-test-set-110-v0.1.0",
+  "created_at": "2026-08-12T04:31:59.006182+00:00",
+  "corpus_cutoff": "2026-08-11",
+  "schema_version": "question_blueprint.json v0.2.0（14 个必填字段）",
+  "blueprint_ref": "evaluation/blueprints/question_blueprint.json",
+  "source": {
+    "canonical_file": "test_set/questions_110.json",
+    "generation_scripts": [
+      "scripts/build_dev_test_split.py",
+      "scripts/annotate_question_literature.py",
+      "scripts/annotate_question_fields.py",
+      "scripts/build_questions_110.py",
+      "scripts/build_scoring_guide.py"
+    ]
+  },
+  "split_counts": {
+    "dev": 33,
+    "test": 77,
+    "total": 110
+  },
+  "record_counts": {
+    "questions": 110,
+    "by_rag_category": {
+      "hard": 12,
+      "refusal": 59,
+      "easy": 39
+    },
+    "by_difficulty_level": {
+      "3": 32,
+      "2": 47,
+      "1": 20,
+      "4": 1,
+      "null": 10
+    },
+    "by_source": {
+      "MIRAGE/medqa": 19,
+      "MIRAGE/medmcqa": 30,
+      "MIRAGE/pubmedqa": 2,
+      "MIRAGE/bioasq": 2,
+      "MIRAGE/mmlu": 5,
+      "MedQA-USMLE/train": 28,
+      "MedQA-USMLE/dev": 3,
+      "MedExpQA/en-train": 8,
+      "MedExpQA/en-dev": 1,
+      "MedExpQA/en-test": 2,
+      "ORIGINAL_REFUSAL": 10
+    },
+    "by_topic": {
+      "hypertension": 62,
+      "dyslipidemia": 32,
+      "unknown": 16
+    },
+    "by_question_type": {
+      "guideline_treatment": 10,
+      "insufficient_conflict_out_of_scope": 59,
+      "unknown": 23,
+      "stable_knowledge_mechanism": 17,
+      "latest_research_trial": 1
+    },
+    "by_language_field": {
+      "en": 100,
+      "zh": 10
+    },
+    "by_language_content_audit": {
+      "en": 100,
+      "zh": 10
+    },
+    "by_dataset_pack": {
+      "TEST": 77,
+      "DEV": 33
+    },
+    "by_source_provenance": {
+      "public_benchmark": 100,
+      "human_teacher": 10
+    },
+    "topic_tags_non_empty": 35,
+    "by_topic_tag": {
+      "cardiovascular": 3,
+      "hypertension": 22,
+      "lipid": 22
+    },
+    "as_of_date_non_empty": 110,
+    "rubric_version_non_empty": 110,
+    "source_group_id_non_empty": 110,
+    "gold_source_ids_non_empty": 51,
+    "gold_literature_non_empty": 51
+  },
+  "source_group_policy": "同源改写共享 source_group_id（当前暂以原始题 ID 为同源组，翻译/改写待合并）",
+  "dedup_method": "id 唯一 + 文本/embedding 聚类检查近义重复（source_group_id 暂为原始题 ID，改写合并待补）",
+  "dedup_threshold": null,
+  "licenses": "公开基准题（MIRAGE/MedQA-USMLE/MedExpQA）许可证需在正式冻结前逐源核验并回填",
+  "storage_layout": {
+    "questions_110.json": "合并题集（推荐入口）：110 道题 + 划分 + 文献标注",
+    "questions_test.json": "100 道公开基准题（构建中间产物）",
+    "questions_test.jsonl": "questions_test.json 的 JSONL 形式",
+    "refusal_split.json": "10 道原始拒答题（REF-001 ~ REF-010）",
+    "question_rag_split.jsonl": "110 题 dev/test 划分（3:7）",
+    "question_rag_split_summary.json": "划分汇总",
+    "question_literature_annotation.jsonl": "110 题 RAG 文献标注",
+    "question_literature_summary.json": "文献标注汇总",
+    "oracle_support_annotation.jsonl": "hard 题 oracle 检索支撑判定",
+    "field_annotation_review.jsonl": "topic/question_type 自动标注复核清单",
+    "scoring_guide.json": "评分指南（draft，待人工冻结）",
+    "scoring_guide.md": "评分指南可读版（draft）"
+  },
+  "split_hashes": {
+    "questions_110.json": "056d863db268c796fbb334843c084813ef3e5c4fb8e9c49684d1088a01b4a8fd",
+    "questions_test.json": "75e0d822c1294abee7614246daa0fd88e1fb42b59c3cc73eee5e25c859295d8e",
+    "questions_test.jsonl": "b51d58f28da7294865b61e5ecfdde32cf96defb6a4f6bb575042121102958dcd",
+    "refusal_split.json": "d9421222104e889c653b2034970fae9d5bf29873340cd33a9a2cacd1758de4d7",
+    "question_rag_split.jsonl": "aba4360fe92c385928e7021ae3082abe7484d90771b8a376d55931244356c9a3",
+    "question_rag_split_summary.json": "774d44cf4779cbcdfd52766442a50925a6e66e702d615cd7b2477700e9bb3028",
+    "question_literature_annotation.jsonl": "9a45095ca3be68ed7699c9d91e5ad21412b23cc27431629255efc1fb7cc0c87c",
+    "question_literature_summary.json": "4366cb4a49819fc40edb6bfeabcdc2945e898543f161b0f02e57f889e2cb31f8",
+    "oracle_support_annotation.jsonl": "37f45d8f1def88592e5c5b642db8eee01831ba8455fa3dacae0cd50b34f789d3",
+    "field_annotation_review.jsonl": "45867ab96bcf5c8792747cbaf01e14fbc085fe9e25629250b610d6cffdd61179",
+    "scoring_guide.json": "0d9ed4fef82b500155ca50812f868dddffb693c004d863658c8d7b026388267f",
+    "scoring_guide.md": "4dda8bcc6df2a4ce930be0de1c5f81e4a875f96a4a14d2323f22ab8fbf46de8f"
+  },
+  "field_audit": {
+    "required_field_count": 14,
+    "present_in_all": [
+      "id",
+      "split",
+      "dataset_pack",
+      "topic",
+      "language",
+      "question",
+      "question_type",
+      "as_of_date",
+      "source_provenance",
+      "source_group_id",
+      "gold_source_ids",
+      "rubric_version"
+    ],
+    "missing_in_all": [],
+    "partial": {
+      "difficulty": {
+        "present": 100,
+        "total": 110
+      },
+      "answerable": {
+        "present": 59,
+        "total": 110
+      }
+    }
+  },
+  "refusal_audit": {
+    "refusal_total": 59,
+    "ref_items": 10,
+    "answerable_status": {
+      "False": 58,
+      "True": 1
+    },
+    "refusal_reason": {
+      "no_evidence": 52,
+      "out_of_scope": 3,
+      "conflict": 1,
+      "injection": 2,
+      "empty_result": 1
+    },
+    "refusal_evidence_status": {
+      "hits_unsupported": 52,
+      "out_of_scope": 3,
+      "conflict": 1,
+      "injection": 2,
+      "empty_result": 1
+    },
+    "note": "59/59 refusal 已标注；自动标注部分（hits_unsupported）待人工复核"
+  },
+  "pipeline": "python scripts/build_question_manifest.py",
+  "generator": "scripts.build_question_manifest"
+}

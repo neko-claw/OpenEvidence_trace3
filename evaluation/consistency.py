@@ -26,6 +26,7 @@ from pathlib import Path
 
 from core.config import load_config
 from core.dataclasses import Run, load_jsonl
+from evaluation.questions import load_question_records
 
 # 参与配对对比的"检索条件"（引用 / 语料必须一致）
 RETRIEVAL_CONDITIONS = ("B", "C", "D", "E")
@@ -38,13 +39,15 @@ def _load_runs(path: str) -> list[Run]:
 
 
 def _load_question_splits(q_path: str | None) -> dict[str, str]:
-    """返回 question_id -> split（默认 'test'；路径含 stress 时标注）。"""
+    """返回 question_id -> split（优先取题集字段；旧 JSONL 按路径是否含 stress 回退）。"""
     if not q_path:
         return {}
     splits: dict[str, str] = {}
-    for d in load_jsonl(q_path):
+    path_text = str(q_path).lower()
+    for d in load_question_records(q_path):
         qid = d.get("id", "")
-        splits[qid] = "stress" if "stress" in str(q_path).lower() else "test"
+        splits[qid] = str(d.get("split") or (
+            "stress" if "stress" in path_text else "test"))
     return splits
 
 
@@ -175,14 +178,16 @@ def audit_runs(runs: list[Run], q_splits: dict[str, str] | None = None,
 def main() -> None:
     ap = argparse.ArgumentParser(description="B3 副责：B4 输入一致性 + 搜索预算交叉复核")
     ap.add_argument("--runs", required=True, help="runs JSONL 路径")
-    ap.add_argument("--questions", default=None, help="题集 JSONL（用于 STRESS split 判定）")
+    ap.add_argument("--questions", default=None,
+                    help="题集 .json/.jsonl 路径（默认取 config paths.questions）")
     ap.add_argument("--out", default=None, help="报告输出 JSON 路径")
     ap.add_argument("--strict", action="store_true", help="存在任何 error 即退出码 1")
     args = ap.parse_args()
 
     cfg = load_config()
     runs = _load_runs(args.runs)
-    q_splits = _load_question_splits(args.questions)
+    q_path = args.questions or str(cfg.path("questions"))
+    q_splits = _load_question_splits(q_path)
     report = audit_runs(runs, q_splits, a2_budget=cfg.get("a2", {}))
 
     s = report["summary"]

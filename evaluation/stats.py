@@ -13,6 +13,7 @@ import numpy as np
 
 from core.config import load_config
 from core.dataclasses import load_jsonl
+from evaluation.questions import load_question_records
 
 
 def _metric(s: dict, key: str) -> float | None:
@@ -110,11 +111,13 @@ def report(scores: list[dict], questions: list[dict] | None = None) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", required=True)
-    ap.add_argument("--questions", default="data/questions/formal12.jsonl")
+    ap.add_argument("--questions", default=None,
+                    help="题集 .json/.jsonl 路径（默认取 config paths.questions）")
     args = ap.parse_args()
     cfg = load_config()
     scores = load_jsonl(args.scores)
-    questions = load_jsonl(args.questions)
+    q_path = args.questions or str(cfg.path("questions"))
+    questions = load_question_records(q_path)
     print(report(scores, questions))
 
 

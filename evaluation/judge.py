@@ -15,6 +15,7 @@ from pathlib import Path
 from core.config import load_config
 from core.dataclasses import Question, Score, load_jsonl, save_jsonl
 from core.llm import LLMClient
+from evaluation.questions import load_questions
 from generation import prompts
 
 
@@ -61,7 +62,8 @@ def judge_run(llm: LLMClient, q: Question, run: dict, judge_id: str,
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", required=True, help="runs JSONL 路径")
-    ap.add_argument("--questions", default="data/questions/formal12.jsonl")
+    ap.add_argument("--questions", default=None,
+                    help="题集 .json/.jsonl 路径（默认取 config paths.questions）")
     ap.add_argument("--judges", nargs="+", default=["judge1", "judge2"],
                     help="judge 数量（多 judge 交叉评分）")
     ap.add_argument("--model", default=None, help="覆盖 judge 模型（建议与生成模型不同）")
@@ -71,7 +73,8 @@ def main() -> None:
     cfg = load_config()
     llm = LLMClient(cfg["llm"])
     model = args.model or cfg["llm"].get("judge_model")
-    qs = {q["id"]: Question.from_dict(q) for q in load_jsonl(args.questions)}
+    q_path = args.questions or str(cfg.path("questions"))
+    qs = {q.id: q for q in load_questions(q_path)}
     runs = load_jsonl(args.runs)
 
     ts = time.strftime("%Y%m%d_%H%M%S")

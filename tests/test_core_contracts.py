@@ -48,6 +48,13 @@ def test_abstention_quality():
     assert abstention_quality("insufficient", "REFUSE") == 1.0
     assert abstention_quality("guideline", "REFUSE") == 0.0
     assert abstention_quality("guideline", "PASS") == 1.0
+    # expected_action 语义：REFUSE / WARN / PASS
+    assert abstention_quality("REFUSE", "REFUSE") == 1.0
+    assert abstention_quality("REFUSE", "PASS") == 0.0
+    assert abstention_quality("WARN", "WARN") == 1.0
+    assert abstention_quality("WARN", "PASS") == 0.0
+    assert abstention_quality("PASS", "PASS") == 1.0
+    assert abstention_quality("PASS", "REFUSE") == 0.0
 
 
 def test_extract_citations():

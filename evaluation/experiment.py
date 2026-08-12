@@ -1,7 +1,9 @@
 """一键实验运行器：A/A2/B/C/D/E 批量跑题，随机条件顺序 + 全量 JSONL 留痕
 
 用法：
-  python -m evaluation.experiment                        # 正式题 12 道 × A/B/C/D
+  python -m evaluation.experiment                        # 统一题集 110 道 × A/B/C/D
+  python -m evaluation.experiment --questions test_set --split dev   # 只跑 dev 33 题
+  python -m evaluation.experiment --questions test_set --split test  # 只跑 test 77 题
   python -m evaluation.experiment --questions dev8      # 开发题
   python -m evaluation.experiment --conditions A A2 B C D      # 含 A2 通用搜索对照
   python -m evaluation.experiment --questions stress --conditions C E   # STRESS 压力题 C/E（E 为 P0 必做）
@@ -25,13 +27,16 @@ import uuid
 from pathlib import Path
 
 from core.config import Config, load_config
-from core.dataclasses import Question, Run, load_jsonl, save_jsonl
+from core.dataclasses import Question, Run, save_jsonl
 from core.llm import LLMClient, OfflineLLM
 from evaluation.baseline import run_condition
+from evaluation.questions import load_questions as load_questions_unified
 from generation.citation_check import split_claims
 from retrieval.index import EvidenceStore
 
 QUESTION_ALIASES = {
+    "test_set": "questions",
+    "110": "questions",
     "dev8": "questions_dev",
     "formal12": "questions_formal",
     "stress": "questions_stress",
@@ -56,14 +61,14 @@ def compute_config_hash(cfg: Config) -> str:
 
 
 def resolve_questions_path(cfg: Config, questions: str) -> Path:
-    """题集路径：支持别名（dev8/formal12/stress/dev/formal）或任意 .jsonl 路径。"""
+    """题集路径：支持别名（test_set/110/dev8/formal12/stress/dev/formal）或任意 .json/.jsonl 路径。"""
     if questions in QUESTION_ALIASES:
         return cfg.path(QUESTION_ALIASES[questions])
     p = Path(questions)
-    if p.suffix == ".jsonl" and p.exists():
+    if p.suffix in (".json", ".jsonl") and p.exists():
         return p.resolve()
     raise FileNotFoundError(
-        f"未知题集: {questions}（可用别名 dev8/formal12/stress，或直接传 .jsonl 路径）")
+        f"未知题集: {questions}（可用别名 test_set/110/dev8/formal12/stress，或直接传 .json/.jsonl 路径）")
 
 
 def resolve_conditions(cfg: Config, args) -> list[str]:
@@ -75,13 +80,6 @@ def resolve_conditions(cfg: Config, args) -> list[str]:
     if not conds:
         raise ValueError("条件列表为空")
     return conds
-
-
-def load_questions(path: str, limit: int | None = None) -> list[Question]:
-    qs = [Question.from_dict(d) for d in load_jsonl(path)]
-    if limit:
-        qs = qs[:limit]
-    return qs
 
 
 def run_experiment(cfg: Config, questions: list[Question], conditions: list[str],
@@ -136,8 +134,10 @@ def run_experiment(cfg: Config, questions: list[Question], conditions: list[str]
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="赛道3 实验运行器（B3 基线与批量运行）")
-    ap.add_argument("--questions", default="formal12",
-                    help="题集：dev8/formal12/stress 别名，或 .jsonl 路径")
+    ap.add_argument("--questions", default="test_set",
+                    help="题集：test_set/110/dev8/formal12/stress 别名，或 .json/.jsonl 路径")
+    ap.add_argument("--split", choices=["dev", "test", "all"], default="all",
+                    help="保留 dev/test 分层：只跑 dev、test 或全部（默认 all）")
     ap.add_argument("--conditions", nargs="+", default=None,
                     help="默认取 config evaluation.conditions；可显式传 A A2 B C D E")
     ap.add_argument("--include-a2", action="store_true",
@@ -155,8 +155,8 @@ def main() -> None:
 
     cfg = load_config()
     q_path = resolve_questions_path(cfg, args.questions)
-    questions = load_questions(str(q_path), limit=args.limit)
-    print(f"题集: {q_path} ({len(questions)} 道)")
+    questions = load_questions_unified(str(q_path), split=args.split, limit=args.limit)
+    print(f"题集: {q_path} (split={args.split}, {len(questions)} 道)")
 
     store = None
     if not args.no_retrieval:

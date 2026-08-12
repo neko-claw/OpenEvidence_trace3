@@ -209,6 +209,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Hyperlipidemia#4"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0087",
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -241,9 +256,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40494589",
@@ -365,6 +380,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0243",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -403,9 +436,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40357888",
@@ -520,6 +553,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0405",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -552,9 +603,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40264627",
@@ -693,6 +744,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0407",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -894,6 +963,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Thiazide#1",
+        "wikipedia:Thiazide#2"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0438",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -1066,6 +1151,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:ACE inhibitor#3",
+        "wikipedia:Angiotensin II receptor blocker#1"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0516",
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -1233,6 +1334,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Aldosterone antagonist#2"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0553",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -1269,9 +1385,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40264627",
@@ -1395,6 +1511,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0690",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -1560,6 +1694,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "epmc:PPR1252823"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0718",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -1594,9 +1743,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "pmid:29863317",
@@ -1739,6 +1888,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0813",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -1768,9 +1935,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:PPR1252823",
@@ -1890,6 +2057,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0836",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -1919,9 +2104,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:38558663",
@@ -2051,6 +2236,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0859",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -2080,9 +2283,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40812702",
@@ -2217,6 +2420,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0862",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -2249,9 +2470,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40264627",
@@ -2380,6 +2601,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "1050",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -2409,9 +2648,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:39394512",
@@ -2554,6 +2793,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "1164",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -2728,6 +2985,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:42222121"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "1180",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -2758,9 +3030,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:41739843",
@@ -2878,6 +3150,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "1266",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -3041,6 +3331,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Apolipoprotein B#1",
+        "wikipedia:LDL receptor#1"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "b5a8425a-1ddf-41e1-9ffa-c2088ce2897e",
+      "topic": "dyslipidemia",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -3070,9 +3376,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40486565",
@@ -3206,6 +3512,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "f87f02ae-e248-473d-9a03-5a866b0dfbee",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -3371,6 +3695,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:41519389"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "9c7e163e-d22f-43d9-8c77-fb036bc0b064",
+      "topic": "dyslipidemia",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -3558,6 +3897,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Familial hypercholesterolemia#3"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "cf3f103b-e4d8-4f34-86aa-b69f3b31fe55",
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -3587,9 +3941,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "pmid:32350167",
@@ -3721,6 +4075,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "1a31abe7-fbc1-41bc-b42d-fab66edfef39",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -3906,6 +4278,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Familial hypercholesterolemia#3",
+        "wikipedia:Hyperlipidemia#2"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "2e4f5929-8c85-4561-9656-44bc930b581b",
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -4076,6 +4464,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Very low-density lipoprotein#1"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "dd032c3c-d1fc-42c9-bdbf-09d5fcef74fd",
+      "topic": "dyslipidemia",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -4105,9 +4508,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40264627",
@@ -4241,6 +4644,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "215befbd-3775-40ea-b2e5-6537ba16ff86",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -4420,6 +4841,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:ACE inhibitor#2",
+        "wikipedia:Antihypertensive drug#6",
+        "wikipedia:Enalapril#1"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "89e4fd81-0a6a-4702-8229-b393fcf8bf91",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -4579,6 +5017,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Very low-density lipoprotein#1"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "297ab88f-0697-406b-8994-332269314289",
+      "topic": "dyslipidemia",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -4755,6 +5208,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:22825590"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "22825590",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -4914,6 +5382,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:17971187"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "17971187",
+      "topic": "dyslipidemia",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -5081,6 +5564,26 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:11878947",
+        "pmid:12917635",
+        "pmid:15283144",
+        "pmid:16652154",
+        "pmid:23909929",
+        "pmid:28611443"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "623a24d6f0baec9a1b000002",
+      "topic": "dyslipidemia",
+      "question_type": "guideline_treatment",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -5110,9 +5613,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "pmid:22895943",
@@ -5238,6 +5741,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "clinical_knowledge-254",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -5406,6 +5927,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:41616414"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medical_genetics-032",
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -5438,9 +5974,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:41089589",
@@ -5574,6 +6110,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "professional_medicine-105",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -5603,9 +6157,9 @@
       ],
       "hypertension_lipid_only": true,
       "pmid": [],
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:38026295",
@@ -5729,6 +6283,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "professional_medicine-202",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "derived"
       }
     },
     {
@@ -5913,6 +6485,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Blood pressure#5",
+        "wikipedia:Home blood pressure monitoring#5"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "professional_medicine-217",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "from_tags",
+        "question_type_status": "auto"
       }
     },
     {
@@ -6088,6 +6676,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Hyperlipidemia#2"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0157",
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -6269,6 +6872,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:42387456"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "1110",
+      "topic": "unknown",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -6294,9 +6912,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "pmid:32332433",
@@ -6434,6 +7052,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0e7917ea-310b-4477-9897-f4901f728448",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -6459,9 +7095,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40885400",
@@ -6605,6 +7241,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "93b48788-a643-45c3-ad41-304738ff6f55",
+      "topic": "unknown",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "derived"
       }
     },
     {
@@ -6764,6 +7418,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Thiazide#1"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "b8621196-05ba-414e-a112-0b48be3fcd7c",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -6940,6 +7609,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Low-density lipoprotein#1"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "714eb700-67f2-4ce9-ab0d-ffdf8660ac08",
+      "topic": "unknown",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "auto"
       }
     },
     {
@@ -6965,9 +7649,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:PMC13297643",
@@ -7091,6 +7775,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0cd0e1c4-aabe-4ac3-ae2b-83b0633cb376",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -7257,6 +7959,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Intermediate-density lipoprotein#1"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "23d04e70-f243-4c16-a7c4-827051a5b62b",
+      "topic": "dyslipidemia",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -7282,9 +7999,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "pmid:29171361",
@@ -7417,6 +8134,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "4eef4a6b-af8e-4472-9caa-95c1f1a415c8",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -7592,6 +8327,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:42273920",
+        "wikipedia:Cholesterol#5"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "3a3e9d0e-cf13-4d9c-971f-f9d5cb902994",
+      "topic": "unknown",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -7767,6 +8518,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Beta blocker#5"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "0489f20c-a0ce-4251-9eec-e8d5e691a49e",
+      "topic": "unknown",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -7944,6 +8710,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Beta blocker#5"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "41a7eb65-1e8e-46ee-8d9a-8544101fe4db",
+      "topic": "unknown",
+      "question_type": "guideline_treatment",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "auto"
       }
     },
     {
@@ -8119,6 +8900,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Chylomicron#2",
+        "wikipedia:Chylomicron#3"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "b3278b6a-2f6e-4a05-87c1-18772ca70c83",
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -8144,9 +8941,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:39394512",
@@ -8269,6 +9066,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "5d0bb1e6-fa95-47e6-811e-abeb5a025ce6",
+      "topic": "unknown",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "derived"
       }
     },
     {
@@ -8294,9 +9109,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40612568",
@@ -8422,6 +9237,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "8654832a-f650-4836-82ba-cc59f14e1bb9",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -8577,6 +9410,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "epmc:PMC12883115",
+        "wikipedia:Antihypertensive drug#5"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "e995894b-0611-4ae2-ae1f-0d35025845ae",
+      "topic": "unknown",
+      "question_type": "guideline_treatment",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "auto"
       }
     },
     {
@@ -8746,6 +9595,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Pre-eclampsia#6"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "1ea823e8-1b70-4820-96e1-c46d5fd23885",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -8771,9 +9635,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:41361824",
@@ -8911,6 +9775,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "a20495a2-6aba-40db-b41b-fb328e3a8d00",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -9084,6 +9966,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Beta blocker#5"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "57b1ba32-ffad-47ac-b906-d1b6dbca3bc6",
+      "topic": "unknown",
+      "question_type": "guideline_treatment",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "auto"
       }
     },
     {
@@ -9248,6 +10145,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Cholesterol#7",
+        "wikipedia:Hypercholesterolemia#4"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "c78509b1-d4e3-473c-9020-3a9dc70e5c97",
+      "topic": "unknown",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -9414,6 +10327,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:ACE inhibitor#2"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "f608b3a8-f9f0-4096-af64-3fe43798a70f",
+      "topic": "unknown",
+      "question_type": "guideline_treatment",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "auto"
       }
     },
     {
@@ -9439,9 +10367,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40965887",
@@ -9562,6 +10490,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "4682d46d-f791-48cc-ac4d-b2a73fbb18c4",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -9731,6 +10677,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:25157031",
+        "wikipedia:Apolipoprotein A-I#2"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "5c895cf0f9c2ba6b28000001",
+      "topic": "dyslipidemia",
+      "question_type": "latest_research_trial",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -9756,9 +10718,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:38829618",
@@ -9887,6 +10849,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-00630",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -9912,9 +10892,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "pmid:29863317",
@@ -10045,6 +11025,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-00782",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -10070,9 +11068,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "pmid:39040034",
@@ -10207,6 +11205,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-01389",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -10232,9 +11248,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:38756738",
@@ -10363,6 +11379,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-01657",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -10529,6 +11563,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Fibrate#1"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-01779",
+      "topic": "dyslipidemia",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -10554,9 +11603,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40357888",
@@ -10680,6 +11729,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-01827",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -10705,9 +11772,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:39394512",
@@ -10827,6 +11894,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-01909",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -10852,9 +11937,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:42180567",
@@ -10969,6 +12054,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-02152",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -11130,6 +12233,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:41052300"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-02266",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -11267,6 +12385,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:ACE inhibitor#4"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-02756",
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -11292,9 +12425,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:42111756",
@@ -11426,6 +12559,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-02832",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -11451,9 +12602,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:39394512",
@@ -11577,6 +12728,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-02901",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -11602,9 +12771,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "pmid:38888905",
@@ -11731,6 +12900,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-04650",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -11899,6 +13086,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Obstructive sleep apnea#1",
+        "wikipedia:Obstructive sleep apnea#15"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-05202",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -12062,6 +13265,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Lisinopril#1"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-05334",
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -12087,9 +13305,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:PPR1252823",
@@ -12219,6 +13437,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-05346",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -12392,6 +13628,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Apolipoprotein B#2",
+        "wikipedia:Statin#1"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-06604",
+      "topic": "dyslipidemia",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -12417,9 +13669,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:41795889",
@@ -12544,6 +13796,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-06792",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -12697,6 +13967,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Labetalol#1",
+        "wikipedia:Lisinopril#1"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-06927",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -12722,9 +14008,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:40201316",
@@ -12859,6 +14145,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-07858",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -12884,9 +14188,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:41103684",
@@ -13009,6 +14313,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-08100",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -13178,6 +14500,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:41390616",
+        "wikipedia:Hypertensive emergency#3",
+        "wikipedia:Labetalol#1"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-08428",
+      "topic": "hypertension",
+      "question_type": "guideline_treatment",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -13203,9 +14542,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:42195397",
@@ -13330,6 +14669,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-08497",
+      "topic": "unknown",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "derived"
       }
     },
     {
@@ -13355,9 +14712,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:PPR1247429",
@@ -13490,6 +14847,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-08597",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -13664,6 +15039,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:41658788"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-09153",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -13809,6 +15199,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Hydrochlorothiazide#1"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-09655",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -13834,9 +15239,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:PMC12984902",
@@ -13961,6 +15366,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-09794",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -13986,9 +15409,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:38829618",
@@ -14113,6 +15536,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-train-train-10034",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -14277,6 +15718,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:42204798"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-dev-dev-00182",
+      "topic": "dyslipidemia",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -14436,6 +15892,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:41356982"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-dev-dev-00534",
+      "topic": "hypertension",
+      "question_type": "stable_knowledge_mechanism",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "auto"
       }
     },
     {
@@ -14461,9 +15932,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "pmid:11470017",
@@ -14595,6 +16066,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medqa-usmle-dev-dev-01166",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -14621,9 +16110,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:41739843",
@@ -14769,6 +16258,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-train-304-174",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -14795,9 +16302,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:PPR1247429",
@@ -14939,6 +16446,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-train-166-82",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -14965,9 +16490,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:MED:41739843",
@@ -15108,6 +16633,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-train-305-174",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -15134,9 +16677,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:PMC13292179",
@@ -15270,6 +16813,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-train-104-91",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -15296,9 +16857,9 @@
       "matched_keywords": null,
       "hypertension_lipid_only": true,
       "pmid": null,
-      "answerable": null,
-      "expected_action": null,
-      "refusal_reason": null,
+      "answerable": false,
+      "expected_action": "REFUSE",
+      "refusal_reason": "no_evidence",
       "note": null,
       "literature_used": [
         "epmc:PMC13295746",
@@ -15429,6 +16990,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "auto",
+        "note": "检索命中但均不支持（supported_literature 为空），待人工复核"
+      },
+      "gold_source_ids": [],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-train-103-89",
+      "topic": "unknown",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "derived"
       }
     },
     {
@@ -15600,6 +17179,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Masked hypertension#1"
+      ],
+      "language": "en",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-train-528-134",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -15759,6 +17353,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Hypertensive disease of pregnancy#2"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-train-356-166",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -15917,6 +17526,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Hypertensive disease of pregnancy#2"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-train-355-166",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -16073,6 +17697,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "wikipedia:Hypertensive disease of pregnancy#2"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-dev-354-166",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -16265,6 +17904,21 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:42259571"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-test-564-126",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -16454,6 +18108,22 @@
           "normal",
           "oracle"
         ]
+      },
+      "gold_source_ids": [
+        "pmid:41356982",
+        "pmid:42259571"
+      ],
+      "language": "en",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "public_benchmark",
+      "source_group_id": "medexpqa-en-test-548-126",
+      "topic": "hypertension",
+      "question_type": "unknown",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "unknown"
       }
     },
     {
@@ -16581,6 +18251,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "out_of_scope",
+      "refusal_annotation": {
+        "status": "manual"
+      },
+      "gold_source_ids": [],
+      "language": "zh",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "human_teacher",
+      "source_group_id": "REF-001",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -16725,6 +18412,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "out_of_scope",
+      "refusal_annotation": {
+        "status": "manual"
+      },
+      "gold_source_ids": [],
+      "language": "zh",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "human_teacher",
+      "source_group_id": "REF-002",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -16864,6 +18568,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "out_of_scope",
+      "refusal_annotation": {
+        "status": "manual"
+      },
+      "gold_source_ids": [],
+      "language": "zh",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "human_teacher",
+      "source_group_id": "REF-003",
+      "topic": "unknown",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "derived"
       }
     },
     {
@@ -17000,6 +18721,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "manual"
+      },
+      "gold_source_ids": [],
+      "language": "zh",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "human_teacher",
+      "source_group_id": "REF-004",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -17140,6 +18878,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "manual"
+      },
+      "gold_source_ids": [],
+      "language": "zh",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "human_teacher",
+      "source_group_id": "REF-005",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -17268,6 +19023,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "hits_unsupported",
+      "refusal_annotation": {
+        "status": "manual"
+      },
+      "gold_source_ids": [],
+      "language": "zh",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "human_teacher",
+      "source_group_id": "REF-006",
+      "topic": "unknown",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "derived"
       }
     },
     {
@@ -17408,6 +19180,24 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "conflict",
+      "refusal_annotation": {
+        "status": "manual",
+        "note": "有意设计：冲突证据题期望 WARN 而非 REFUSE"
+      },
+      "gold_source_ids": [],
+      "language": "zh",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "human_teacher",
+      "source_group_id": "REF-007",
+      "topic": "hypertension",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -17534,6 +19324,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "injection",
+      "refusal_annotation": {
+        "status": "manual"
+      },
+      "gold_source_ids": [],
+      "language": "zh",
+      "dataset_pack": "DEV",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "human_teacher",
+      "source_group_id": "REF-008",
+      "topic": "unknown",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "unknown",
+        "question_type_status": "derived"
       }
     },
     {
@@ -17676,6 +19483,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "injection",
+      "refusal_annotation": {
+        "status": "manual"
+      },
+      "gold_source_ids": [],
+      "language": "zh",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "human_teacher",
+      "source_group_id": "REF-009",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     },
     {
@@ -17817,6 +19641,23 @@
           "normal",
           "oracle"
         ]
+      },
+      "refusal_evidence_status": "empty_result",
+      "refusal_annotation": {
+        "status": "manual"
+      },
+      "gold_source_ids": [],
+      "language": "zh",
+      "dataset_pack": "TEST",
+      "as_of_date": "2026-08-11",
+      "rubric_version": "0.1-draft",
+      "source_provenance": "human_teacher",
+      "source_group_id": "REF-010",
+      "topic": "dyslipidemia",
+      "question_type": "insufficient_conflict_out_of_scope",
+      "field_annotation": {
+        "topic_status": "auto",
+        "question_type_status": "derived"
       }
     }
   ]

@@ -31,6 +31,9 @@
       "answer_text": "High LDL-cholesterol",
       "gold_literature": [
         "wikipedia:Hyperlipidemia#4"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Hyperlipidemia#4"
       ]
     },
     {
@@ -54,7 +57,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Restart rosuvastatin at a lower dose",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "0405",
@@ -77,7 +81,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Mevalonate",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "0407",
@@ -100,7 +105,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Release of prostaglandins",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "0438",
@@ -138,6 +144,10 @@
       "rag_category": "hard",
       "answer_text": "Na+/Cl- cotransporter in the membranes of epithelial cells in the distal convoluted tubule",
       "gold_literature": [
+        "wikipedia:Thiazide#1",
+        "wikipedia:Thiazide#2"
+      ],
+      "gold_source_ids": [
         "wikipedia:Thiazide#1",
         "wikipedia:Thiazide#2"
       ]
@@ -181,6 +191,10 @@
       "gold_literature": [
         "wikipedia:ACE inhibitor#3",
         "wikipedia:Angiotensin II receptor blocker#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:ACE inhibitor#3",
+        "wikipedia:Angiotensin II receptor blocker#1"
       ]
     },
     {
@@ -219,6 +233,9 @@
       "answer_text": "Eplerenone",
       "gold_literature": [
         "wikipedia:Aldosterone antagonist#2"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Aldosterone antagonist#2"
       ]
     },
     {
@@ -240,7 +257,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Cholelithiasis",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "0718",
@@ -278,6 +296,9 @@
       "answer_text": "Amlodipine",
       "gold_literature": [
         "epmc:PPR1252823"
+      ],
+      "gold_source_ids": [
+        "epmc:PPR1252823"
       ]
     },
     {
@@ -299,7 +320,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Stiffening of the aorta",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "0836",
@@ -323,7 +345,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Hyperkalemia",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "0859",
@@ -347,7 +370,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Decreased pulmonary capillary wedge pressure",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "0862",
@@ -371,7 +395,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Discontinue birth control and place an intrauterine device",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "1050",
@@ -395,7 +420,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Timing of the dosing of colesevelam should be separated from this patient’s other medications.",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "1164",
@@ -419,7 +445,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Angiotensin-converting-enzyme inhibitor (ACEI)",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "1180",
@@ -452,6 +479,9 @@
       "answer_text": "Increased creatine kinase concentration",
       "gold_literature": [
         "pmid:42222121"
+      ],
+      "gold_source_ids": [
+        "pmid:42222121"
       ]
     },
     {
@@ -475,7 +505,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Nifedipine",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "b5a8425a-1ddf-41e1-9ffa-c2088ce2897e",
@@ -506,6 +537,10 @@
       "gold_literature": [
         "wikipedia:Apolipoprotein B#1",
         "wikipedia:LDL receptor#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Apolipoprotein B#1",
+        "wikipedia:LDL receptor#1"
       ]
     },
     {
@@ -529,7 +564,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "All of the above",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "9c7e163e-d22f-43d9-8c77-fb036bc0b064",
@@ -566,6 +602,9 @@
       "answer_text": "Atorvastatin 80 mg",
       "gold_literature": [
         "pmid:41519389"
+      ],
+      "gold_source_ids": [
+        "pmid:41519389"
       ]
     },
     {
@@ -595,6 +634,9 @@
       "answer_text": "Apo B-100 mutation",
       "gold_literature": [
         "wikipedia:Familial hypercholesterolemia#3"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Familial hypercholesterolemia#3"
       ]
     },
     {
@@ -615,7 +657,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "LDL",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "2e4f5929-8c85-4561-9656-44bc930b581b",
@@ -646,6 +689,10 @@
       "gold_literature": [
         "wikipedia:Familial hypercholesterolemia#3",
         "wikipedia:Hyperlipidemia#2"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Familial hypercholesterolemia#3",
+        "wikipedia:Hyperlipidemia#2"
       ]
     },
     {
@@ -674,6 +721,9 @@
       "answer_text": "Liver",
       "gold_literature": [
         "wikipedia:Very low-density lipoprotein#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Very low-density lipoprotein#1"
       ]
     },
     {
@@ -694,7 +744,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Apoproteins",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "89e4fd81-0a6a-4702-8229-b393fcf8bf91",
@@ -732,6 +783,11 @@
         "wikipedia:ACE inhibitor#2",
         "wikipedia:Antihypertensive drug#6",
         "wikipedia:Enalapril#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:ACE inhibitor#2",
+        "wikipedia:Antihypertensive drug#6",
+        "wikipedia:Enalapril#1"
       ]
     },
     {
@@ -766,6 +822,9 @@
       "answer_text": "Delivery of endogenous FA to extrahepatic tissue",
       "gold_literature": [
         "wikipedia:Very low-density lipoprotein#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Very low-density lipoprotein#1"
       ]
     },
     {
@@ -795,6 +854,9 @@
       "answer_text": "yes",
       "gold_literature": [
         "pmid:22825590"
+      ],
+      "gold_source_ids": [
+        "pmid:22825590"
       ]
     },
     {
@@ -823,6 +885,9 @@
       "rag_category": "easy",
       "answer_text": "no",
       "gold_literature": [
+        "pmid:17971187"
+      ],
+      "gold_source_ids": [
         "pmid:17971187"
       ]
     },
@@ -862,6 +927,14 @@
         "pmid:16652154",
         "pmid:23909929",
         "pmid:28611443"
+      ],
+      "gold_source_ids": [
+        "pmid:11878947",
+        "pmid:12917635",
+        "pmid:15283144",
+        "pmid:16652154",
+        "pmid:23909929",
+        "pmid:28611443"
       ]
     },
     {
@@ -884,7 +957,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "underestimate the blood pressure.",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medical_genetics-032",
@@ -912,6 +986,9 @@
       "answer_text": "Low density lipoprotein receptor",
       "gold_literature": [
         "pmid:41616414"
+      ],
+      "gold_source_ids": [
+        "pmid:41616414"
       ]
     },
     {
@@ -934,7 +1011,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Smoking cessation program",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "professional_medicine-202",
@@ -956,7 +1034,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Exercise and weight reduction program",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "professional_medicine-217",
@@ -984,6 +1063,10 @@
       "rag_category": "easy",
       "answer_text": "Increased peripheral vascular resistance",
       "gold_literature": [
+        "wikipedia:Blood pressure#5",
+        "wikipedia:Home blood pressure monitoring#5"
+      ],
+      "gold_source_ids": [
         "wikipedia:Blood pressure#5",
         "wikipedia:Home blood pressure monitoring#5"
       ]
@@ -1023,6 +1106,9 @@
       "answer_text": null,
       "gold_literature": [
         "wikipedia:Hyperlipidemia#2"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Hyperlipidemia#2"
       ]
     },
     {
@@ -1060,6 +1146,9 @@
       "answer_text": null,
       "gold_literature": [
         "pmid:42387456"
+      ],
+      "gold_source_ids": [
+        "pmid:42387456"
       ]
     },
     {
@@ -1083,7 +1172,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "93b48788-a643-45c3-ad41-304738ff6f55",
@@ -1106,7 +1196,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "b8621196-05ba-414e-a112-0b48be3fcd7c",
@@ -1143,6 +1234,9 @@
       "answer_text": null,
       "gold_literature": [
         "wikipedia:Thiazide#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Thiazide#1"
       ]
     },
     {
@@ -1172,6 +1266,9 @@
       "answer_text": null,
       "gold_literature": [
         "wikipedia:Low-density lipoprotein#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Low-density lipoprotein#1"
       ]
     },
     {
@@ -1198,7 +1295,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "23d04e70-f243-4c16-a7c4-827051a5b62b",
@@ -1228,6 +1326,9 @@
       "answer_text": null,
       "gold_literature": [
         "wikipedia:Intermediate-density lipoprotein#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Intermediate-density lipoprotein#1"
       ]
     },
     {
@@ -1254,7 +1355,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "3a3e9d0e-cf13-4d9c-971f-f9d5cb902994",
@@ -1283,6 +1385,10 @@
       "rag_category": "easy",
       "answer_text": null,
       "gold_literature": [
+        "pmid:42273920",
+        "wikipedia:Cholesterol#5"
+      ],
+      "gold_source_ids": [
         "pmid:42273920",
         "wikipedia:Cholesterol#5"
       ]
@@ -1314,6 +1420,9 @@
       "answer_text": null,
       "gold_literature": [
         "wikipedia:Beta blocker#5"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Beta blocker#5"
       ]
     },
     {
@@ -1342,6 +1451,9 @@
       "rag_category": "easy",
       "answer_text": null,
       "gold_literature": [
+        "wikipedia:Beta blocker#5"
+      ],
+      "gold_source_ids": [
         "wikipedia:Beta blocker#5"
       ]
     },
@@ -1374,6 +1486,10 @@
       "gold_literature": [
         "wikipedia:Chylomicron#2",
         "wikipedia:Chylomicron#3"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Chylomicron#2",
+        "wikipedia:Chylomicron#3"
       ]
     },
     {
@@ -1400,7 +1516,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "8654832a-f650-4836-82ba-cc59f14e1bb9",
@@ -1426,7 +1543,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "e995894b-0611-4ae2-ae1f-0d35025845ae",
@@ -1461,6 +1579,10 @@
       "gold_literature": [
         "epmc:PMC12883115",
         "wikipedia:Antihypertensive drug#5"
+      ],
+      "gold_source_ids": [
+        "epmc:PMC12883115",
+        "wikipedia:Antihypertensive drug#5"
       ]
     },
     {
@@ -1493,6 +1615,9 @@
       "answer_text": null,
       "gold_literature": [
         "wikipedia:Pre-eclampsia#6"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Pre-eclampsia#6"
       ]
     },
     {
@@ -1511,7 +1636,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "57b1ba32-ffad-47ac-b906-d1b6dbca3bc6",
@@ -1542,6 +1668,9 @@
       "rag_category": "easy",
       "answer_text": null,
       "gold_literature": [
+        "wikipedia:Beta blocker#5"
+      ],
+      "gold_source_ids": [
         "wikipedia:Beta blocker#5"
       ]
     },
@@ -1581,6 +1710,10 @@
       "gold_literature": [
         "wikipedia:Cholesterol#7",
         "wikipedia:Hypercholesterolemia#4"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Cholesterol#7",
+        "wikipedia:Hypercholesterolemia#4"
       ]
     },
     {
@@ -1610,6 +1743,9 @@
       "answer_text": null,
       "gold_literature": [
         "wikipedia:ACE inhibitor#2"
+      ],
+      "gold_source_ids": [
+        "wikipedia:ACE inhibitor#2"
       ]
     },
     {
@@ -1634,7 +1770,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "5c895cf0f9c2ba6b28000001",
@@ -1662,6 +1799,10 @@
       "gold_literature": [
         "pmid:25157031",
         "wikipedia:Apolipoprotein A-I#2"
+      ],
+      "gold_source_ids": [
+        "pmid:25157031",
+        "wikipedia:Apolipoprotein A-I#2"
       ]
     },
     {
@@ -1686,7 +1827,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Decrease in arterial compliance",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-00782",
@@ -1710,7 +1852,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Initiate a thiazide diuretic",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-01389",
@@ -1728,7 +1871,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Myalgia due to decreased rosuvastatin metabolism in the presence of erythromycin",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-01657",
@@ -1746,7 +1890,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Nocturnal upper airway obstruction",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-01779",
@@ -1775,6 +1920,9 @@
       "answer_text": "Fibrates can potentiate the risk of myositis when given with statins",
       "gold_literature": [
         "wikipedia:Fibrate#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Fibrate#1"
       ]
     },
     {
@@ -1793,7 +1941,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Atorvastatin 40 mg",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-01909",
@@ -1811,7 +1960,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "ACE inhibitor, ARB, CCB, or thiazide",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-02152",
@@ -1833,7 +1983,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Discontinue simvastatin, start pravastatin in 3 weeks",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-02266",
@@ -1869,6 +2020,9 @@
       "rag_category": "easy",
       "answer_text": "Erythropoietin therapy",
       "gold_literature": [
+        "pmid:41052300"
+      ],
+      "gold_source_ids": [
         "pmid:41052300"
       ]
     },
@@ -1911,6 +2065,9 @@
       "answer_text": "A",
       "gold_literature": [
         "wikipedia:ACE inhibitor#4"
+      ],
+      "gold_source_ids": [
+        "wikipedia:ACE inhibitor#4"
       ]
     },
     {
@@ -1933,7 +2090,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Interference with action of inositol trisphosphate (IP3) on intracellular calcium release",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-02901",
@@ -1955,7 +2113,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Lisinopril",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-04650",
@@ -1978,7 +2137,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Urinalysis",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-05202",
@@ -2011,6 +2171,10 @@
       "rag_category": "hard",
       "answer_text": "Nocturnal upper airway obstruction",
       "gold_literature": [
+        "wikipedia:Obstructive sleep apnea#1",
+        "wikipedia:Obstructive sleep apnea#15"
+      ],
+      "gold_source_ids": [
         "wikipedia:Obstructive sleep apnea#1",
         "wikipedia:Obstructive sleep apnea#15"
       ]
@@ -2046,6 +2210,9 @@
       "answer_text": "Lisinopril",
       "gold_literature": [
         "wikipedia:Lisinopril#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Lisinopril#1"
       ]
     },
     {
@@ -2069,7 +2236,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Papilledema",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-06604",
@@ -2104,6 +2272,10 @@
       "gold_literature": [
         "wikipedia:Apolipoprotein B#2",
         "wikipedia:Statin#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Apolipoprotein B#2",
+        "wikipedia:Statin#1"
       ]
     },
     {
@@ -2122,7 +2294,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "67%",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-06927",
@@ -2157,6 +2330,10 @@
       "gold_literature": [
         "wikipedia:Labetalol#1",
         "wikipedia:Lisinopril#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Labetalol#1",
+        "wikipedia:Lisinopril#1"
       ]
     },
     {
@@ -2175,7 +2352,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Weight loss",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-08100",
@@ -2193,7 +2371,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "ApoC-II",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-08428",
@@ -2235,6 +2414,11 @@
         "pmid:41390616",
         "wikipedia:Hypertensive emergency#3",
         "wikipedia:Labetalol#1"
+      ],
+      "gold_source_ids": [
+        "pmid:41390616",
+        "wikipedia:Hypertensive emergency#3",
+        "wikipedia:Labetalol#1"
       ]
     },
     {
@@ -2253,7 +2437,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Losing 15 kg (33 lb) of body weight",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-08597",
@@ -2271,7 +2456,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Amlodipine",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-09153",
@@ -2305,6 +2491,9 @@
       "answer_text": "Renal artery stenosis",
       "gold_literature": [
         "pmid:41658788"
+      ],
+      "gold_source_ids": [
+        "pmid:41658788"
       ]
     },
     {
@@ -2334,6 +2523,9 @@
       "answer_text": "Hyperuricemia",
       "gold_literature": [
         "wikipedia:Hydrochlorothiazide#1"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Hydrochlorothiazide#1"
       ]
     },
     {
@@ -2352,7 +2544,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Simvastatin",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-train-train-10034",
@@ -2377,7 +2570,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Decrease in arterial compliance",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medqa-usmle-dev-dev-00182",
@@ -2409,6 +2603,9 @@
       "rag_category": "hard",
       "answer_text": "Fenofibrate",
       "gold_literature": [
+        "pmid:42204798"
+      ],
+      "gold_source_ids": [
         "pmid:42204798"
       ]
     },
@@ -2443,6 +2640,9 @@
       "answer_text": "Fibromuscular hyperplasia",
       "gold_literature": [
         "pmid:41356982"
+      ],
+      "gold_source_ids": [
+        "pmid:41356982"
       ]
     },
     {
@@ -2468,7 +2668,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": "Dihydropyridine calcium channel blockers preferentially bind to a vascular smooth muscle",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medexpqa-en-train-304-174",
@@ -2493,7 +2694,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "I would change ibuprofen for paracetamol to avoid the possible influence of paracetamol on the effect of hypotensives.",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medexpqa-en-train-166-82",
@@ -2511,7 +2713,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Enalapril.",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medexpqa-en-train-305-174",
@@ -2529,7 +2732,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "I would change ibuprofen to paracetamol to avoid the possible influence of paracetamol on the effect of hypotensives.",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medexpqa-en-train-104-91",
@@ -2547,7 +2751,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "The genetic disorder also affects the synthesis of triglycerides, causing in the advanced stages of the disease, an increase in triglycerides, which is usually higher than 500 mg/dl.",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medexpqa-en-train-103-89",
@@ -2565,7 +2770,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": "Determination of glycosylated hemoglobin.",
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "medexpqa-en-train-528-134",
@@ -2592,6 +2798,9 @@
       "rag_category": "easy",
       "answer_text": "Presents masked arterial hypertension.",
       "gold_literature": [
+        "wikipedia:Masked hypertension#1"
+      ],
+      "gold_source_ids": [
         "wikipedia:Masked hypertension#1"
       ]
     },
@@ -2630,6 +2839,9 @@
       "answer_text": "Chronic hypertension.",
       "gold_literature": [
         "wikipedia:Hypertensive disease of pregnancy#2"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Hypertensive disease of pregnancy#2"
       ]
     },
     {
@@ -2667,6 +2879,9 @@
       "answer_text": "Chronic hypertension.",
       "gold_literature": [
         "wikipedia:Hypertensive disease of pregnancy#2"
+      ],
+      "gold_source_ids": [
+        "wikipedia:Hypertensive disease of pregnancy#2"
       ]
     },
     {
@@ -2703,6 +2918,9 @@
       "rag_category": "easy",
       "answer_text": "Chronic hypertension.",
       "gold_literature": [
+        "wikipedia:Hypertensive disease of pregnancy#2"
+      ],
+      "gold_source_ids": [
         "wikipedia:Hypertensive disease of pregnancy#2"
       ]
     },
@@ -2744,6 +2962,9 @@
       "rag_category": "easy",
       "answer_text": "CT scan is part of the diagnostic study in case of biochemical confirmation.",
       "gold_literature": [
+        "pmid:42259571"
+      ],
+      "gold_source_ids": [
         "pmid:42259571"
       ]
     },
@@ -2788,6 +3009,10 @@
       "gold_literature": [
         "pmid:41356982",
         "pmid:42259571"
+      ],
+      "gold_source_ids": [
+        "pmid:41356982",
+        "pmid:42259571"
       ]
     },
     {
@@ -2813,7 +3038,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "REF-002",
@@ -2838,7 +3064,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "REF-003",
@@ -2863,7 +3090,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "REF-004",
@@ -2888,7 +3116,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "REF-005",
@@ -2913,7 +3142,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "REF-006",
@@ -2939,7 +3169,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "REF-007",
@@ -2965,7 +3196,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "REF-008",
@@ -2991,7 +3223,8 @@
       "split": "dev",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "REF-009",
@@ -3017,7 +3250,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     },
     {
       "id": "REF-010",
@@ -3043,7 +3277,8 @@
       "split": "test",
       "rag_category": "refusal",
       "answer_text": null,
-      "gold_literature": []
+      "gold_literature": [],
+      "gold_source_ids": []
     }
   ]
 }

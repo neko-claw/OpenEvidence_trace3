@@ -17,6 +17,7 @@ import numpy as np
 
 from core.config import load_config
 from core.dataclasses import load_jsonl
+from evaluation.questions import load_question_records
 from evaluation.stats import paired_deltas
 
 # 注册中文字体（优先从 WSL 用户目录 / Windows 借用，找不到时回退 DejaVu）
@@ -85,11 +86,13 @@ def box_by_condition(scores: list[dict], metric: str, out: Path) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--scores", required=True)
-    ap.add_argument("--questions", default="data/questions/formal12.jsonl")
+    ap.add_argument("--questions", default=None,
+                    help="题集 .json/.jsonl 路径（默认取 config paths.questions）")
     args = ap.parse_args()
     cfg = load_config()
     scores = load_jsonl(args.scores)
-    questions = load_jsonl(args.questions)
+    q_path = args.questions or str(cfg.path("questions"))
+    questions = load_question_records(q_path)
     art = cfg.path("artifacts")
     for metric in ["faithfulness", "completeness", "correctness"]:
         for c1, c2 in [("A", "C"), ("B", "C")]:
