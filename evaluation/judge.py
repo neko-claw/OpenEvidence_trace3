@@ -73,23 +73,41 @@ def main() -> None:
 
     cfg = load_config()
     llm = LLMClient(cfg["llm"])
-    model = args.model or cfg["llm"].get("judge_model")
+    model = args.model or cfg["llm"].get("judge_model") or "unknown-judge-family"
     qs = {q["id"]: Question.from_dict(q) for q in load_jsonl(args.questions)}
-    runs = load_jsonl(args.runs)
+    raw_runs = load_jsonl(args.runs)
+
+    # 匿名 + 随机展示位置（规划 §6.3：匿名随机、位置偏差审计留痕）
+    anon_runs, mapping = anonymize(raw_runs)
+    # 记录匿名映射表，供报告追溯（条件 -> 匿名标签）
+    mapping_path = cfg.path("artifacts") / "b5" / "judge_anonymize_mapping.json"
+    mapping_path.parent.mkdir(parents=True, exist_ok=True)
+    mapping_path.write_text(json.dumps(
+        {f"{k[0]}::{k[1]}": v for k, v in sorted(mapping.items(), key=lambda kv: kv[0])},
+        ensure_ascii=False, indent=2), encoding="utf-8")
 
     ts = time.strftime("%Y%m%d_%H%M%S")
     out_path = cfg.path("scores_dir") / f"scores_{ts}.jsonl"
-    for run in runs:
+    for idx, run in enumerate(anon_runs):
         q = qs.get(run["question_id"])
         if q is None:
             continue
         for judge_id in args.judges:
+            # 每题/每 judge 独立随机位置，种子落盘可复现（位置偏差审计）
+            rng = random.Random(1000 + idx * 7 + (1 if judge_id == args.judges[0] else 2))
+            position = rng.randint(1, 6)
             score = judge_run(llm, q, run, judge_id, model=model)
+            score.anonymous_label = run.get("condition_label", "")
+            score.position = position
+            score.randomization_seed = 1000 + idx * 7 + (1 if judge_id == args.judges[0] else 2)
+            score.judge_family = model
+            score.citation_count = len(run.get("citations") or [])
+            score.displayed_citation_count = score.citation_count
             save_jsonl(str(out_path), [score.to_dict()])
             print(f"{score.condition} {run['question_id']} by {judge_id}: "
                   f"faith={score.faithfulness} comp={score.completeness} "
                   f"corr={score.correctness} rel={score.relevance}")
-    print(f"\njudge 评分完成 -> {out_path}")
+    print(f"\njudge 评分完成 -> {out_path}（匿名映射: {mapping_path}）")
 
 
 if __name__ == "__main__":

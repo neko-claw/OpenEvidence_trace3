@@ -207,6 +207,15 @@ class Score:
     reviewer: str = ""
     adjudication: str = ""
     notes: str = ""
+    # ---- judge 偏差审计字段（规划 §6.3 匿名随机 + 位置/长度/家族偏差审计；可选） ----
+    position: Optional[int] = None                 # 匿名展示位置（随机）
+    anonymous_label: str = ""                      # 匿名标签，如 OPT①
+    randomization_seed: Optional[int] = None       # 每题位置随机种子
+    judge_family: str = ""                        # judge 模型家族（偏差审计分组）
+    citation_count: Optional[int] = None           # 展示给 judge 的引用数量
+    displayed_citation_count: Optional[int] = None # 引用外观偏差审计
+    control_type: str = ""                        # style | position_swap | wrong_citations
+    control_id: str = ""                          # 控制样本配对 ID
     created_at: str = field(default_factory=_now)
 
     def to_dict(self) -> dict:
