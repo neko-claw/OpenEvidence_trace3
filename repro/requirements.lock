@@ -1,0 +1,13 @@
+# B6 离线复现环境（Python 3.10–3.12）。
+# 这是冻结的直接依赖集合；正式发布时由 B6 负责人在干净环境验证后整体更新。
+httpx==0.28.1
+PyYAML==6.0.2
+rank-bm25==0.2.2
+jsonschema==4.23.0
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.14.1
+matplotlib==3.9.2
+pytest==8.3.4
+sentence-transformers==3.3.1
+streamlit==1.40.2

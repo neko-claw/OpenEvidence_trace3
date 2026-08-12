@@ -162,7 +162,25 @@ python -m evaluation.run_a5 --a5-root <赛道一仓库路径> --demo
 
 输出：`artifacts/b4/runs-*.jsonl`（Run 契约）、`retrieval-*.jsonl`（分阶段候选与特征分）、`stress-*.jsonl`（E 扰动 manifest：规则/seed/删除注入项/扰动前后候选集）。
 
-### 3.3 五个实验条件说明
+### 3.3 B6 透明复现（无需 API key）
+
+```bash
+# 使用 B6 固定依赖（Python 3.10–3.12）
+python -m pip install -r repro/requirements.lock
+
+# 检查 B1 协议、Schema、配置和 fixture 是否与冻结清单一致
+python -m evaluation.reproduce --check
+
+# 固定 fixture 的离线复跑：生成 Run、Schema 校验、B5 结果包
+python -m evaluation.reproduce --offline-reference
+
+# 浏览冻结状态、结果包和单题轨迹
+streamlit run app.py
+```
+
+“透明复现”页面不会加载模型或 API key。当前提交的是离线链路验收包；正式题集、压力题和 gold 未由 B1/B2 冻结前，系统会明确标记为“待冻结”，不作为正式结论。详见 [B6 可复现说明](docs/B6_可复现说明.md)。
+
+### 3.4 五个实验条件说明
 
 | 条件 | 含义 | 目的 | 主责 |
 |---|---|---|---|

@@ -1,0 +1,35 @@
+{
+  "release_id": "track3-system-v0.2-fixture",
+  "release_status": "offline-reference",
+  "description": "B6 锁定的离线验收包。它验证协议、接口和可追溯流程，不替代 B1/B2 正式实验冻结。",
+  "base_commit": "1a7aed4928edd9be74207d554f6f673758a93a9b",
+  "files": [
+    {"path": "docs/experiment_protocol.md", "sha256": "fb655fd4521b9bf1fc4c0439c9674b2f6c2c68d292e6b1939a1e42b4500fbb00"},
+    {"path": "docs/B6_可复现说明.md", "sha256": "47bc88ee027eae9ccbed347178f4c3bdf5e14e170dd96d5ccfb830316557a3bc"},
+    {"path": "README.md", "sha256": "91b1cb8dcb1f711b6016fb5314fea6038828453507f3099b6dc04f4683185fb6"},
+    {"path": "app.py", "sha256": "e7e489fe8bed8b98510454e38ad7c7db012a7fe23090d65732492c84b256b86f"},
+    {"path": "evaluation/provenance.py", "sha256": "ece8aa2a159046a02ac20e8e9ccbd85e9695c2bb70bfef612f5a416612b97205"},
+    {"path": "evaluation/reproduce.py", "sha256": "4c9e82754f28888e03110098dc942ff6befe8172b818d0cb708c603a257016fb"},
+    {"path": "evaluation/experiment_config.json", "sha256": "224dd2397d57d4e119e2d15d2d3566d8e368b040d6574626308b4898204b7fb9"},
+    {"path": "evaluation/blueprints/question_blueprint.json", "sha256": "79bfa56db59e5d081abbb5cf0388627f4ff059a1b324e91bf1d34a1f949432c2"},
+    {"path": "evaluation/preregistration/e_perturbation_rules.json", "sha256": "fdcb93b1aacbbcf170f413b265f0e93ba7275303fddd97842b60a4b7be6c4ed4"},
+    {"path": "evaluation/schemas/run.schema.json", "sha256": "2605e45df800462714717c63d2ac83c10af3c31eda31b6617fac5e1e94f7a825"},
+    {"path": "evaluation/schemas/score.schema.json", "sha256": "ccaece9ce029f54327ba1ed8d1a37acf471dcd65220b34fe549ac8a362b75bcf"},
+    {"path": "config.yaml", "sha256": "09a16df232577ce25a7421de887f2545edf577d34e6cedee8ebcea6d6571a27f"},
+    {"path": "requirements.txt", "sha256": "412f026c5cdf4d0245c90bb07f83dfa33c2623df47c55e0640fc716aa1e32f2e"},
+    {"path": "repro/requirements.lock", "sha256": "f03df07c4d4fa0998637e63fdf96c533d8475644bec2073908bc45ad7ac3ac73"},
+    {"path": "configs/conditions.yaml", "sha256": "b09fba5ce5c65d4415482f5b03bd60c41d71358272af91e9ac6a3cdde441d70e"},
+    {"path": "data/fixtures/manifest.json", "sha256": "016b2a04077819c5ab943f3bcbaf880102ff9ce5e354f3f8621f58b4663b7fc8"},
+    {"path": "data/fixtures/questions.jsonl", "sha256": "c70920dab32e35c55706fd34ec325e35aeec8158d71dad5e160acfe2676aace2"},
+    {"path": "data/fixtures/evidence.jsonl", "sha256": "1eb04e5415ac480c8781d002a8aa0e12d9bc1c31e9db223277d5247ae9ab2239"},
+    {"path": "data/fixtures/qrels.jsonl", "sha256": "7b374494d338b101978400990a0701abb867954606a3979bea37eeb98212b18c"}
+  ],
+  "formal_requirements": {
+    "formal_questions": "data/questions/formal12.jsonl",
+    "stress_questions": "data/questions/stress_sample.jsonl",
+    "formal_question_count": 60,
+    "stress_question_count": 20,
+    "gold_required": true
+  },
+  "allowed_comparisons": ["A-B", "B-C", "C-D", "E-C (STRESS only)"]
+}

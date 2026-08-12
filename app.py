@@ -6,6 +6,7 @@
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -17,11 +18,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from core.config import load_config
 from core.dataclasses import Question, load_jsonl
 from core.llm import LLMClient
-from evaluation.baseline import run_condition
-from evaluation.stats import (bootstrap_ci, judge_agreement, mean_by_condition,
-                              paired_deltas)
-from generation.answer import AnswerGenerator
-from retrieval.index import EvidenceStore
 
 st.set_page_config(page_title="OpenEvidence 赛道3 评测台", layout="wide")
 
@@ -46,6 +42,7 @@ def get_cfg():
 @st.cache_resource(show_spinner="构建证据索引（首次加载 embedding 模型稍慢）…")
 def get_store(cfg_data: dict, emb_backend: str):
     from core.config import Config
+    from retrieval.index import EvidenceStore
     cfg = Config(cfg_data, Path(cfg_data.get("_root", Path.cwd())))
     store = EvidenceStore(cfg)
     store.load().build_index(emb_backend=emb_backend)
@@ -76,17 +73,26 @@ st.sidebar.title("🩺 赛道3 评测台")
 st.sidebar.caption("专用 RAG vs 通用大模型对比评估\n仅供教学研究，不用于临床诊疗")
 
 cfg = get_cfg()
-emb_backend = st.sidebar.selectbox("Embedding 后端", ["local", "fallback"],
-                                   help="local 用本地 BGE 模型；fallback 免依赖但质量差")
-store = get_store(cfg_to_dict(cfg), emb_backend)
-llm = get_llm(cfg_to_dict(cfg))
+nav = st.sidebar.radio(
+    "导航",
+    ["🎯 单题问答", "⚡ 批量实验", "📊 评测结果", "🔎 透明复现", "🗂 题集与证据库"],
+)
 
-st.sidebar.markdown("---")
-st.sidebar.metric("证据库规模", f"{len(store.evidences)} 条")
-st.sidebar.metric("索引版本", store.index_version)
-st.sidebar.markdown(f"生成模型: `{llm.model}`")
+# B6 审计页不应依赖 API key、LLM 或本地 embedding 模型；其余页面再按需初始化。
+if nav != "🔎 透明复现":
+    emb_backend = st.sidebar.selectbox("Embedding 后端", ["local", "fallback"],
+                                       help="local 用本地 BGE 模型；fallback 免依赖但质量差")
+    store = get_store(cfg_to_dict(cfg), emb_backend)
+    llm = get_llm(cfg_to_dict(cfg))
+    st.sidebar.markdown("---")
+    st.sidebar.metric("证据库规模", f"{len(store.evidences)} 条")
+    st.sidebar.metric("索引版本", store.index_version)
+    st.sidebar.markdown(f"生成模型: `{llm.model}`")
+else:
+    st.sidebar.info("此页只读取冻结清单与结果包，无需 API key。")
 
-nav = st.sidebar.radio("导航", ["🎯 单题问答", "⚡ 批量实验", "📊 评测结果", "🗂 题集与证据库"])
+if nav in ("🎯 单题问答", "⚡ 批量实验"):
+    from evaluation.baseline import run_condition
 
 # =============== Tab 1: 单题问答 ===============
 if nav == "🎯 单题问答":
@@ -171,6 +177,7 @@ elif nav == "📊 评测结果":
     st.title("评测结果")
     import matplotlib.pyplot as plt
     import numpy as np
+    from evaluation.stats import bootstrap_ci, mean_by_condition, paired_deltas
 
     runs_dir = cfg.path("runs_dir")
     scores_dir = cfg.path("scores_dir")
@@ -237,7 +244,75 @@ elif nav == "📊 评测结果":
             df = pd.DataFrame(scores)[cols]
             st.dataframe(df, use_container_width=True, height=500)
 
-# =============== Tab 4: 题集与证据库 ===============
+# =============== Tab 4: B6 透明复现 ===============
+elif nav == "🔎 透明复现":
+    from evaluation.provenance import DEFAULT_LOCK, formal_readiness, load_lock, verify_bundle, verify_release_lock
+
+    st.title("透明复现")
+    st.caption("核对冻结输入、复跑离线验收，并追溯每一条结果。正式题未满足协议时不会显示为正式结论。")
+
+    lock = load_lock(DEFAULT_LOCK)
+    lock_check = verify_release_lock(DEFAULT_LOCK)
+    readiness = formal_readiness(DEFAULT_LOCK)
+    changed = sum(row["status"] != "ok" for row in lock_check["checks"])
+    c1, c2, c3 = st.columns(3)
+    c1.metric("冻结清单", "通过" if lock_check["passed"] else "需检查")
+    c2.metric("锁定文件", f"{len(lock_check['checks']) - changed}/{len(lock_check['checks'])}")
+    c3.metric("正式实验", "已就绪" if readiness["ready"] else "待 B1/B2 冻结")
+
+    if lock_check["passed"]:
+        st.success(f"当前代码与 `{lock['release_id']}` 的协议、配置、fixture 清单一致。")
+    else:
+        st.error("冻结资产已变更或缺失。请重新审核清单后再运行实验。")
+    if not readiness["ready"]:
+        st.warning("当前仅可作为离线样例验收：正式题数量、压力题数量和 gold 覆盖尚未达到 B1 协议要求。")
+
+    tab_lock, tab_bundle = st.tabs(["冻结状态", "结果包"])
+    with tab_lock:
+        st.write(f"发布标识：`{lock['release_id']}`  ·  状态：`{lock['release_status']}`")
+        st.dataframe(pd.DataFrame(lock_check["checks"])[["path", "status"]], use_container_width=True, hide_index=True)
+        st.subheader("正式实验前置条件")
+        st.dataframe(pd.DataFrame(readiness["checks"]), use_container_width=True, hide_index=True)
+        st.code("python -m evaluation.reproduce --check\npython -m evaluation.reproduce --offline-reference", language="bash")
+
+    with tab_bundle:
+        b6_root = cfg.path("artifacts") / "b6"
+        bundles = sorted(
+            (path.parent for path in b6_root.rglob("manifest.json")) if b6_root.exists() else [],
+            key=lambda path: path.stat().st_mtime,
+            reverse=True,
+        )
+        if not bundles:
+            st.info("暂无结果包。运行上方的离线参考命令后，结果会出现在这里。")
+        else:
+            selected = st.selectbox("选择结果包", bundles, format_func=lambda path: str(path.relative_to(cfg.root)))
+            bundle_check = verify_bundle(selected)
+            manifest = json.loads((selected / "manifest.json").read_text(encoding="utf-8"))
+            if bundle_check["valid"]:
+                st.success("结果包完整性校验通过。")
+            else:
+                st.error("结果包文件已变更或缺失，不能作为可审计结果使用。")
+            summary = pd.DataFrame([{
+                "profile": manifest.get("profile"),
+                "运行数": manifest.get("run_count"),
+                "代码提交": manifest.get("code_commit"),
+                "创建时间": manifest.get("created_at"),
+            }])
+            st.dataframe(summary, use_container_width=True, hide_index=True)
+
+            runs_path = selected / "runs.jsonl"
+            if runs_path.exists():
+                runs = pd.read_json(runs_path, lines=True)
+                columns = [name for name in ["run_id", "question_id", "condition", "status", "verification_decision", "latency_ms"] if name in runs]
+                st.subheader("运行记录")
+                st.dataframe(runs[columns], use_container_width=True, hide_index=True)
+                run_id = st.selectbox("查看单题轨迹", runs["run_id"].tolist())
+                record = runs.loc[runs["run_id"] == run_id].iloc[0].to_dict()
+                st.markdown(record.get("answer") or "该离线运行未生成文本回答。")
+                with st.expander("检索与工具轨迹"):
+                    st.json({"candidate_ids": record.get("candidate_ids"), "tool_trace": record.get("tool_trace")})
+
+# =============== Tab 5: 题集与证据库 ===============
 else:
     st.title("题集与证据库")
     t1, t2 = st.tabs(["题集", "证据库"])
