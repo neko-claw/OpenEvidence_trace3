@@ -161,8 +161,9 @@ def _remove_obsolete_outputs(out_dir: Path) -> None:
 
 
 def _as_evidence_id(item: Any) -> str:
+    """Extract a stable evidence id from A5 snapshots or B4 run records."""
     if isinstance(item, dict):
-        return str(item.get("id", ""))
+        return str(item.get("id") or item.get("evidence_id") or "")
     return str(item or "")
 
 
@@ -240,7 +241,7 @@ def _evidence_identifier_whitelist(run: dict[str, Any], question: dict[str, Any]
             identifier = _normalize_identifier(kind, ev.get(field))
             if identifier:
                 allowed.add(identifier)
-        ev_id = str(ev.get("id") or "")
+        ev_id = _as_evidence_id(ev)
         low = _doc_id(ev_id).lower()
         if low.startswith(("pmid:", "doi:")):
             allowed.add(low)
@@ -285,7 +286,7 @@ def _trace_numeric(run: dict[str, Any], *keys: str) -> float | None:
 
 def _retrieval_derived_metrics(run: dict[str, Any]) -> dict[str, Any]:
     evidence = [ev for ev in (run.get("retrieved_evidence") or []) if isinstance(ev, dict)]
-    doc_ids = [_doc_id(str(ev.get("id") or "")) for ev in evidence if ev.get("id")]
+    doc_ids = [_doc_id(_as_evidence_id(ev)) for ev in evidence if _as_evidence_id(ev)]
     unique_doc_ids = set(doc_ids)
     source_types = {_source_key(ev) for ev in evidence if ev}
     conflict_ids = {

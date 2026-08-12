@@ -90,6 +90,37 @@ def test_doc_id_strips_chunk_for_all_prefixes():
     assert _doc_id("nct:NCT001") == "nct:NCT001"
 
 
+def test_b4_evidence_id_records_are_supported(tmp_path):
+    questions = [{"id": "q1", "question_type": "guideline", "gold_source_ids": ["pmid:12345"]}]
+    runs = [
+        {
+            "run_id": "r1",
+            "question_id": "q1",
+            "condition": "C",
+            "answer": "Answer cites PMID:12345.",
+            "candidate_ids": [],
+            "retrieved_evidence": [
+                {"evidence_id": "pmid:12345:chunk:1", "source_type": "pubmed", "pmid": "12345", "text": "gold"},
+                {"evidence_id": "guideline:g1", "source_type": "guideline", "text": "guide"},
+            ],
+            "claims": [{"criticality": "critical", "decision": "supported", "evidence_ids": ["pmid:12345"]}],
+            "verification_decision": "PASS",
+        }
+    ]
+    rows = run_b5_report(
+        runs, [], questions, tmp_path / "b5",
+        runs_path="runs", scores_path=None,
+        metrics=["hit_at_5", "mrr", "recall_at_50", "rerank_ndcg_8", "source_diversity"],
+        comparisons=[],
+    )["condition_distribution"]
+    means = {row["metric"]: row["mean"] for row in rows}
+    assert means["hit_at_5"] == 1.0
+    assert means["mrr"] == 1.0
+    assert means["recall_at_50"] == 1.0
+    assert means["rerank_ndcg_8"] == 1.0
+    assert means["source_diversity"] == 2.0
+
+
 def test_fake_identifier_and_retrieval_diagnostics(tmp_path):
     questions = [{"id": "q1", "split": "stress", "question_type": "guideline", "gold_source_ids": ["pmid:12345"]}]
     runs = [
