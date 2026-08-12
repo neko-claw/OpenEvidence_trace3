@@ -221,3 +221,13 @@ def test_resolve_conditions_unknown_raises_valueerror():
         include_a2 = False
     with pytest.raises(ValueError, match="未知条件"):
         resolve_conditions(cfg, _Args())
+
+
+def test_question_split_preferred_over_path_heuristic(tmp_path):
+    from evaluation.consistency import _load_question_splits
+
+    q_path = tmp_path / "stress_named_file.jsonl"
+    q_path.write_text('{"id":"q1","split":"test"}\n{"id":"q2","split":"stress"}\n',
+                      encoding="utf-8")
+    splits = _load_question_splits(str(q_path))
+    assert splits == {"q1": "test", "q2": "stress"}

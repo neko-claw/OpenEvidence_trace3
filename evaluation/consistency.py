@@ -37,14 +37,27 @@ def _load_runs(path: str) -> list[Run]:
     return [Run.from_dict(d) for d in load_jsonl(path)]
 
 
-def _load_question_splits(q_path: str | None) -> dict[str, str]:
-    """返回 question_id -> split（默认 'test'；路径含 stress 时标注）。"""
-    if not q_path:
+def _load_question_splits(q_paths: str | list[str] | None) -> dict[str, str]:
+    """Return question_id -> split, preferring explicit Question.split with path fallback."""
+    if not q_paths:
         return {}
+    if isinstance(q_paths, str):
+        q_paths = [q_paths]
     splits: dict[str, str] = {}
-    for d in load_jsonl(q_path):
-        qid = d.get("id", "")
-        splits[qid] = "stress" if "stress" in str(q_path).lower() else "test"
+    for q_path in q_paths:
+        fallback = "stress" if "stress" in str(q_path).lower() else "test"
+        for d in load_jsonl(q_path):
+            qid = d.get("id", "")
+            if not qid:
+                continue
+            split = (
+                d.get("split")
+                or d.get("dataset_split")
+                or d.get("dataset")
+                or d.get("set")
+                or fallback
+            )
+            splits[qid] = str(split).lower()
     return splits
 
 
@@ -182,7 +195,8 @@ def main() -> None:
 
     cfg = load_config()
     runs = _load_runs(args.runs)
-    q_splits = _load_question_splits(args.questions)
+    q_paths = [p for p in (args.questions, args.questions_stress) if p]
+    q_splits = _load_question_splits(q_paths)
     report = audit_runs(runs, q_splits, a2_budget=cfg.get("a2", {}))
 
     s = report["summary"]

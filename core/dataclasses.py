@@ -207,6 +207,15 @@ class Score:
     reviewer: str = ""
     adjudication: str = ""
     notes: str = ""
+    # B5 judge-bias audit fields.
+    position: Optional[int] = None
+    anonymous_label: str = ""
+    randomization_seed: Optional[int] = None
+    judge_family: str = ""
+    citation_count: Optional[int] = None
+    displayed_citation_count: Optional[int] = None
+    control_type: str = ""
+    control_id: str = ""
     created_at: str = field(default_factory=_now)
 
     def to_dict(self) -> dict:

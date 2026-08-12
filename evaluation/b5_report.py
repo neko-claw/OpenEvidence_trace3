@@ -17,6 +17,7 @@ import csv
 import json
 import math
 import random
+import re
 import statistics
 import time
 from collections import defaultdict
@@ -43,6 +44,11 @@ DEFAULT_METRICS = [
     "unsupported_claim_rate",
     "unsupported_critical_claim_rate",
     "abstention_quality",
+    "fake_identifier_count",
+    "source_diversity",
+    "context_tokens",
+    "duplicate_rate",
+    "conflict_rate",
 ]
 
 METRIC_ALIASES = {
@@ -52,7 +58,7 @@ METRIC_ALIASES = {
     "unsupported_critical_claim_rate": ("unsupported_critical_claim_rate", "unsupported_claim_rate"),
 }
 
-LOWER_IS_BETTER_PREFIXES = ("unsupported",)
+LOWER_IS_BETTER_PREFIXES = ("unsupported", "fake_identifier", "duplicate", "conflict")
 RETRIEVAL_CONDITIONS = {"B", "C", "D", "E"}
 DEFAULT_EXPECTED_CONDITIONS = ["A", "A2", "B", "C", "D", "E"]
 DEFAULT_COMPARISONS = [("A", "B"), ("B", "C"), ("C", "D"), ("C", "E"), ("A", "A2")]
@@ -179,6 +185,134 @@ def _ranked_ids(run: dict[str, Any], prefer_candidates: bool = True) -> list[str
     if prefer_candidates and candidate_ids:
         return candidate_ids
     return retrieved_ids or candidate_ids
+
+
+IDENTIFIER_PATTERNS = {
+    "pmid": re.compile(r"\bPMID\s*:?\s*(\d{4,9})\b", re.IGNORECASE),
+    "doi": re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+\b", re.IGNORECASE),
+    "nct": re.compile(r"\bNCT\d{8}\b", re.IGNORECASE),
+}
+
+
+def _normalize_identifier(kind: str, value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if kind == "pmid":
+        digits = re.search(r"\d{4,9}", text)
+        return f"pmid:{digits.group(0)}" if digits else ""
+    if kind == "doi":
+        doi = text.lower()
+        doi = re.sub(r"^https?://(?:dx\.)?doi\.org/", "", doi)
+        doi = doi.rstrip(".,;)")
+        return f"doi:{doi}" if doi.startswith("10.") else ""
+    if kind == "nct":
+        match = re.search(r"NCT\d{8}", text, re.IGNORECASE)
+        return f"nct:{match.group(0).upper()}" if match else ""
+    return ""
+
+
+def _extract_identifiers_from_answer(answer: str) -> set[str]:
+    identifiers: set[str] = set()
+    for kind, pattern in IDENTIFIER_PATTERNS.items():
+        for match in pattern.finditer(answer or ""):
+            identifier = _normalize_identifier(kind, match.group(1) if kind == "pmid" else match.group(0))
+            if identifier:
+                identifiers.add(identifier)
+    return identifiers
+
+
+def _evidence_identifier_whitelist(run: dict[str, Any], question: dict[str, Any] | None) -> set[str]:
+    allowed: set[str] = set()
+    for raw_id in (question or {}).get("gold_source_ids") or []:
+        text = str(raw_id)
+        low = text.lower()
+        if low.startswith(("pmid:", "doi:", "nct:")):
+            allowed.add(low if not low.startswith("nct:") else f"nct:{text.split(':', 1)[1].upper()}")
+        elif text.upper().startswith("NCT"):
+            allowed.add(_normalize_identifier("nct", text))
+        elif text.startswith("10."):
+            allowed.add(_normalize_identifier("doi", text))
+    for ev in run.get("retrieved_evidence") or []:
+        if not isinstance(ev, dict):
+            continue
+        for kind, field in (("pmid", "pmid"), ("doi", "doi"), ("nct", "nct_id")):
+            identifier = _normalize_identifier(kind, ev.get(field))
+            if identifier:
+                allowed.add(identifier)
+        ev_id = str(ev.get("id") or "")
+        low = _doc_id(ev_id).lower()
+        if low.startswith(("pmid:", "doi:")):
+            allowed.add(low)
+        elif low.startswith("nct:"):
+            allowed.add(f"nct:{ev_id.split(':', 1)[1].upper()}")
+    return {x for x in allowed if x}
+
+
+def _fake_identifier_metrics(run: dict[str, Any], question: dict[str, Any] | None) -> dict[str, Any]:
+    extracted = _extract_identifiers_from_answer(run.get("answer") or "")
+    allowed = _evidence_identifier_whitelist(run, question)
+    fake = sorted(identifier for identifier in extracted if identifier not in allowed)
+    return {
+        "fake_identifier_count": len(fake),
+        "identifier_count": len(extracted),
+        "fake_identifiers": fake,
+    }
+
+
+def _source_key(evidence: dict[str, Any]) -> str:
+    if evidence.get("source_type"):
+        return str(evidence["source_type"]).lower()
+    ev_id = str(evidence.get("id") or "")
+    return ev_id.split(":", 1)[0].lower() if ":" in ev_id else "unknown"
+
+
+def _token_estimate(text: str) -> int:
+    # Deterministic approximation sufficient for comparing fixed retrieval contexts.
+    return max(0, math.ceil(len(text or "") / 4))
+
+
+def _trace_numeric(run: dict[str, Any], *keys: str) -> float | None:
+    for trace in run.get("tool_trace") or []:
+        if not isinstance(trace, dict):
+            continue
+        for key in keys:
+            value = trace.get(key)
+            if isinstance(value, (int, float)):
+                return float(value)
+    return None
+
+
+def _retrieval_derived_metrics(run: dict[str, Any]) -> dict[str, Any]:
+    evidence = [ev for ev in (run.get("retrieved_evidence") or []) if isinstance(ev, dict)]
+    doc_ids = [_doc_id(str(ev.get("id") or "")) for ev in evidence if ev.get("id")]
+    unique_doc_ids = set(doc_ids)
+    source_types = {_source_key(ev) for ev in evidence if ev}
+    conflict_ids = {
+        str(cid)
+        for claim in (run.get("claims") or [])
+        if isinstance(claim, dict)
+        for cid in (claim.get("conflict_ids") or [])
+        if str(cid)
+    }
+    conflict_from_trace = _trace_numeric(run, "conflict_count", "conflicts", "contradictions")
+    if conflict_from_trace is not None:
+        conflict_count = int(conflict_from_trace)
+    else:
+        conflict_count = len(conflict_ids)
+    context_tokens = _trace_numeric(run, "context_tokens", "tokens_in_context")
+    if context_tokens is None:
+        context_tokens = sum(_token_estimate(str(ev.get("title") or "") + "\n" + str(ev.get("text") or "")) for ev in evidence)
+    duplicate_count = max(0, len(doc_ids) - len(unique_doc_ids))
+    return {
+        "source_diversity": len(source_types) if evidence else None,
+        "context_tokens": int(context_tokens) if context_tokens is not None else None,
+        "duplicate_rate": duplicate_count / len(doc_ids) if doc_ids else None,
+        "conflict_rate": conflict_count / len(unique_doc_ids) if unique_doc_ids else None,
+        "duplicate_doc_count": duplicate_count,
+        "conflict_count": conflict_count,
+        "retrieved_doc_count": len(unique_doc_ids),
+    }
 
 
 def _hit_at_k(ranked: list[str], gold: set[str], k: int) -> float | None:
@@ -342,8 +476,10 @@ def compute_automatic_scores(runs: list[dict[str, Any]], questions: list[dict[st
                     "rerank_ndcg_8": _ndcg_at_k(final_ranked, gold, 8),
                 }
             )
+            score.update(_retrieval_derived_metrics(run))
 
         score.update(_compute_claim_metrics(run, question))
+        score.update(_fake_identifier_metrics(run, question))
         rows.append(score)
     return rows
 
@@ -379,6 +515,16 @@ def merge_auto_and_judge_scores(
             "unsupported_claim_rate",
             "unsupported_critical_claim_rate",
             "abstention_quality",
+            "fake_identifier_count",
+            "identifier_count",
+            "fake_identifiers",
+            "source_diversity",
+            "context_tokens",
+            "duplicate_rate",
+            "conflict_rate",
+            "duplicate_doc_count",
+            "conflict_count",
+            "retrieved_doc_count",
             "valid_citation_count",
             "total_citation_count",
             "claims_with_valid_cite",
@@ -400,12 +546,26 @@ def aggregate_run_scores(score_rows: list[dict[str, Any]], metrics: list[str]) -
     out = []
     for run_id, rows in grouped.items():
         base = dict(rows[0])
+        auto = next((row for row in rows if row.get("judge_id") == "auto"), {})
         judges = {str(r.get("judge_id")) for r in rows if r.get("judge_id") and r.get("judge_id") != "auto"}
         base["judge_count"] = len(judges)
         for metric in metrics:
             values = [_metric_value(r, metric) for r in rows]
             values = [v for v in values if v is not None]
             base[metric] = statistics.fmean(values) if values else None
+        for key in (
+            "identifier_count",
+            "fake_identifiers",
+            "duplicate_doc_count",
+            "conflict_count",
+            "retrieved_doc_count",
+            "valid_citation_count",
+            "total_citation_count",
+            "claims_with_valid_cite",
+            "key_claim_count",
+        ):
+            if auto.get(key) not in (None, ""):
+                base[key] = auto[key]
         out.append(base)
     return out
 
@@ -488,6 +648,37 @@ def citation_macro_micro_rows(run_scores: list[dict[str, Any]]) -> list[dict[str
                     "micro_numerator": round(numerator, 6) if denominator else "",
                     "micro_denominator": round(denominator, 6) if denominator else "",
                     "micro_status": "available" if denominator else "not_available_no_citation_counts",
+                }
+            )
+    return rows
+
+
+def retrieval_diagnostic_rows(run_scores: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    metrics = [
+        "source_diversity",
+        "context_tokens",
+        "duplicate_rate",
+        "conflict_rate",
+        "fake_identifier_count",
+    ]
+    rows = []
+    for metric in metrics:
+        grouped: dict[str, list[float]] = defaultdict(list)
+        for score in run_scores:
+            value = _metric_value(score, metric)
+            condition = str(score.get("condition") or "")
+            if value is not None and condition:
+                grouped[condition].append(value)
+        for condition, values in sorted(grouped.items()):
+            rows.append(
+                {
+                    "metric": metric,
+                    "condition": condition,
+                    "n": len(values),
+                    "mean": round(statistics.fmean(values), 6),
+                    "median": round(statistics.median(values), 6),
+                    "min": round(min(values), 6),
+                    "max": round(max(values), 6),
                 }
             )
     return rows
@@ -1222,6 +1413,7 @@ def make_markdown_report_v2(
     delta_rows: list[dict[str, Any]],
     comparison_rows: list[dict[str, Any]],
     citation_rows: list[dict[str, Any]],
+    retrieval_rows: list[dict[str, Any]],
     judge_report: dict[str, Any],
     cost_rows: list[dict[str, Any]],
     counterexamples: list[dict[str, Any]],
@@ -1290,6 +1482,18 @@ def make_markdown_report_v2(
 
     lines += [
         "",
+        "## Retrieval Diagnostics",
+        "| metric | condition | n | mean | median | min | max |",
+        "|---|---:|---:|---:|---:|---:|---:|",
+    ]
+    for row in retrieval_rows:
+        lines.append(
+            f"| {row['metric']} | {row['condition']} | {row['n']} | {_fmt(row['mean'])} | "
+            f"{_fmt(row['median'])} | {_fmt(row['min'])} | {_fmt(row['max'])} |"
+        )
+
+    lines += [
+        "",
         "## Judge Audit",
         f"- Judge IDs: `{', '.join(judge_report['judge_ids']) or 'none'}`",
         f"- Scored runs: `{judge_report['scored_runs']}`",
@@ -1348,6 +1552,7 @@ def make_markdown_report_v2(
         f"- `{out_dir / 'b5_question_deltas.csv'}`",
         f"- `{out_dir / 'b5_counterexamples.csv'}`",
         f"- `{out_dir / 'b5_citation_rollup.csv'}`",
+        f"- `{out_dir / 'b5_retrieval_diagnostics.csv'}`",
         f"- `{out_dir / 'b5_judge_audit.json'}`",
         f"- `{out_dir / 'b5_cost_latency.csv'}`",
         f"- `{out_dir / 'b5_summary.json'}`",
@@ -1454,6 +1659,7 @@ def run_b5_report(
     comparison_rows = comparison_availability_rows(run_scores, questions, metrics, comparisons)
     counterexamples = counterexample_rows(question_delta_rows)
     citation_rows = citation_macro_micro_rows(run_scores)
+    retrieval_rows = retrieval_diagnostic_rows(run_scores)
     judge_report = judge_audit(judge_scores, run_scores, metrics)
     cost_rows = cost_latency_rows(run_scores)
     condition_summary = expected_condition_summary(expected_conditions or DEFAULT_EXPECTED_CONDITIONS, run_scores)
@@ -1467,6 +1673,13 @@ def run_b5_report(
         limitations.append("A2 was not run; A2-A is marked missing and not used for conclusions.")
     if any((left, right) in STRESS_COMPARISONS for left, right in comparisons) and not any(_is_stress_question(q) for q in questions):
         limitations.append("E-C was requested but no STRESS split questions were found, so the MD-required stress-only comparison is unavailable.")
+    limitations.append("unsupported_critical_claim_rate is computed only from structured Claim rows with criticality=critical and claim decision fields; if no critical claims are present it is reported as NA rather than inferred.")
+    limitations.append("abstention_quality is currently a binary deterministic proxy: insufficient questions are correct only when the run refuses, and answerable questions are correct only when the run does not refuse.")
+    limitations.append("When judge scores are provided, b5_report keeps deterministic auto-computed retrieval/citation/claim metrics as the canonical values and does not let judge rows override them.")
+    limitations.append("Style-control samples remain P1 because they require LLM rewriting; deterministic control generation currently covers position_swap and wrong_citations.")
+    if any(not q.get("gold_source_ids") for q in questions):
+        limitations.append("hit_at_5/recall_at_50 depend on B2 gold_source_ids delivery; questions without gold sources are excluded from those deterministic retrieval metrics.")
+    limitations.append("E-C rows require B4-provided E condition runs on STRESS questions; if B4 has not produced E runs the comparison remains missing.")
 
     save_jsonl(str(out_dir / "b5_auto_scores.jsonl"), auto_scores, mode="w")
     _write_csv(
@@ -1500,6 +1713,11 @@ def run_b5_report(
         citation_rows,
         ["metric", "condition", "macro_mean", "micro_mean", "micro_numerator", "micro_denominator", "micro_status"],
     )
+    _write_csv(
+        out_dir / "b5_retrieval_diagnostics.csv",
+        retrieval_rows,
+        ["metric", "condition", "n", "mean", "median", "min", "max"],
+    )
     _write_json(out_dir / "b5_judge_audit.json", judge_report)
     _write_csv(
         out_dir / "b5_cost_latency.csv",
@@ -1517,6 +1735,7 @@ def run_b5_report(
         delta_rows,
         comparison_rows,
         citation_rows,
+        retrieval_rows,
         judge_report,
         cost_rows,
         counterexamples,
@@ -1532,6 +1751,7 @@ def run_b5_report(
         "question_deltas": question_delta_rows,
         "counterexamples": counterexamples,
         "citation_rollup": citation_rows,
+        "retrieval_diagnostics": retrieval_rows,
         "judge_audit": judge_report,
         "cost_latency": cost_rows,
         "limitations": limitations,

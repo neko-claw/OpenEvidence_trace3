@@ -16,6 +16,7 @@ import jsonschema
 from core.dataclasses import Score, load_jsonl
 from evaluation.b5_report import (
     _doc_id,
+    _extract_identifiers_from_answer,
     _load_questions_with_stress,
     _cohen_kappa,
     _linear_weighted_kappa,
@@ -24,6 +25,7 @@ from evaluation.b5_report import (
     run_b5_report,
     counterexample_rows,
 )
+from evaluation.judge import build_control_samples
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -86,6 +88,50 @@ def test_doc_id_strips_chunk_for_all_prefixes():
     assert _doc_id("nct:NCT001:chunk:1") == "nct:NCT001"
     assert _doc_id("guideline:x:chunk:2") == "guideline:x"
     assert _doc_id("nct:NCT001") == "nct:NCT001"
+
+
+def test_fake_identifier_and_retrieval_diagnostics(tmp_path):
+    questions = [{"id": "q1", "split": "stress", "question_type": "guideline", "gold_source_ids": ["pmid:12345"]}]
+    runs = [
+        {
+            "run_id": "r1",
+            "question_id": "q1",
+            "condition": "C",
+            "answer": "Supported by PMID:12345 but not PMID:99999999 or DOI 10.9999/fake.b5. Trial NCT99999999.",
+            "candidate_ids": ["pmid:12345"],
+            "retrieved_evidence": [
+                {"id": "pmid:12345:chunk:1", "source_type": "pubmed", "pmid": "12345", "text": "alpha beta"},
+                {"id": "pmid:12345:chunk:2", "source_type": "pubmed", "pmid": "12345", "text": "duplicate"},
+                {"id": "guideline:g1", "source_type": "guideline", "text": "guideline text"},
+            ],
+            "claims": [{"criticality": "critical", "decision": "unsupported", "conflict_ids": ["pmid:12345"]}],
+            "verification_decision": "PASS",
+        }
+    ]
+    summary = run_b5_report(
+        runs, [], questions, tmp_path / "b5",
+        runs_path="runs", scores_path=None,
+        metrics=["fake_identifier_count", "source_diversity", "context_tokens", "duplicate_rate", "conflict_rate", "unsupported_critical_claim_rate"],
+        comparisons=[],
+    )
+    scores = load_jsonl(str(tmp_path / "b5" / "b5_auto_scores.jsonl"))
+    score = scores[0]
+    assert _extract_identifiers_from_answer(runs[0]["answer"]) >= {"pmid:12345", "pmid:99999999", "doi:10.9999/fake.b5", "nct:NCT99999999"}
+    assert score["fake_identifier_count"] == 3
+    assert score["source_diversity"] == 2
+    assert score["duplicate_rate"] == 1 / 3
+    assert score["conflict_rate"] == 1 / 2
+    assert (tmp_path / "b5" / "b5_retrieval_diagnostics.csv").exists()
+    assert summary["retrieval_diagnostics"]
+
+
+def test_judge_control_sample_generators():
+    runs = [{"run_id": "r1", "question_id": "q1", "condition": "C", "answer": "answer", "citations": []}]
+    controls = build_control_samples(runs)
+    by_type = {run.get("control_type"): run for run in controls if run.get("control_type")}
+    assert set(by_type) == {"position_swap", "wrong_citations"}
+    assert by_type["position_swap"]["forced_position"] == 1
+    assert "PMID:99999999" in by_type["wrong_citations"]["answer"]
 
 
 def test_permutation_keeps_ties():

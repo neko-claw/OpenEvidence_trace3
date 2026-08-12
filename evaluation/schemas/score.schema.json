@@ -33,6 +33,14 @@
     "judge_id": { "type": "string", "description": "自动或人工 judge 标识（匿名）" },
     "reviewer": { "type": ["string", "null"], "description": "人工复核人" },
     "adjudication": { "type": ["string", "null"], "description": "分歧裁定结论" },
-    "notes": { "type": ["string", "null"] }
+    "notes": { "type": ["string", "null"] },
+    "position": { "type": ["integer", "null"], "description": "匿名展示位置（judge 偏差审计）" },
+    "anonymous_label": { "type": "string", "description": "匿名标签；judge 不可见条件名" },
+    "randomization_seed": { "type": ["integer", "null"], "description": "位置随机种子（可复现）" },
+    "judge_family": { "type": "string", "description": "judge 模型家族（家族偏差审计）" },
+    "citation_count": { "type": ["integer", "null"], "description": "展示给 judge 的引用数量" },
+    "displayed_citation_count": { "type": ["integer", "null"] },
+    "control_type": { "type": "string", "enum": ["", "style", "position_swap", "wrong_citations"], "description": "控制样本类型" },
+    "control_id": { "type": "string", "description": "控制样本配对 ID" }
   }
 }

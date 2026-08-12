@@ -7,5 +7,6 @@ pandas>=2.0
 scipy>=1.11
 matplotlib>=3.8
 pytest>=8.0
+jsonschema>=4.0
 sentence-transformers>=4.0
 streamlit>=1.40

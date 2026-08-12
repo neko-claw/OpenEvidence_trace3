@@ -14,11 +14,12 @@ dependencies = [
     "scipy>=1.11",
     "matplotlib>=3.8",
     "pytest>=8.0",
+    "jsonschema>=4.0",
 ]
 
 [project.optional-dependencies]
 retrieval = ["rank-bm25>=0.2", "chromadb>=0.4"]
-test = ["pytest>=7.0"]
+test = ["pytest>=7.0", "jsonschema>=4.0"]
 ui = ["streamlit>=1.40"]
 embedding_local = ["sentence-transformers>=4.0"]
 
