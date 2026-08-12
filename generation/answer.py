@@ -90,11 +90,11 @@ class AnswerGenerator:
         # claims 留痕（P0-2）：主终点 rubric_keypoint_score / unsupported_critical_claim_rate 依赖
         # decision 按引用编号存在性判定（v0.1 口径）：A 无证据上下文 -> pending；其余 supported/insufficient
         if condition == "A2":
-            run.claims = split_claims(run.answer, run.run_id, n_search=len(retrieved))
+            run.claims = split_claims(run.answer, run.run_id, n_search=n_ev)
         elif condition == "A":
             run.claims = split_claims(run.answer, run.run_id)
         else:
-            run.claims = split_claims(run.answer, run.run_id, n_evidence=len(retrieved))
+            run.claims = split_claims(run.answer, run.run_id, n_evidence=n_ev)
         return run, features
 
     def _abstain_text(self, q: Question) -> str:

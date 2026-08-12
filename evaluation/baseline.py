@@ -10,6 +10,7 @@ from core.config import Config
 from core.dataclasses import Question, Run
 from core.llm import LLMClient
 from evaluation.a2_search import search_general
+from evaluation.stress import apply_stress
 from generation.answer import AnswerGenerator
 from retrieval.index import EvidenceStore
 
@@ -103,16 +104,31 @@ def run_condition(q: Question, condition: str, cfg: Config,
         base_evs, base_feats = store.retrieve(
             q.question, use_rerank=False, verbose=verbose, stats=stats,
             q_freshness=q.freshness)
-        n = max(2, len(base_evs) // 2)
-        top_evs = base_evs[:n]
-        features = [f for f in base_feats if f["doc_id"] in {e["id"] for e in top_evs}]
+        candidates = [
+            {**candidate, "evidence_id": candidate["doc_id"]}
+            for candidate in stats.get("rrf_candidates", [])
+        ]
+        perturbed, manifest = apply_stress(
+            candidates, q.to_dict(), seed=0,
+            final_k=cfg["retrieval"]["k_final"],
+        )
+        top_evs = [
+            evidence.to_dict()
+            for candidate in perturbed
+            if (evidence := store.get(candidate["evidence_id"])) is not None
+        ]
+        features = [
+            {**candidate, "doc_id": candidate["evidence_id"]}
+            for candidate in perturbed
+        ]
         # 扰动标签优先取题目声明（stress 题 rubric.perturbation），执行逻辑仍为 top-k 减半骨架；
         # B4 合入 e_perturbation_rules.json 后按声明实现 gold 删除/注入不支持证据等扰动。
         declared = q.rubric.get("perturbation") if isinstance(q.rubric, dict) else None
         run.tool_trace.append({"tools": ["bm25", "vector", "rrf", "degrade"],
-                               "derived_from": "B_baseline_rerank_false",
-                               "perturbation": declared or "topk_halved",
-                               "perturbation_executed": "topk_halved",
+                               "derived_from": "rrf_candidates_shared_by_B_and_C",
+                               "perturbation": manifest.stress_rule,
+                               "perturbation_executed": manifest.stress_rule,
+                               "stress_manifest": manifest.to_dict(),
                                "retrieved": len(top_evs), "degraded": True,
                                "cache_hit": stats.get("cache_hit", False)})
         run.index_version = store.index_version

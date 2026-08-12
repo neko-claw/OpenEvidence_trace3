@@ -109,6 +109,23 @@ def test_question_blueprint_format_loads():
     assert q.extras.get("rubric_version") == "v0.1"
 
 
+def test_question_blueprint_fields_are_preserved():
+    q = Question.from_dict({
+        "id": "DEV-S01", "split": "DEV", "dataset_pack": "DEV",
+        "topic": "hypertension", "question_type": "mechanism",
+        "difficulty": 2, "question": "为什么长期血压升高会造成心肌重构？",
+        "answerable": True, "as_of_date": "2026-08-01",
+        "source_group_id": "source-01", "gold_source_ids": [],
+        "key_points": ["压力负荷"], "language": "zh-CN",
+        "rubric_version": "rubric-v0.1",
+    })
+    assert q.freshness == "stable"
+    assert q.split == "DEV" and q.dataset_pack == "DEV"
+    assert q.answerable is True and q.source_group_id == "source-01"
+    assert q.rubric["key_points"] == ["压力负荷"]
+    assert q.extras["rubric_version"] == "rubric-v0.1"
+
+
 def test_question_runtime_format_roundtrip():
     """运行器题集格式（rubric 内嵌 key_points）round-trip 不受影响。"""
     d = {"id": "q01", "topic": "hypertension", "difficulty": "easy",
@@ -152,3 +169,10 @@ def test_claims_support_rate_usable_from_split_claims():
     claims = split_claims(answer, "run1", n_evidence=2)
     assert abs(claim_support_rate(claims) - 0.5) < 1e-9
     assert abs(unsupported_claim_rate(claims) - 0.5) < 1e-9
+
+
+def test_split_claims_has_condition_aware_decisions():
+    claims = split_claims("- 有效引用 [E1]\n- 这是一条没有引用的补充结论。", "run-1", n_evidence=2)
+    assert [claim["decision"] for claim in claims] == ["supported", "insufficient"]
+    assert claims[0]["verification_method"] == "citation_existence"
+    assert split_claims("- 这是一条没有检索上下文的主张。", "run-2")[0]["decision"] == "pending"

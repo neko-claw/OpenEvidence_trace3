@@ -35,8 +35,14 @@ class Question:
     difficulty: str           # easy | medium | hard（蓝图可为 int 2/3，兼容）
     question: str
     question_type: str        # mechanism | guideline | latest_trial | insufficient
-    freshness: str = "stable" # stable | up_to_date（蓝图格式无此字段，给默认值）
+    freshness: str = "stable"  # stable | up_to_date（蓝图格式无此字段，给默认值）
     gold_source_ids: list[str] = field(default_factory=list)
+    split: str = ""
+    dataset_pack: str = ""
+    answerable: bool | None = None
+    as_of_date: str = ""
+    source_group_id: str = ""
+    extras: dict[str, Any] = field(default_factory=dict)
     rubric: dict[str, Any] = field(default_factory=dict)  # 关键回答点 + 扣分项
     # ---- B1 蓝图字段（B2 正式题交付格式；运行器可选） ----
     split: str = ""           # DEV | TEST | STRESS | EXTERNAL | RESERVE
@@ -60,7 +66,7 @@ class Question:
         known = set(cls.__dataclass_fields__)
         extras = {k: v for k, v in d.items() if k not in known}
         if extras:
-            d["extras"] = extras
+            d["extras"] = {**(d.get("extras") or {}), **extras}
         valid = {k: v for k, v in d.items() if k in known}
         return cls(**valid)
 
@@ -179,10 +185,10 @@ class Score:
     condition: str = ""
     judge_id: str = ""
     # 版本（score.schema.json 必填；judge 写入）
-    metric_version: str = ""
-    rubric_version: str = ""
-    # 检索（字段名与 score.schema.json 对齐）
-    retrieval_hit_at_k: Optional[float] = None
+    metric_version: str = "v0.1"
+    rubric_version: str = "v0.1"
+    # 检索（B5 对齐：hit_at_5/mrr/recall_at_50/rerank_ndcg）
+    hit_at_5: Optional[float] = None
     mrr: Optional[float] = None
     recall_at_50: Optional[float] = None
     rerank_ndcg: Optional[float] = None

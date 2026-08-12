@@ -1,0 +1,57 @@
+version: "v0.1"
+mode: "classroom_minimum"
+
+dataset:
+  dev_split: "DEV"
+  test_split: "TEST"
+  stress_split: "STRESS"
+  test_question_count: 40
+  stress_question_count: 20
+
+model:
+  provider: "openai_compatible"
+  model: "TO_BE_FILLED"
+  temperature: 0.0
+  max_output_tokens: 1200
+  timeout_seconds: 90
+  max_retries: 2
+
+common:
+  prompt_version: "prompt-v0.1"
+  dataset_version: "TO_BE_FILLED"
+  corpus_version: "TO_BE_FILLED"
+  index_version: "TO_BE_FILLED"
+  citation_schema: "evidence-id-v1"
+  cache_enabled: true
+
+conditions:
+  C:
+    name: "rerank_rag"
+    retrieval_mode: "bm25_vector_rrf_rerank_mmr"
+    require_citations: true
+    tool_budget: 0
+
+  D:
+    name: "full_system"
+    retrieval_mode: "full_system_adapter"
+    require_citations: true
+    tool_budget: 3
+    system_version: "TO_BE_FILLED"   # 冻结 system-v0.2 后填写；占位符不覆盖代码默认
+
+  E:
+    name: "degraded_rag"
+    base_condition: "C"
+    # 预注册劣化规则（见 evaluation/preregistration/e_perturbation_rules.json）：
+    #   drop_all_gold_v1 / drop_gold_v1 / topk_reduced /
+    #   inject_unsupporting_v1 / unanswerable_malicious
+    # 单题可在 rubric.stress_rule（或顶层 stress_rule 字段）声明以覆盖此处默认；
+    # STRESS 20 题按 B2/B4 预注册分类每类 5 题分配。
+    stress_rule: "drop_all_gold_v1"
+    require_citations: true
+    tool_budget: 0
+
+runtime:
+  save_dir: "artifacts/runs"
+  retrieval_trace_dir: "artifacts/retrieval"
+  stress_manifest_dir: "artifacts/stress"
+  stop_on_error: false

@@ -7,11 +7,11 @@ from core.embeddings import EmbeddingClient
 
 
 class VectorIndex:
-    def __init__(self, docs: list[dict], emb_client: EmbeddingClient):
+    def __init__(self, docs: list[dict], emb_client: EmbeddingClient, matrix: np.ndarray | None = None):
         """docs: [{'id':..., 'title':..., 'text':...}]"""
         self.ids = [d["id"] for d in docs]
         texts = [d.get("title", "") + "\n" + d.get("text", "") for d in docs]
-        self.matrix = emb_client.embed(texts)
+        self.matrix = matrix if matrix is not None else emb_client.embed(texts)
         self.emb = emb_client
 
     def search(self, query: str, k: int = 50) -> list[tuple[str, float]]:
