@@ -347,11 +347,18 @@ tests/                  31 个契约测试
 ```bash
 ## 需要 Python 3.8+，依赖 requests（可选 uv）
 cd OpenEvidence
-python -m ingestion.run_all          # 全流程（带缓存，断点续传）
+python -m ingestion.run_all          # 一键全量重建（主采集 + 维基 + Hesperian + 补料快照 + SQLite）
 python -m ingestion.run_all --force  # 忽略缓存全量重抓
 ```
 
+一条命令会依次执行：PubMed / ClinicalTrials.gov / Europe PMC / 指南采集 → 维基百科与
+Hesperian 抓取 → 合并冻结的补料记录（`test_set/supplemental_evidence.jsonl`，含人工精选
+的 85 条，避免一键重建时丢失人工决策产物）→ 重建 `evidence.jsonl` /
+`fulltext_chunks.jsonl` / `evidence.db` → 回写 `data/raw/` 补料快照。
+可用 `--no-wiki --no-hesperian --no-sync --no-supplemental` 跳过对应步骤。
+
 原始 API 缓存写入 `data/raw/`（已 gitignore）；`data/processed/` 与 `artifacts/` 可重建。
+注意：外部数据源会持续更新，重建结果与当前文件可能存在细微差异，核心记录 ID 不会丢失。
 
 ### 8. 已知局限
 

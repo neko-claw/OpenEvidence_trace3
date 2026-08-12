@@ -7,14 +7,21 @@
   2. ClinicalTrials.gov：按疾病抓取干预性试验
   3. Europe PMC：OA 文献检索 + 全文 XML 下载与分块（缓存）
   4. 指南：人工确认清单 + 用 PubMed 真实记录回填 PMID/DOI/摘要
-  5. 标准化为 Evidence JSONL
-  6. SQLite 入库 + DatasetManifest + 统计报告
+  5. 维基百科：下载高血压/血脂相关页面（raw wikitext + 检索 chunk）
+  6. Hesperian：下载血压/血脂相关章节（raw wikitext + 检索 chunk）
+  7. 合并 test_set/supplemental_evidence.jsonl 冻结的补料记录（人工精选决策）
+  8. 标准化为 Evidence JSONL
+  9. SQLite 入库 + DatasetManifest + 统计报告
+ 10. 回写 data/raw 补料快照（scripts/sync_raw_db.py）
+
+可用 --no-wiki / --no-hesperian / --no-sync / --no-supplemental 跳过对应步骤。
 """
 from __future__ import annotations
 
 import argparse
 import json
 import logging
+import subprocess
 import sys
 import time
 import xml.etree.ElementTree as ET
@@ -35,12 +42,46 @@ log = logging.getLogger("ingestion.run_all")
 
 T0 = time.time()
 
+SUPPLEMENTAL_EVIDENCE = config.ROOT / "test_set" / "supplemental_evidence.jsonl"
+FETCH_WIKI_SCRIPT = config.ROOT / "scripts" / "fetch_wikipedia_medical.py"
+FETCH_HESPERIAN_SCRIPT = config.ROOT / "scripts" / "fetch_hesperian_medical.py"
+SYNC_RAW_SCRIPT = config.ROOT / "scripts" / "sync_raw_db.py"
+
 
 def _ensure_dirs():
     for d in [config.PUBMED_DIR, config.PUBMED_ARTICLE_DIR,
               config.TRIALS_DIR, config.EPMC_DIR, config.EPMC_FULLTEXT_DIR,
               config.GUIDELINE_DIR, config.DATA_PROCESSED, config.ARTIFACTS]:
         Path(d).mkdir(parents=True, exist_ok=True)
+
+
+def load_supplemental() -> list[dict]:
+    """读取冻结的补料记录（人工精选决策的持久化快照）。"""
+    if not SUPPLEMENTAL_EVIDENCE.exists():
+        log.warning("未找到冻结补料清单 %s，跳过补料合并", SUPPLEMENTAL_EVIDENCE)
+        return []
+    records = []
+    for line in SUPPLEMENTAL_EVIDENCE.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            records.append(json.loads(line))
+    log.info("冻结补料清单: %d 条", len(records))
+    return records
+
+
+def merge_by_id(lines: list[dict], extra: list[dict]) -> list[dict]:
+    """按 id 合并补料记录；extra 中同 id 的记录覆盖主采集结果（保留人工标记）。"""
+    if not extra:
+        return lines
+    merged = {r["id"]: r for r in lines}
+    for r in extra:
+        merged[r["id"]] = r
+    return list(merged.values())
+
+
+def run_script(script: Path, label: str) -> None:
+    """用当前 Python 环境运行配套脚本（维基/Hesperian/raw 同步）。"""
+    log.info("== 步骤：%s（%s） ==", label, script.name)
+    subprocess.run([sys.executable, str(script)], cwd=str(config.ROOT), check=True)
 
 
 # ---------------------------------------------------------------- 1. PubMed
@@ -199,9 +240,10 @@ def build_guidelines(articles, preferred):
     return enriched
 
 
-# ---------------------------------------------------------------- 5+6. 标准化入库
+# ---------------------------------------------------------------- 7+8. 补料合并与标准化入库
 
-def normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, guidelines):
+def normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta,
+                  guidelines, extra_lines=None):
     stats = {"dedup_merged": 0, "title_only": 0, "tiny_chunks_dropped": 0,
              "xml_parse_failed": [], "cross_source_dups": 0}
     lines = []
@@ -261,6 +303,12 @@ def normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, gu
     stats["dedup_merged"] = sum(
         len((r.get("extras") or {}).get("dedup_merged_ids") or []) for r in lines)
 
+    # 冻结的补料记录：保留人工精选/审计阶段的产物（candidate_group、curated_for_question 等）
+    if extra_lines:
+        before = len(lines)
+        lines = merge_by_id(lines, extra_lines)
+        log.info("补料记录合并: %d -> %d 条", before, len(lines))
+
     # 分层存储：主集（题录/摘要/试验/指南）与全文 chunk 分开（改进 1：使用 main 版本布局）
     main_lines = [ln for ln in lines if ln["record_kind"] != "fulltext_chunk"]
     chunk_lines = [ln for ln in lines if ln["record_kind"] == "fulltext_chunk"]
@@ -282,9 +330,15 @@ def main():
     ap = argparse.ArgumentParser(description="OpenEvidence 数据集采集")
     ap.add_argument("--force", action="store_true", help="忽略缓存，重新抓取")
     ap.add_argument("--no-db", action="store_true", help="只生成 JSONL，不建库")
+    ap.add_argument("--no-wiki", action="store_true", help="跳过维基百科抓取")
+    ap.add_argument("--no-hesperian", action="store_true", help="跳过 Hesperian 抓取")
+    ap.add_argument("--no-sync", action="store_true", help="跳过 raw 补料快照回写")
+    ap.add_argument("--no-supplemental", action="store_true",
+                    help="不合并冻结的补料记录（不推荐，会丢失人工精选内容）")
     args = ap.parse_args()
 
     _ensure_dirs()
+    extra_lines = [] if args.no_supplemental else load_supplemental()
     articles, pmid_topics = crawl_pubmed(force=args.force)
     preferred, guideline_articles = crawl_guideline_articles(force=args.force)
     # 把指南专用查询抓到的记录并入语料（含其主题标签）
@@ -300,12 +354,22 @@ def main():
     hits_by_slug, hit_map, fulltext_meta = crawl_europepmc(force=args.force)
     guidelines = build_guidelines(articles, preferred)
 
-    lines, chunk_lines, ingest_stats = normalize_all(articles, pmid_topics, trials, hits_by_slug, fulltext_meta, guidelines)
+    lines, chunk_lines, ingest_stats = normalize_all(
+        articles, pmid_topics, trials, hits_by_slug, fulltext_meta, guidelines,
+        extra_lines=extra_lines)
+
+    if not args.no_wiki:
+        run_script(FETCH_WIKI_SCRIPT, "维基百科")
+    if not args.no_hesperian:
+        run_script(FETCH_HESPERIAN_SCRIPT, "Hesperian")
 
     if not args.no_db:
         res = build_db.run(force=True, chunk_lines=chunk_lines, ingest_stats=ingest_stats)
         log.info("DB rows=%d, total_papers=%d, chunks=%d",
                  res["rows"], res["total_papers"], res.get("chunks", 0))
+
+    if not args.no_sync:
+        run_script(SYNC_RAW_SCRIPT, "raw 补料快照同步")
 
     stats = build_db.compute_stats(lines)
     stats = build_db.compute_chunk_stats(chunk_lines, stats)
