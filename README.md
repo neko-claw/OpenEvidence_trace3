@@ -50,7 +50,7 @@ pip install -r requirements.txt
 ### 1.4 验证环境
 
 ```bash
-python -m pytest tests/ -q        # 期望输出: 51 passed
+python -m pytest tests/ -q        # 期望输出: 99 passed
 ```
 
 ---
@@ -216,7 +216,7 @@ evaluation/             实验 / judge / 指标 / 统计 / 图表
 data/processed/evidence.jsonl   10183 条多源证据库（已内置，含 manifest.json）
 data/questions/         题集（formal12 正式 / dev8 开发 / stress_sample 压力样例）
 scripts/                start.sh 一键启动 / build_kb 重建库 / view_evidence 浏览
-tests/                  31 个契约测试
+tests/                  99 个契约测试（含 B5 报告 10 项回归）
 ```
 
 # 免责声明
