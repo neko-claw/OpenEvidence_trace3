@@ -105,6 +105,29 @@ def _is_stress_question(question: dict[str, Any] | None) -> bool:
     return _question_split(question) == "stress"
 
 
+def _load_questions_with_stress(formal_path: str, stress_path: str | None, cfg: Any) -> list[dict[str, Any]]:
+    """加载正式题 + STRESS 压力题（E-C 仅压力集对比依赖 split 标记）。
+
+    - B2 正式题若自带 split 字段（TEST/STRESS...），保留原值；
+    - 压力题文件里的题目若无显式 split，标记为 "stress"；
+    - 这样 `--questions` 指向正式题文件时，E-C 比较也能覆盖 STRESS 题。
+    """
+    questions = load_jsonl(formal_path)
+    stress_candidates = [stress_path]
+    if stress_path is None:
+        try:
+            stress_candidates.append(str(cfg.path("questions_stress")))
+        except Exception:
+            pass
+    for candidate in stress_candidates:
+        if not candidate or not Path(candidate).exists():
+            continue
+        for d in load_jsonl(candidate):
+            d.setdefault("split", "stress")
+            questions.append(d)
+    return questions
+
+
 def _write_csv(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as f:
@@ -138,13 +161,12 @@ def _as_evidence_id(item: Any) -> str:
 
 
 def _doc_id(evidence_id: str) -> str:
-    """Document-level de-duplication key for citation metrics."""
-    if evidence_id.startswith("pmid:"):
-        return evidence_id.split(":chunk:", 1)[0]
-    if evidence_id.startswith("nct:"):
-        return evidence_id
-    if evidence_id.startswith("guideline:"):
-        return evidence_id
+    """Document-level de-duplication key for citation metrics.
+
+    Chunk suffix 优先剥离（对 pmid/nct/guideline/epmc 统一生效），
+    避免 "nct:NCT001:chunk:0" / "guideline:x:chunk:1" 这类 ID 在
+    Hit@K/Recall/引文指标里被当成与文档级 gold 不同的实体。
+    """
     if ":chunk:" in evidence_id:
         return evidence_id.split(":chunk:", 1)[0]
     return evidence_id
@@ -299,7 +321,9 @@ def compute_automatic_scores(runs: list[dict[str, Any]], questions: list[dict[st
             "condition": condition,
             "judge_id": "auto",
             "metric_version": "b5-auto-v1",
-            "rubric_version": question.get("rubric_version") or "",
+            "rubric_version": (question.get("rubric_version")
+                                or (question.get("rubric") or {}).get("rubric_version")
+                                or ""),
             "latency_ms": run.get("latency_ms", 0),
             "input_tokens": run.get("input_tokens", 0),
             "output_tokens": run.get("output_tokens", 0),
@@ -506,26 +530,29 @@ def _bootstrap_ci_stratified(
     )
 
 
-def paired_permutation_p(deltas: list[float], max_exact_n: int = 20, samples: int = 20000, seed: int = 42) -> float | None:
-    """Two-sided paired sign-flip permutation test on mean paired deltas."""
-    nonzero = [d for d in deltas if d != 0]
-    if not nonzero:
+def paired_permutation_p(deltas: list[float], max_exact_n: int = 14, samples: int = 20000, seed: int = 42) -> float | None:
+    """Two-sided paired sign-flip permutation test on mean paired deltas.
+
+    平局（delta == 0）保留在置换分布中（它们稀释显著性，不剔除），
+    避免小样本下高估效应。
+    """
+    if not deltas:
         return None
-    observed = abs(statistics.fmean(nonzero))
-    n = len(nonzero)
+    observed = abs(statistics.fmean(deltas))
+    n = len(deltas)
     if n <= max_exact_n:
         total = 0
         extreme = 0
         for signs in product((-1, 1), repeat=n):
             total += 1
-            mean = abs(statistics.fmean(d * s for d, s in zip(nonzero, signs)))
+            mean = abs(statistics.fmean(d * s for d, s in zip(deltas, signs)))
             if mean >= observed - 1e-12:
                 extreme += 1
         return extreme / total
     rng = random.Random(seed)
     extreme = 0
     for _ in range(samples):
-        mean = abs(statistics.fmean(d * rng.choice((-1, 1)) for d in nonzero))
+        mean = abs(statistics.fmean(d * rng.choice((-1, 1)) for d in deltas))
         if mean >= observed - 1e-12:
             extreme += 1
     return extreme / samples
@@ -652,7 +679,9 @@ def counterexample_rows(question_delta_rows: list[dict[str, Any]]) -> list[dict[
             continue
         if row["comparison"] in {"B-A", "C-B", "D-C"} and not row["right_condition_better"]:
             rows.append({**row, "counterexample_type": "expected_gain_not_seen"})
-        elif row["comparison"] == "E-C" and row["right_condition_better"]:
+        elif row["comparison"] == "E-C" and (row["right_condition_better"] or row["delta"] == 0):
+            # 劣化未生效（E >= C，含平局）都算“检索拖累”反例：
+            # 预注册假设是检索污染应拖累回答，平局同样需要披露。
             rows.append({**row, "counterexample_type": "degraded_condition_not_worse"})
     return rows
 
@@ -720,6 +749,93 @@ def _pearson(xs: list[float], ys: list[float]) -> float | None:
     return numerator / (denom_x * denom_y)
 
 
+# ---------- 评审一致性（§6.3：二元标签 Cohen's kappa，有序评分加权 kappa） ----------
+
+ORDINAL_JUDGE_METRICS = {"relevance", "correctness", "completeness", "faithfulness", "rubric_keypoint_score"}
+
+
+def _cohen_kappa(a: list[float], b: list[float]) -> float | None:
+    """Cohen's kappa（二元标签，类别集合取并集，两端各有至少一个非空类别）。"""
+    if len(a) != len(b) or not a:
+        return None
+    labels = sorted({round(x) for x in a + b})
+    if len(labels) < 2:
+        return None  # 无类别变化无法估计 kappa
+    n = len(a)
+    observed = sum(1 for x, y in zip(a, b) if round(x) == round(y)) / n
+    expected = 0.0
+    for label in labels:
+        pa = sum(1 for x in a if round(x) == label) / n
+        pb = sum(1 for y in b if round(y) == label) / n
+        expected += pa * pb
+    if expected >= 1.0:
+        return None
+    return (observed - expected) / (1.0 - expected)
+
+
+def _linear_weighted_kappa(a: list[float], b: list[float]) -> float | None:
+    """线性加权 kappa（有序 1..5 评分；先取整到整数类别）。"""
+    if len(a) != len(b) or not a:
+        return None
+    labels = sorted({round(x) for x in a + b})
+    if len(labels) < 2:
+        return None
+    n = len(a)
+    pa = {label: sum(1 for x in a if round(x) == label) / n for label in labels}
+    pb = {label: sum(1 for y in b if round(y) == label) / n for label in labels}
+    max_w = max(abs(i - j) for i in labels for j in labels) or 1.0
+    weights = {(i, j): 1.0 - abs(i - j) / max_w for i in labels for j in labels}
+    observed = sum(weights[(round(x), round(y))] for x, y in zip(a, b)) / n
+    expected = sum(pa[i] * pb[j] * weights[(i, j)] for i in labels for j in labels)
+    if expected >= 1.0:
+        return None
+    return (observed - expected) / (1.0 - expected)
+
+
+def _judge_kappa(judge_rows: list[dict], metric: str) -> dict[str, Any]:
+    """评审一致性 kappa（§6.3.6）：同一 judge 对在多个 run 上的评分向量计算。
+
+    - 有序 1-5 指标（relevance/correctness/completeness/faithfulness/rubric_keypoint_score）
+      用线性加权 kappa（先取整到整数类别）；
+    - 二元指标（值全为 0/1，如 abstention_quality、hit_at_5）用 Cohen's kappa；
+    - 其他连续比例指标不适用 kappa（保留 mean_abs_diff），返回 None 并注明。
+    """
+    by_judge_run: dict[str, dict[str, float]] = defaultdict(dict)
+    for row in judge_rows:
+        judge_id = str(row.get("judge_id") or "")
+        run_id = str(row.get("run_id") or "")
+        value = _metric_value(row, metric)
+        if judge_id and run_id and value is not None:
+            by_judge_run[judge_id][run_id] = value
+    judge_ids = sorted(by_judge_run)
+    is_ordinal = metric in ORDINAL_JUDGE_METRICS
+    kappas: list[float] = []
+    pair_count = 0
+    for j1, j2 in combinations(judge_ids, 2):
+        common = [r for r in by_judge_run[j1] if r in by_judge_run[j2]]
+        if len(common) < 2:
+            continue
+        pair_count += 1
+        a = [by_judge_run[j1][r] for r in common]
+        b = [by_judge_run[j2][r] for r in common]
+        binary_ok = all(v in (0.0, 1.0) for v in a + b)
+        if is_ordinal:
+            kappa = _linear_weighted_kappa(a, b)
+        elif binary_ok:
+            kappa = _cohen_kappa(a, b)
+        else:
+            kappa = None
+        if kappa is not None:
+            kappas.append(kappa)
+    return {
+        "kappa_judge_pairs": pair_count,
+        "kappa_estimable_pairs": len(kappas),
+        "mean_kappa": round(statistics.fmean(kappas), 6) if kappas else None,
+        "kappa_type": "linear_weighted" if is_ordinal else "cohen_binary",
+        "note": "kappa 需同一 judge 对在 >=2 个 run 上评分；连续比例指标（如 claim_support_rate）不适用 kappa，用 mean_abs_diff。" if not kappas else "",
+    }
+
+
 def judge_audit(judge_scores: list[dict[str, Any]], run_scores: list[dict[str, Any]], metrics: list[str]) -> dict[str, Any]:
     judge_rows = [row for row in judge_scores if row.get("judge_id") and row.get("judge_id") != "auto"]
     run_by_id = {str(row.get("run_id")): row for row in run_scores if row.get("run_id")}
@@ -739,6 +855,7 @@ def judge_audit(judge_scores: list[dict[str, Any]], run_scores: list[dict[str, A
             "paired_judge_rows": len(diffs),
             "mean_abs_diff": round(statistics.fmean(diffs), 6) if diffs else None,
             "max_abs_diff": round(max(diffs), 6) if diffs else None,
+            "kappa": _judge_kappa(judge_rows, metric),
         }
 
     position_bias = {}
@@ -1179,15 +1296,17 @@ def make_markdown_report_v2(
         f"- Runs with multiple judges: `{judge_report['runs_with_multiple_judges']}`",
         f"- Anonymous/randomization audit: `{judge_report['randomization_audit']['status']}`",
         "",
-        "| metric | judge pairs | mean abs diff | max abs diff | length corr | citation-count corr |",
-        "|---|---:|---:|---:|---:|---:|",
+        "| metric | judge pairs | mean abs diff | max abs diff | kappa | kappa type | length corr | citation-count corr |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for metric, item in judge_report["agreement"].items():
         length = judge_report["length_bias"].get(metric, {})
         citation = judge_report["citation_appearance_bias"].get(metric, {})
+        kappa = item.get("kappa") or {}
         lines.append(
             f"| {metric} | {item['paired_judge_rows']} | {_fmt(item['mean_abs_diff'])} | "
-            f"{_fmt(item['max_abs_diff'])} | {_fmt(length.get('pearson_answer_length'))} | "
+            f"{_fmt(item['max_abs_diff'])} | {_fmt(kappa.get('mean_kappa'))} | "
+            f"{kappa.get('kappa_type') or 'n/a'} | {_fmt(length.get('pearson_answer_length'))} | "
             f"{_fmt(citation.get('pearson_citation_count'))} |"
         )
 
@@ -1428,6 +1547,8 @@ def main() -> None:
     parser.add_argument("--runs", default=None, help="Run JSONL from evaluation.experiment")
     parser.add_argument("--scores", default=None, help="Optional judge Score JSONL")
     parser.add_argument("--questions", default=str(cfg.path("questions_formal")), help="Question JSONL")
+    parser.add_argument("--questions-stress", default=None,
+                        help="STRESS 压力题 JSONL（默认取 config questions_stress；用于 E-C 仅压力集对比）")
     parser.add_argument("--out-dir", default=str(cfg.path("artifacts") / "b5"), help="Output directory")
     parser.add_argument("--metrics", nargs="+", default=DEFAULT_METRICS)
     parser.add_argument("--comparisons", default=None, help="Comma list like A:B,B:C,C:D,C:E,A:A2")
@@ -1449,7 +1570,7 @@ def main() -> None:
             raise SystemExit("Missing --runs. Automated metrics are computed from Run records.")
         runs = load_jsonl(args.runs)
         judge_scores = load_jsonl(args.scores) if args.scores else []
-        questions = load_jsonl(args.questions)
+        questions = _load_questions_with_stress(args.questions, args.questions_stress, cfg)
         runs_path = args.runs
         scores_path = args.scores
         out_dir = Path(args.out_dir).resolve()
