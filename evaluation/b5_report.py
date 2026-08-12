@@ -1677,7 +1677,7 @@ def run_b5_report(
     limitations.append("unsupported_critical_claim_rate is computed only from structured Claim rows with criticality=critical and claim decision fields; if no critical claims are present it is reported as NA rather than inferred.")
     limitations.append("abstention_quality is currently a binary deterministic proxy: insufficient questions are correct only when the run refuses, and answerable questions are correct only when the run does not refuse.")
     limitations.append("When judge scores are provided, b5_report keeps deterministic auto-computed retrieval/citation/claim metrics as the canonical values and does not let judge rows override them.")
-    limitations.append("Style-control samples remain P1 because they require LLM rewriting; deterministic control generation currently covers position_swap and wrong_citations.")
+    limitations.append("Judge control generation covers style variants, position_swap, and wrong_citations; style controls default to deterministic lexical rewrites and can use LLM rewrites via evaluation.judge --style-controls llm.")
     if any(not q.get("gold_source_ids") for q in questions):
         limitations.append("hit_at_5/recall_at_50 depend on B2 gold_source_ids delivery; questions without gold sources are excluded from those deterministic retrieval metrics.")
     limitations.append("E-C rows require B4-provided E condition runs on STRESS questions; if B4 has not produced E runs the comparison remains missing.")

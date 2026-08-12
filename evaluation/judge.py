@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import random
+import re
 import time
 
 from core.config import load_config
@@ -70,9 +71,85 @@ def make_wrong_citation_controls(runs: list[dict]) -> list[dict]:
     return controls
 
 
-def build_control_samples(runs: list[dict], include_original: bool = True) -> list[dict]:
-    """Return original runs plus deterministic P1 control samples."""
+def _style_variant_text(answer: str) -> str:
+    """Create a deterministic style-only rewrite without adding factual content."""
+    text = (answer or "").strip()
+    if not text:
+        return "Style audit rewrite: no answer content was provided."
+
+    replacements = [
+        (r"\btherefore\b", "so"),
+        (r"\bhowever\b", "but"),
+        (r"\bpatients\b", "people"),
+        (r"\bevidence\b", "available evidence"),
+        (r"\brecommend\b", "suggest"),
+        (r"\bclinicians\b", "care teams"),
+    ]
+    rewritten = text
+    for pattern, repl in replacements:
+        rewritten = re.sub(pattern, repl, rewritten, flags=re.IGNORECASE)
+
+    sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", rewritten) if part.strip()]
+    if len(sentences) > 1:
+        rewritten = "\n".join(f"- {sentence}" for sentence in sentences)
+    else:
+        rewritten = f"Briefly: {rewritten}"
+    return rewritten
+
+
+def _llm_style_variant(llm: LLMClient, answer: str, model: str | None = None) -> str:
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "Rewrite the answer in a clearly different style while preserving every "
+                "medical claim, citation marker, number, and limitation. Do not add facts. "
+                "Return JSON only."
+            ),
+        },
+        {
+            "role": "user",
+            "content": (
+                "Return this JSON shape: {\"answer\": string}. Rewrite the answer as a "
+                "concise bullet-style explanation with the same factual content.\n\n"
+                f"Answer:\n{answer}"
+            ),
+        },
+    ]
+    obj, _ = llm.chat_json(messages, temperature=0.0, model=model)
+    rewritten = str(obj.get("answer") or "").strip()
+    return rewritten or _style_variant_text(answer)
+
+
+def make_style_controls(
+    runs: list[dict],
+    *,
+    llm: LLMClient | None = None,
+    model: str | None = None,
+) -> list[dict]:
+    """Create deterministic style-variant controls for judge bias audit."""
+    controls = []
+    for run in runs:
+        control = dict(run)
+        control["run_id"] = f"{run['run_id']}::style"
+        control["control_type"] = "style"
+        control["control_id"] = f"{run['question_id']}::{run['run_id']}::style"
+        answer = str(run.get("answer") or "")
+        control["answer"] = _llm_style_variant(llm, answer, model=model) if llm else _style_variant_text(answer)
+        controls.append(control)
+    return controls
+
+
+def build_control_samples(
+    runs: list[dict],
+    include_original: bool = True,
+    *,
+    llm: LLMClient | None = None,
+    model: str | None = None,
+) -> list[dict]:
+    """Return original runs plus deterministic B5 judge-control samples."""
     out = list(runs) if include_original else []
+    out.extend(make_style_controls(runs, llm=llm, model=model))
     out.extend(make_position_swap_controls(runs))
     out.extend(make_wrong_citation_controls(runs))
     return out
@@ -116,7 +193,9 @@ def main() -> None:
     ap.add_argument("--model", default=None, help="Override judge model")
     ap.add_argument("--sample", type=float, default=1.0, help="Deterministic run sample ratio")
     ap.add_argument("--include-controls", action="store_true",
-                    help="Add deterministic position_swap and wrong_citations control samples")
+                    help="Add deterministic style, position_swap, and wrong_citations control samples")
+    ap.add_argument("--style-controls", choices=["deterministic", "llm"], default="deterministic",
+                    help="Use deterministic lexical style controls or LLM style rewrites")
     args = ap.parse_args()
 
     cfg = load_config()
@@ -128,7 +207,8 @@ def main() -> None:
         rng = random.Random(42)
         raw_runs = [run for run in raw_runs if rng.random() <= args.sample]
     if args.include_controls:
-        raw_runs = build_control_samples(raw_runs, include_original=True)
+        style_llm = llm if args.style_controls == "llm" else None
+        raw_runs = build_control_samples(raw_runs, include_original=True, llm=style_llm, model=model)
 
     anon_runs, mapping = anonymize(raw_runs)
     mapping_path = cfg.path("artifacts") / "b5" / "judge_anonymize_mapping.json"

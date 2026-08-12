@@ -139,6 +139,10 @@ python -m evaluation.experiment --offline --limit 2
 python -m evaluation.consistency --runs data/experiments/runs/runs_<时间戳>.jsonl --questions data/questions/formal12.jsonl
 # ② judge 盲评（匿名 + 双 judge）
 python -m evaluation.judge --runs data/experiments/runs/runs_<时间戳>.jsonl --judges judge1 judge2
+# 可选：加入 B5 三类偏差控制样本；默认 style 为离线确定性改写，不需要 API 额外参数
+python -m evaluation.judge --runs data/experiments/runs/runs_<时间戳>.jsonl --judges judge1 judge2 --include-controls
+# 可选：style 控制样本改用 LLM 改写；需要先在 .env 中填写 DEEPSEEK_API_KEY
+python -m evaluation.judge --runs data/experiments/runs/runs_<时间戳>.jsonl --judges judge1 judge2 --include-controls --style-controls llm
 # ③ 统计（配对差值 + bootstrap 置信区间 + 按题型分组）
 python -m evaluation.stats --scores data/experiments/scores/scores_<时间戳>.jsonl
 # ④ 图表（配对差值图 + 箱线图 → artifacts/）

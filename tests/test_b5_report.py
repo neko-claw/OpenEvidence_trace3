@@ -160,9 +160,25 @@ def test_judge_control_sample_generators():
     runs = [{"run_id": "r1", "question_id": "q1", "condition": "C", "answer": "answer", "citations": []}]
     controls = build_control_samples(runs)
     by_type = {run.get("control_type"): run for run in controls if run.get("control_type")}
-    assert set(by_type) == {"position_swap", "wrong_citations"}
+    assert set(by_type) == {"style", "position_swap", "wrong_citations"}
+    assert by_type["style"]["answer"] != runs[0]["answer"]
     assert by_type["position_swap"]["forced_position"] == 1
     assert "PMID:99999999" in by_type["wrong_citations"]["answer"]
+
+
+def test_stats_module_delegates_to_b5_report_semantics():
+    from evaluation import stats
+
+    scores = [
+        {"run_id": "r1", "question_id": "q1", "condition": "A", "judge_id": "j1", "faithfulness": 2.0},
+        {"run_id": "r2", "question_id": "q1", "condition": "B", "judge_id": "j1", "faithfulness": 4.0},
+        {"run_id": "r1", "question_id": "q1", "condition": "A", "judge_id": "j2", "faithfulness": 2.0},
+        {"run_id": "r2", "question_id": "q1", "condition": "B", "judge_id": "j2", "faithfulness": 4.0},
+    ]
+    assert stats.mean_by_condition(scores, "faithfulness") == {"A": 2.0, "B": 4.0}
+    assert stats.paired_deltas(scores, "faithfulness", "A", "B") == [2.0]
+    lo, hi = stats.bootstrap_ci([2.0, 2.0])
+    assert lo == 2.0 and hi == 2.0
 
 
 def test_permutation_keeps_ties():

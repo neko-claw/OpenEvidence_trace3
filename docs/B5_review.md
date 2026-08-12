@@ -79,7 +79,7 @@ B5 的骨架（确定性指标、配对统计、bootstrap CI、置换检验、ju
 - `b5_report.judge_audit` 的 `position_bias / judge_family_bias / randomization_audit / control_sample_audit` 在真实数据下必然全部返回 `not_available`（demo 能出数只是因为它手工造了这些字段）。
 - 3 类控制样本无任何生成器。
 
-**修复（本 PR）**：`judge.py main()` 接入 `anonymize()`，每题/每 judge 用可复现种子随机展示位置，Score 落盘匿名标签、位置、种子、judge 家族、引用数；匿名映射表写入 `artifacts/b5/judge_anonymize_mapping.json`。**控制样本生成器（尤其"同文异风"需 LLM 改写）不在本 PR 实现**，列为 P1（见 §5-1），`b5_report` 对缺失字段的 `not_available` 行为保留并在报告 notes 中披露。
+**修复（本 PR）**：`judge.py main()` 接入 `anonymize()`，每题/每 judge 用可复现种子随机展示位置，Score 落盘匿名标签、位置、种子、judge 家族、引用数；匿名映射表写入 `artifacts/b5/judge_anonymize_mapping.json`。控制样本生成器已覆盖 `style`（默认确定性同文异风改写，正式评审可用 `--style-controls llm` 走 LLM 改写）、`position_swap` 与 `wrong_citations`；`b5_report` 对缺失字段的 `not_available` 行为保留并在报告 notes 中披露。
 
 ---
 
@@ -105,7 +105,7 @@ B5 的骨架（确定性指标、配对统计、bootstrap CI、置换检验、ju
 
 ### P1-5 三套统计实现并存且口径不一致
 
-`stats.py`（普通 bootstrap + MSE 一致性）、`charts.py`（硬编码 `A-C/B-C`，其中 **A-C 不是预注册对比**，规划 §6.5 只预注册 A-B/B-C/C-D）、`b5_report.py`（分层 bootstrap + 置换检验 + Holm）并存。同一次实验三处数字可能不一致，演示图与正式报告互相打架。**本 PR 未改 `stats.py/charts.py`**（避免越权重构），但**强烈建议 B5 以 `b5_report.py` 为唯一统计源**，`charts.py` 改为消费 `b5_report` 产出的 CSV；`charts.py` 里 `if s.get("metric_ok", True): pass` 的死代码与硬编码对比对一并清理。
+`stats.py`（普通 bootstrap + MSE 一致性）、`charts.py`（硬编码 `A-C/B-C`，其中 **A-C 不是预注册对比**，规划 §6.5 只预注册 A-B/B-C/C-D）、`b5_report.py`（分层 bootstrap + 置换检验 + Holm）并存。同一次实验三处数字可能不一致，演示图与正式报告互相打架。**修复（本 PR）**：`charts.py` 改为消费 `b5_report` 产出的 CSV；`stats.py` 保留旧导入/CLI 兼容层，但内部委托 `b5_report` 的 metric alias、配对差值、bootstrap CI 和 kappa 口径，不再作为独立统计源。
 
 ### P1-6 `abstention_quality` 二元口径需披露
 
@@ -121,13 +121,13 @@ B5 的骨架（确定性指标、配对统计、bootstrap CI、置换检验、ju
 
 | # | 问题 | 证据 | 建议 |
 |---|---|---|---|
-| 1 | 3 类控制样本无生成器（style 变体需 LLM） | 规划 §6.3.7；`judge_audit.control_sample_audit` 恒 not_available | 至少实现 `position_swap`（确定性）与 `wrong_citations`（注入伪造 PMID）；`style` 变体标记 P1 |
+| 1 | 3 类控制样本无生成器（style 变体需 LLM） | 规划 §6.3.7；`judge_audit.control_sample_audit` 恒 not_available | 已实现 `style`（默认确定性同文异风改写，正式评审可用 `--style-controls llm`）、`position_swap` 与 `wrong_citations` |
 | 2 | `fake_identifier_count` 是预注册 STRESS 指标（目标 0），无任何实现 | `preregistration/e_perturbation_rules.json`；`experiment_config.json` 有 `fake_identifier_tolerance=0` | Run/Score 增加结构化 `fake_identifier_count`（从 answer 文本正则 PMID/DOI/NCT + 白名单校验），b5_report 报告 |
 | 3 | 检索验收指标缺 `source_diversity / context_tokens / 重复率 / 冲突率` | 规划 §4.2/§4.3.3/§4.6 | Run 已有 `tool_trace`/`retrieved_evidence`，可由 B5 增加确定性派生指标 |
 | 4 | 题集 `gold_source_ids` 全空 → 检索指标全部 None | `dev8/formal12/stress_sample.jsonl` | B2 冻结正式题时必须填 gold/qrels（规划 §6.4），b5_report 的"无 gold 则省略不计"行为保留 |
 | 5 | `consistency.py` 用路径启发式判 split；E 候选数对比用 `retrieved_evidence` 长度而非候选集 | `evaluation/consistency.py::_load_question_splits` | 恢复 P0a 后改用 `Question.split` 字段 |
 | 6 | `b5_report` 的 STRESS 判定只认 `split=="stress"`，与 `consistency.py` 口径不同 | 同上 | 统一为题面 `split` 字段优先 + 文件路径回退 |
-| 7 | `stats.py/charts.py/b5_report.py` 三套统计源 | §2 P1-5 | 收敛到 b5_report |
+| 7 | `stats.py/charts.py/b5_report.py` 三套统计源 | §2 P1-5 | 已收敛到 b5_report；`stats.py` 仅保留兼容入口 |
 | 8 | 分支合并前需 rebase main（36c0c49 等 5 个提交），并处理 b4 revert 提交对 fixture 的改动 | `git log main..origin/b5-evaluation` | 合并时以 main 为准重生成 fixture |
 
 ---

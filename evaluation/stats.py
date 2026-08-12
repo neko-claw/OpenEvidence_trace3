@@ -1,121 +1,180 @@
-"""统计：配对差值、bootstrap CI、按题型分组、judge 一致性
+"""Compatibility wrapper around the canonical B5 report statistics.
 
-用法：
-  python -m evaluation.stats --scores data/experiments/scores/scores_xxx.jsonl
+`evaluation.b5_report` is the single source for B5 statistical outputs. This
+module keeps older imports and the `python -m evaluation.stats` command working
+while delegating metric aliases, paired deltas, bootstrap CIs, and agreement
+logic to the B5 implementation.
 """
 from __future__ import annotations
 
 import argparse
-import random
+import json
+import math
+import statistics
+import tempfile
 from collections import defaultdict
-
-import numpy as np
+from pathlib import Path
+from typing import Any
 
 from core.config import load_config
 from core.dataclasses import load_jsonl
+from evaluation.b5_report import (
+    DEFAULT_METRICS,
+    _bootstrap_ci_stratified,
+    _cohen_kappa,
+    _linear_weighted_kappa,
+    _metric_value,
+    aggregate_run_scores,
+    condition_distribution_rows,
+    group_means,
+    merge_auto_and_judge_scores,
+    paired_delta_rows,
+    parse_comparisons,
+    run_b5_report,
+)
 
 
-def _metric(s: dict, key: str) -> float | None:
-    v = s.get(key)
-    return float(v) if v is not None else None
+def _score_rows(scores: list[dict[str, Any]], metrics: list[str] | None = None) -> list[dict[str, Any]]:
+    return aggregate_run_scores(scores, metrics or DEFAULT_METRICS)
 
 
-def paired_deltas(scores: list[dict], metric: str, c1: str, c2: str) -> list[float]:
-    """按题配对：score(c2) - score(c1)"""
-    by_q: dict[str, dict[str, float]] = defaultdict(dict)
-    for s in scores:
-        by_q[s["question_id"]][s["condition"]] = _metric(s, metric)
+def paired_deltas(scores: list[dict[str, Any]], metric: str, c1: str, c2: str) -> list[float]:
+    """Return paired deltas using b5_report's question-level aggregation."""
+    rows = _score_rows(scores, [metric])
+    by_q: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
+    for row in rows:
+        value = _metric_value(row, metric)
+        if value is not None and row.get("question_id") and row.get("condition"):
+            by_q[str(row["question_id"])][str(row["condition"])].append(value)
     deltas = []
-    for qid, conds in by_q.items():
-        if c1 in conds and c2 in conds and conds[c1] is not None and conds[c2] is not None:
-            deltas.append(conds[c2] - conds[c1])
+    for conds in by_q.values():
+        if c1 in conds and c2 in conds:
+            deltas.append(statistics.fmean(conds[c2]) - statistics.fmean(conds[c1]))
     return deltas
 
 
-def bootstrap_ci(deltas: list[float], n_boot: int = 2000, seed: int = 42,
-                 alpha: float = 0.05) -> tuple[float, float]:
-    """bootstrap 均值置信区间（n=12 小样本不用 t 分布过度断言）"""
+def bootstrap_ci(
+    deltas: list[float],
+    n_boot: int = 2000,
+    seed: int = 42,
+    alpha: float = 0.05,
+) -> tuple[float, float]:
+    """Compatibility CI using b5_report's stratified bootstrap helper."""
     if not deltas:
         return (0.0, 0.0)
-    rng = random.Random(seed)
-    arr = np.array(deltas, dtype=float)
-    means = np.empty(n_boot)
-    for i in range(n_boot):
-        sample = rng.choices(deltas, k=len(deltas))
-        means[i] = np.mean(sample)
-    lo = np.percentile(means, 100 * alpha / 2)
-    hi = np.percentile(means, 100 * (1 - alpha / 2))
+    if alpha != 0.05:
+        raise ValueError("evaluation.stats delegates to b5_report, which reports 95% CIs")
+    q_deltas = {str(i): float(delta) for i, delta in enumerate(deltas)}
+    qtypes = {qid: "all" for qid in q_deltas}
+    lo, hi = _bootstrap_ci_stratified(q_deltas, qtypes, samples=n_boot, seed=seed)
     return (float(lo), float(hi))
 
 
-def mean_by_condition(scores: list[dict], metric: str) -> dict[str, float]:
-    agg: dict[str, list[float]] = defaultdict(list)
-    for s in scores:
-        v = _metric(s, metric)
-        if v is not None:
-            agg[s["condition"]].append(v)
-    return {c: float(np.mean(vs)) for c, vs in agg.items()}
+def mean_by_condition(scores: list[dict[str, Any]], metric: str) -> dict[str, float]:
+    rows = condition_distribution_rows(_score_rows(scores, [metric]), [metric])
+    return {str(row["condition"]): float(row["mean"]) for row in rows}
 
 
-def group_by_type(scores: list[dict], questions: list[dict], metric: str) -> dict:
-    qtype = {q["id"]: q.get("question_type", "?") for q in questions}
+def group_by_type(
+    scores: list[dict[str, Any]],
+    questions: list[dict[str, Any]],
+    metric: str,
+) -> dict[str, dict[str, float]]:
+    rows = group_means(_score_rows(scores, [metric]), questions, [metric])
     out: dict[str, dict[str, float]] = defaultdict(dict)
-    for s in scores:
-        t = qtype.get(s["question_id"], "?")
-        v = _metric(s, metric)
-        if v is not None:
-            out[t].setdefault(s["condition"], []).append(v)
-    return {t: {c: float(np.mean(vs)) for c, vs in cmap.items()} for t, cmap in out.items()}
+    for row in rows:
+        if row["group"] == "question_type":
+            out[str(row["value"])][str(row["condition"])] = float(row["mean"])
+    return dict(out)
 
 
-def judge_agreement(scores: list[dict], metric: str) -> float:
-    """同一 run 两个 judge 的相关性（简单版：均方差越小越一致）"""
+def judge_agreement(scores: list[dict[str, Any]], metric: str) -> float:
+    """Return mean kappa where estimable, matching b5_report's agreement semantics."""
     by_run: dict[str, list[float]] = defaultdict(list)
-    for s in scores:
-        v = _metric(s, metric)
-        if v is not None:
-            by_run[s["run_id"]].append(v)
-    pairs = [vs for vs in by_run.values() if len(vs) >= 2]
+    for row in scores:
+        if row.get("judge_id") and row.get("judge_id") != "auto":
+            value = _metric_value(row, metric)
+            if value is not None and row.get("run_id"):
+                by_run[str(row["run_id"])].append(value)
+    pairs = [values[:2] for values in by_run.values() if len(values) >= 2]
     if not pairs:
-        return float("nan")
-    mse = np.mean([(vs[0] - vs[1]) ** 2 for vs in pairs])
-    return float(1.0 / (1.0 + mse))   # 0~1，越大越一致
+        return math.nan
+    a = [pair[0] for pair in pairs]
+    b = [pair[1] for pair in pairs]
+    binary = all(value in (0.0, 1.0) for value in a + b)
+    kappa = _cohen_kappa(a, b) if binary else _linear_weighted_kappa(a, b)
+    return float(kappa) if kappa is not None else math.nan
 
 
-def report(scores: list[dict], questions: list[dict] | None = None) -> str:
-    lines = []
-    metrics = ["relevance", "correctness", "completeness", "faithfulness",
-               "claim_support_rate", "unsupported_claim_rate"]
-    lines.append("=== 各条件均值 ===")
-    for m in metrics:
-        mm = mean_by_condition(scores, m)
-        lines.append(f"  {m:24s} " + "  ".join(f"{c}:{v:.3f}" for c, v in sorted(mm.items())))
-    lines.append("=== 配对差值 (C-A / B-A / D-C) ===")
-    for c1, c2 in [("A", "B"), ("B", "C"), ("C", "D"), ("A", "C")]:
-        for m in ["faithfulness", "completeness", "correctness"]:
-            d = paired_deltas(scores, m, c1, c2)
-            if d:
-                lo, hi = bootstrap_ci(d)
-                lines.append(f"  {c2}-{c1} {m:16s} mean={np.mean(d):+.3f} 95%CI=[{lo:+.3f},{hi:+.3f}] n={len(d)}")
-    lines.append("=== judge 一致性 ===")
-    for m in ["faithfulness", "correctness", "completeness"]:
-        lines.append(f"  {m}: {judge_agreement(scores, m):.3f}")
-    if questions:
-        lines.append("=== 按题型分组 (faithfulness) ===")
-        for t, cmap in group_by_type(scores, questions, "faithfulness").items():
-            lines.append(f"  {t:14s} " + "  ".join(f"{c}:{v:.3f}" for c, v in sorted(cmap.items())))
+def report(scores: list[dict[str, Any]], questions: list[dict[str, Any]] | None = None) -> str:
+    metrics = [
+        "relevance",
+        "correctness",
+        "completeness",
+        "faithfulness",
+        "claim_support_rate",
+        "unsupported_claim_rate",
+    ]
+    questions = questions or []
+    rows = _score_rows(scores, metrics)
+    condition_rows = condition_distribution_rows(rows, metrics)
+    delta_rows = paired_delta_rows(rows, questions, metrics, [("A", "B"), ("B", "C"), ("C", "D")])
+
+    lines = ["=== B5 canonical condition means ==="]
+    for metric in metrics:
+        mm = {row["condition"]: row["mean"] for row in condition_rows if row["metric"] == metric}
+        lines.append(f"  {metric:24s} " + "  ".join(f"{c}:{v:.3f}" for c, v in sorted(mm.items())))
+    lines.append("=== B5 canonical paired deltas ===")
+    for row in delta_rows:
+        lines.append(
+            f"  {row['comparison']} {row['metric']:24s} "
+            f"mean={row['mean_delta']:+.3f} 95%CI=[{row['ci95_low']:+.3f},{row['ci95_high']:+.3f}] "
+            f"p={row['permutation_p']} holm={row['holm_p']} n={row['n_pairs']}"
+        )
+    lines.append("=== B5 judge agreement ===")
+    for metric in ("faithfulness", "correctness", "completeness"):
+        value = judge_agreement(scores, metric)
+        lines.append(f"  {metric}: {'nan' if math.isnan(value) else f'{value:.3f}'}")
     return "\n".join(lines)
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--scores", required=True)
-    ap.add_argument("--questions", default="data/questions/formal12.jsonl")
-    args = ap.parse_args()
+    parser = argparse.ArgumentParser(description="Compatibility entrypoint for canonical B5 statistics")
+    parser.add_argument("--scores", required=True, help="Score JSONL path")
+    parser.add_argument("--runs", default=None, help="Optional Run JSONL; enables auto metrics through b5_report")
+    parser.add_argument("--questions", default="data/questions/formal12.jsonl")
+    parser.add_argument("--questions-stress", default=None)
+    parser.add_argument("--out-dir", default=None, help="Optional directory for full b5_report outputs")
+    parser.add_argument("--metrics", nargs="+", default=DEFAULT_METRICS)
+    parser.add_argument("--comparisons", default=None)
+    args = parser.parse_args()
+
     cfg = load_config()
-    scores = load_jsonl(args.scores)
     questions = load_jsonl(args.questions)
-    print(report(scores, questions))
+    if args.questions_stress:
+        stress_questions = load_jsonl(args.questions_stress)
+        for q in stress_questions:
+            q.setdefault("split", "stress")
+        questions.extend(stress_questions)
+
+    scores = load_jsonl(args.scores)
+    if args.runs:
+        runs = load_jsonl(args.runs)
+        out_dir = Path(args.out_dir) if args.out_dir else Path(tempfile.mkdtemp(prefix="b5_stats_"))
+        summary = run_b5_report(
+            runs=runs,
+            judge_scores=scores,
+            questions=questions,
+            out_dir=out_dir,
+            runs_path=args.runs,
+            scores_path=args.scores,
+            metrics=args.metrics,
+            comparisons=parse_comparisons(args.comparisons),
+        )
+        print(json.dumps(summary["condition_distribution"], ensure_ascii=False, indent=2))
+        print(f"\nFull B5 outputs: {summary['out_dir']}")
+    else:
+        print(report(scores, questions))
 
 
 if __name__ == "__main__":
