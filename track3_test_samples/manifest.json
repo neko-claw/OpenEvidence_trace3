@@ -1,0 +1,43 @@
+{
+  "generated_from": "MIRAGE/benchmark.json",
+  "filter_keywords": {
+    "strict": [
+      "hypertension",
+      "blood pressure",
+      "antihypertens",
+      "systolic",
+      "diastolic",
+      "lipid",
+      "cholesterol",
+      "ldl",
+      "hdl",
+      "triglyceride",
+      "triglycerid",
+      "statin",
+      "dyslipidemia",
+      "hypercholesterolemia",
+      "hyperlipidaemia",
+      "hyperlipidemia"
+    ],
+    "broad": [
+      "cardiovascular",
+      "coronary",
+      "atherosclero",
+      "myocardial infarct",
+      "heart attack",
+      "angina",
+      "heart failure",
+      "stroke"
+    ]
+  },
+  "counts": {
+    "bioasq": 5,
+    "medmcqa": 44,
+    "medqa": 600,
+    "mmlu": 120,
+    "pubmedqa": 11
+  },
+  "total": 780,
+  "note": "strict_topic=false 表示仅命中心血管等宽泛关键词；statin/lipid 可能误匹配 somatostatin/antiphospholipid 等，需人工复核；已剔除仅命中心血管（cardiovascular）关键词的题目",
+  "removed_cardiovascular_only": 90
+}

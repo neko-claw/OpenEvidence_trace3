@@ -13,3 +13,8 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
+
+# 测试集数据本体不入库，保留 README/manifest/评分脚本
+track3_test_samples/*.json
+!track3_test_samples/manifest.json
+track3_test_samples/__pycache__/
